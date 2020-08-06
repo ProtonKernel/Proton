@@ -1938,10 +1938,9 @@ static inline bool may_mandlock(void)
 }
 #endif
 
-static int path_umount(struct path *path, int flags)
+static int can_umount(const struct path *path, int flags)
 {
-	struct mount *mnt;
-	int retval;
+	struct mount *mnt = real_mount(path->mnt);
 
 	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
 		return -EINVAL;
@@ -1951,30 +1950,37 @@ static int path_umount(struct path *path, int flags)
 #ifdef CONFIG_PAGE_BOOST_RECORDING
 	forced_init_record();
 #endif
-	mnt = real_mount(path->mnt);
-	retval = -EINVAL;
 	if (path->dentry != path->mnt->mnt_root)
-		goto dput_and_out;
+		return -EINVAL;
 	if (!check_mnt(mnt))
-		goto dput_and_out;
+		return -EINVAL;
 #ifdef CONFIG_KDP_NS
 	if (((struct kdp_mount *)mnt)->mnt->mnt_flags & MNT_LOCKED)
 #else
 	if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
 #endif
-		goto dput_and_out;
+		return -EINVAL;
 	retval = -EPERM;
 	if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
-		goto dput_and_out;
+		return -EPERM;
+	return 0;
+}
 
-	retval = do_umount(mnt, flags);
-dput_and_out:
+int path_umount(struct path *path, int flags)
+{
+	struct mount *mnt = real_mount(path->mnt);
+	int ret;
+
+	ret = can_umount(path, flags);
+	if (!ret)
+		ret = do_umount(mnt, flags);
+
 	/* we mustn't call path_put() as that would clear mnt_expiry_mark */
 	dput(path->dentry);
 	mntput_no_expire(mnt);
 	if (!retval)
 		sys_umount_trace_print(mnt, flags);
-	return retval;
+	return ret;
 }
 
 int ksys_umount(char __user *name, int flags)

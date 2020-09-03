@@ -1005,12 +1005,6 @@ next:
 	     !f2fs_crypt_mergeable_bio(io->bio, fio->page->mapping->host,
 				       fio->page->index, fio)))
 		__submit_merged_bio(io);
-#ifdef CONFIG_DDAR
-	/* DDAR support */
-	if (!fscrypt_dd_can_merge_bio(io->bio, fio->page->mapping)) {
-		__submit_merged_bio(io);
-	}
-#endif
 
 alloc_new:
 	if (io->bio == NULL) {

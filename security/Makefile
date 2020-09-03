@@ -35,9 +35,6 @@ obj-$(CONFIG_CGROUP_DEVICE)		+= device_cgroup.o
 subdir-$(CONFIG_INTEGRITY)		+= integrity
 obj-$(CONFIG_INTEGRITY)			+= integrity/
 
-# KNOX DAR
-obj-$(CONFIG_SDP) += sdp/
-obj-$(CONFIG_SDP) += sdp/built-in.a
 obj-y += samsung/defex_lsm/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += samsung/dsms/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += samsung/five/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT

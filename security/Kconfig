@@ -324,24 +324,6 @@ config LSM
 
 	  If unsure, leave this as the default.
 
-config SDP
-	bool "Enables SDP"
-	default n
-	help
-	Sensitive Data Protection. Enabled for devices with Samsung Knox.
-
-config DDAR
-	bool "Enables dual encryption"
-	default n
-	help
-	Knox Dual-DAR (Data-At-Rest) protection
-
-config SDP_KEY_DUMP
-	bool "SDP KEY DUMP"
-	default n
-	help
-	For dumping sensitive keying material for CC Certification test.
-	Enabled only for eng and userdebug builds.
 
 source "security/Kconfig.hardening"
 

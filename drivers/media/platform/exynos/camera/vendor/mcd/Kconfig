@@ -59,7 +59,7 @@ config FLASH_CURRENT_CHANGE_SUPPORT
         help
            Change torch current in capturing image.
 config SECURE_CAMERA_USE
-        bool "Use secure camera"
+        tristate "Use secure camera"
         depends on CAMERA_VENDER_MCD
         default n
         help

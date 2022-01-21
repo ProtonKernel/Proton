@@ -1,6 +1,5 @@
 config SAMSUNG_TUI
-       tristate "Samsung Trustzone Teegris UI"
-	bool "TUI HW Handler"
+	tristate "Samsung Trustzone Teegris UI"
 	default n
 	help
 		Provide methods for TUI such as acquisition of buffer

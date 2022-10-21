@@ -395,7 +395,7 @@ void drm_dp_cec_unset_edid(struct drm_dp_aux *aux)
 		 * seconds. This to debounce short HPD off-and-on cycles from
 		 * displays.
 		 */
-		schedule_delayed_work(&aux->cec.unregister_work,
+		queue_delayed_work(system_power_efficient_wq, &aux->cec.unregister_work,
 				      drm_dp_cec_unregister_delay * HZ);
 	}
 unlock:

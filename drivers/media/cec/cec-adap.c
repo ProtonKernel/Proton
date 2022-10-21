@@ -668,7 +668,7 @@ void cec_transmit_done_ts(struct cec_adapter *adap, u8 status,
 		 * for a reply.
 		 */
 		list_add_tail(&data->list, &adap->wait_queue);
-		schedule_delayed_work(&data->work,
+		queue_delayed_work(system_power_efficient_wq, &data->work,
 				      msecs_to_jiffies(msg->timeout));
 	} else {
 		/* Otherwise we're done */

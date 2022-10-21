@@ -163,7 +163,7 @@ struct vfsmount *nfs_d_automount(struct path *path)
 
 	mntget(mnt); /* prevent immediate expiration */
 	mnt_set_expiry(mnt, &nfs_automount_list);
-	schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
+	queue_delayed_work(system_power_efficient_wq, &nfs_automount_task, nfs_mountpoint_expiry_timeout);
 
 out:
 	nfs_free_fattr(fattr);
@@ -204,8 +204,13 @@ static void nfs_expire_automounts(struct work_struct *work)
 	struct list_head *list = &nfs_automount_list;
 
 	mark_mounts_for_expiry(list);
+<<<<<<< HEAD
 	if (!list_empty(list))
 		schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
+=======
+	if (!list_empty(list) && timeout > 0)
+		queue_delayed_work(system_power_efficient_wq, &nfs_automount_task, timeout);
+>>>>>>> 991e1913982fd (Pantah: Add Power Efficient Workqueue's)
 }
 
 void nfs_release_automount_timer(void)

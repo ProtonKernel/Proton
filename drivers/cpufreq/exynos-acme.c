@@ -1165,7 +1165,7 @@ init_freq_qos(struct exynos_cpufreq_domain *domain, struct cpufreq_policy *polic
 
 	/* booting boost, it is expired after 40s */
 	INIT_DELAYED_WORK(&domain->work, freq_qos_release);
-	schedule_delayed_work(&domain->work, msecs_to_jiffies(40000));
+	queue_delayed_work(system_power_efficient_wq, &domain->work, msecs_to_jiffies(40000));
 
 	return 0;
 }

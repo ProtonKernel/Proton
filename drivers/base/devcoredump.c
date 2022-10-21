@@ -382,7 +382,7 @@ void dev_coredumpm(struct device *dev, struct module *owner,
 	dev_set_uevent_suppress(&devcd->devcd_dev, false);
 	kobject_uevent(&devcd->devcd_dev.kobj, KOBJ_ADD);
 	INIT_DELAYED_WORK(&devcd->del_wk, devcd_del);
-	schedule_delayed_work(&devcd->del_wk, DEVCD_TIMEOUT);
+	queue_delayed_work(system_power_efficient_wq, &devcd->del_wk, DEVCD_TIMEOUT);
 	mutex_unlock(&devcd->mutex);
 	return;
  put_device:

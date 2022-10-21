@@ -339,7 +339,7 @@ static int deferred_probe_initcall(void)
 	flush_work(&deferred_probe_work);
 
 	if (deferred_probe_timeout > 0) {
-		schedule_delayed_work(&deferred_probe_timeout_work,
+		queue_delayed_work(system_power_efficient_wq, &deferred_probe_timeout_work,
 			deferred_probe_timeout * HZ);
 	}
 	return 0;

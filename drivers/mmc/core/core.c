@@ -69,7 +69,7 @@ static int mmc_schedule_delayed_work(struct delayed_work *work,
 	 * executed simultaneously. Second, the queue becomes frozen when
 	 * userspace becomes frozen during system PM.
 	 */
-	return queue_delayed_work(system_freezable_wq, work, delay);
+	return queue_delayed_work(system_freezable_power_efficient_wq, work, delay);
 }
 
 #ifdef CONFIG_FAIL_MMC_REQUEST

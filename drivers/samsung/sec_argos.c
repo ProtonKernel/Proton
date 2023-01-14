@@ -28,7 +28,6 @@
 #include <linux/interrupt.h>
 #include <linux/sec_argos.h>
 #include <soc/samsung/exynos_pm_qos.h>
-//#include <linux/ologk.h>
 
 #if defined(CONFIG_SCHED_EMS)
 #include <linux/ems.h>
@@ -695,11 +694,6 @@ static int argos_pm_qos_notify(struct notifier_block *nfb,
 	cnode = &argos_pdata->devices[type];
 
 	prev_level = cnode->prev_level;
-#if 0
-	pr_debug("%s name:%s, speed:%ldMbps\n", __func__, cnode->desc, speed);
-	if (speed >= 300)
-		perflog(PERFLOG_ARGOS, "name:%s, speed:%ldMbps", cnode->desc, speed);
-#endif
 
 	argos_blocked = cnode->argos_block;
 

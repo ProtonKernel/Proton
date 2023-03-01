@@ -167,10 +167,11 @@ GPEX_STATIC ssize_t set_max_lock_dvfs(const char *buf, size_t count)
 			return -ENOENT;
 		}
 
-		if (clock == gpex_clock_get_max_clock())
+/*		if (clock == gpex_clock_get_max_clock())
 			gpex_clock_lock_clock(GPU_CLOCK_MAX_UNLOCK, SYSFS_LOCK, 0);
 		else
 			gpex_clock_lock_clock(GPU_CLOCK_MAX_LOCK, SYSFS_LOCK, clock);
+*/
 	}
 
 	return count;

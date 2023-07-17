@@ -13,7 +13,7 @@
 
 #include <media/v4l2-device.h>
 #ifdef CONFIG_DYNAMIC_MIPI
-#include "dynamic_mipi/band_info.h"
+#include "../panel/dynamic_mipi/band_info.h"
 #endif
 
 struct mcd_dsim_device {

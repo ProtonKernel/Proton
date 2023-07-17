@@ -39,6 +39,10 @@
 
 #include <trace/hooks/debug.h>
 
+#if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
+#define SUMMARY_BUF_MAX		256
+#endif
+
 struct dbg_snapshot_mmu_reg {
 	long SCTLR_EL1;
 	long TTBR0_EL1;
@@ -392,8 +396,7 @@ void dbg_snapshot_ecc_dump(void)
 
 		for (i = 0; i < (int)erridr_el1.field.NUM; i++) {
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-			const unsigned int buf_max = 256;
-			char summ_buf[buf_max] = "";
+			char summ_buf[SUMMARY_BUF_MAX] = "";
 			int pos = 0;
 #endif
 
@@ -418,7 +421,7 @@ void dbg_snapshot_ecc_dump(void)
 						"Error Address : [0x%lx]\n",
 						(unsigned long)erxaddr_el1.reg);
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[Addr:0x%lx]",
 						 (unsigned long)erxaddr_el1.reg);
 #endif
@@ -428,7 +431,7 @@ void dbg_snapshot_ecc_dump(void)
 					"There was more than one error has occurred."
 					"the other error have been discarded.\n");
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[Overflow]");
 #endif
 			}
@@ -436,7 +439,7 @@ void dbg_snapshot_ecc_dump(void)
 				dev_emerg(dss_desc.dev,
 					"Error Reported by external abort\n");
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[External]");
 #endif
 			}
@@ -444,14 +447,14 @@ void dbg_snapshot_ecc_dump(void)
 				dev_emerg(dss_desc.dev,
 					"Uncorrected Error (Not defferred)\n");
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[Uncorrected]");
 #endif
 			}
 			if (erxstatus_el1.field.DE) {
 				dev_emerg(dss_desc.dev,	"Deffered Error\n");
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[Deferred]");
 #endif
 			}
@@ -467,7 +470,7 @@ void dbg_snapshot_ecc_dump(void)
 					(unsigned long)erxstatus_el1.field.IERR,
 					(unsigned long)erxstatus_el1.field.SERR);
 #if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
-				pos += scnprintf(summ_buf + pos, buf_max - pos,
+				pos += scnprintf(summ_buf + pos, SUMMARY_BUF_MAX - pos,
 						 "[MISC0:0x%lx][MISC1:0x%lx][IERR:0x%lx][SERR:0x%lx]",
 						 (unsigned long)erxmisc0_el1.reg,
 						 (unsigned long)erxmisc1_el1.reg,

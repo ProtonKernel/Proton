@@ -461,12 +461,12 @@ CONFIG_EFI=y
 #
 # Hypervisor
 #
-CONFIG_UH=y
-CONFIG_RKP=y
-CONFIG_RKP_FIMC_CHECK=y
-CONFIG_KDP=y
-CONFIG_KDP_CRED=y
-CONFIG_KDP_NS=y
+# CONFIG_UH is not set
+# CONFIG_RKP is not set
+# CONFIG_RKP_FIMC_CHECK is not set
+# CONFIG_KDP is not set
+# CONFIG_KDP_CRED is not set
+# CONFIG_KDP_NS is not set
 # CONFIG_RUSTUH_RKP is not set
 # CONFIG_RUSTUH_KDP is not set
 # end of Hypervisor

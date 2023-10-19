@@ -461,12 +461,7 @@ static bool should_umount(struct path *path)
 
 static int ksu_umount_mnt(struct path *path, int flags)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0) || defined(KSU_UMOUNT)
 	return path_umount(path, flags);
-#else
-	// TODO: umount for non GKI kernel
-	return -ENOSYS;
-#endif
 }
 
 static void try_umount(const char *mnt, bool check_mnt, int flags)

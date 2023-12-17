@@ -348,7 +348,7 @@ static int sec_reboot(struct notifier_block *this,
 	if (sec_reboot_on_panic && !cmd)
 		cmd = panic_str;
 
-	pr_emerg("%s (%d, %s)\n", __func__, reboot_mode, cmd ? cmd : "(null)");
+	pr_emerg("%s (%d, %s)\n", __func__, reboot_mode, (char*)(cmd ? cmd : "(null)"));
 
 	//secdbg_base_clear_magic_rambase();
 

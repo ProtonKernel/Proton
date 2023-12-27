@@ -57,7 +57,7 @@ static struct _llc_coh_info {
 	spinlock_t llc_spinlock;
 } llc_coh_info;
 
-void gpexbe_llc_coherency_reg_map()
+void gpexbe_llc_coherency_reg_map(void)
 {
 	llc_coh_info.g3d_coherency_features = ioremap(MALI_COHERENCY_ADDR, 4);
 	llc_coh_info.aruser_hint = ioremap(MALI_ARUSER_HINT_ADDR, 4);
@@ -80,7 +80,7 @@ static void iounmap_if_valid_addr(void __iomem *addr)
 		iounmap(addr);
 }
 
-void gpexbe_llc_coherency_reg_unmap()
+void gpexbe_llc_coherency_reg_unmap(void)
 {
 	iounmap_if_valid_addr(llc_coh_info.g3d_coherency_features);
 	iounmap_if_valid_addr(llc_coh_info.aruser_hint);
@@ -88,19 +88,19 @@ void gpexbe_llc_coherency_reg_unmap()
 	iounmap_if_valid_addr(llc_coh_info.user_reg4);
 }
 
-void gpexbe_llc_coherency_set_coherency_feature()
+void gpexbe_llc_coherency_set_coherency_feature(void)
 {
 	if (llc_coh_info.g3d_coherency_features) {
 		__raw_writel(ACELITE | ACE, llc_coh_info.g3d_coherency_features);
 	}
 }
 
-void gpexbe_llc_coherency_set_aruser()
+void gpexbe_llc_coherency_set_aruser(void)
 {
 	__raw_writel(ARUSER_VALUE, llc_coh_info.aruser_hint);
 }
 
-void gpexbe_llc_coherency_set_awuser()
+void gpexbe_llc_coherency_set_awuser(void)
 {
 	__raw_writel(AWUSER_VALUE & AWUSER_HINT_MASK, llc_coh_info.awuser_hint);
 	__raw_writel((AWUSER_VALUE & LLC_USER_REG4_WRITE_MASK) >> 22, llc_coh_info.user_reg4);
@@ -187,7 +187,7 @@ int gpexbe_llc_coherency_init(struct device **dev)
 	return 0;
 }
 
-void gpexbe_llc_coherency_term()
+void gpexbe_llc_coherency_term(void)
 {
 	gpexbe_llc_coherency_set_ways(0);
 

@@ -56,7 +56,7 @@ static int exynos_secure_mode_disable(struct protected_mode_device *pdev)
 	return gpexbe_smc_protection_disable();
 }
 
-struct protected_mode_ops *gpexbe_secure_get_protected_mode_ops()
+struct protected_mode_ops *gpexbe_secure_get_protected_mode_ops(void)
 {
 	static struct protected_mode_ops exynos_protected_ops = {
 		.protected_mode_enable = &exynos_secure_mode_enable,

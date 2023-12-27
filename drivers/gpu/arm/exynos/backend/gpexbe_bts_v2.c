@@ -43,7 +43,7 @@ int gpexbe_bts_set_bts_mo(int val)
 	return ret;
 }
 
-int gpexbe_bts_init()
+int gpexbe_bts_init(void)
 {
 	bts_info.bts_scen_idx = bts_get_scenindex("g3d_performance");
 
@@ -52,7 +52,7 @@ int gpexbe_bts_init()
 	return 0;
 }
 
-void gpexbe_bts_term()
+void gpexbe_bts_term(void)
 {
 	bts_info.bts_scen_idx = -1;
 }

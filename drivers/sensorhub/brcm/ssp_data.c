@@ -49,7 +49,7 @@
 
 static u8 ts_index_cnt[SIZE_TIMESTAMP_BUFFER] = {0,};
 
-void initialize_super_vdis_setting() {
+void initialize_super_vdis_setting(void) {
 	memset(ts_index_cnt, 0, sizeof(ts_index_cnt));
 }
 

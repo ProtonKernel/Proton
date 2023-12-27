@@ -301,6 +301,6 @@ struct gyroscope_t gyro_icm42632m = {
 	.set_gyro_selftest_dps = gyro_selftest_dps_store,
 };
 
-struct gyroscope_t* get_gyro_icm42632m(){
+struct gyroscope_t* get_gyro_icm42632m(void){
 	return &gyro_icm42632m;
 }

@@ -357,6 +357,6 @@ struct magnetometer_t mag_ak09918c = {
 	.get_magnetic_si_param = si_param_show,
 };
 
-struct magnetometer_t* get_mag_ak09918c(){
+struct magnetometer_t* get_mag_ak09918c(void){
 	return &mag_ak09918c;
 }

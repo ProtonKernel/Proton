@@ -258,7 +258,7 @@ int find_exynos_devfreq_dm_type(struct device *dev, int *dm_type);
 #endif
 
 #if defined(CONFIG_EXYNOS_ALT_DVFS) || defined(CONFIG_EXYNOS_ALT_DVFS_MODULE)
-extern exynos_devfreq_alt_mode_change(unsigned int devfreq_type, int new_mode);
+extern int exynos_devfreq_alt_mode_change(unsigned int devfreq_type, int new_mode);
 extern void exynos_alt_call_chain(void);
 #endif
 

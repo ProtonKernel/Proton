@@ -57,7 +57,7 @@ static void show_callstack(void *info)
 	__show_callstack(NULL);
 }
 
-static struct task_struct *secdbg_softdog_find_key_suspect()
+static struct task_struct *secdbg_softdog_find_key_suspect(void)
 {
 	struct task_struct *c, *g;
 

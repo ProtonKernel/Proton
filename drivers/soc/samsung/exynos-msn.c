@@ -354,7 +354,7 @@ void emstune_mode_change(int next_mode_idx)
 }
 EXPORT_SYMBOL_GPL(emstune_mode_change);
 
-int emstune_get_cur_mode()
+int emstune_get_cur_mode(void)
 {
 	return emstune_cur_mode;
 }

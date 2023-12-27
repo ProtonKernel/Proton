@@ -41,7 +41,7 @@ struct _smc_info {
 
 static struct _smc_info smc_info;
 
-int gpexbe_smc_protection_enable()
+int gpexbe_smc_protection_enable(void)
 {
 	int err;
 	unsigned long flags;
@@ -68,7 +68,7 @@ int gpexbe_smc_protection_enable()
 	return err;
 }
 
-int gpexbe_smc_protection_disable()
+int gpexbe_smc_protection_disable(void)
 {
 	int err;
 	unsigned long flags;
@@ -114,10 +114,10 @@ void gpexbe_smc_notify_power_off()
 	exynos_smc(SMC_DRM_G3D_POWER_OFF, 0, 0, 0);
 }
 #else
-void gpexbe_smc_notify_power_on()
+void gpexbe_smc_notify_power_on(void)
 {
 }
-void gpexbe_smc_notify_power_off()
+void gpexbe_smc_notify_power_off(void)
 {
 }
 #endif

@@ -1250,7 +1250,7 @@ static u8 hubble1_a3_s0_hbm_onoff_table[][1] = {
 };
 
 #ifdef CONFIG_SUPPORT_MAFPC
-static hubble1_a3_s0_mafpc_ena_table[][1] = {
+static int hubble1_a3_s0_mafpc_ena_table[][1] = {
 	{ 0x00 },
 	{ 0x11 },
 };

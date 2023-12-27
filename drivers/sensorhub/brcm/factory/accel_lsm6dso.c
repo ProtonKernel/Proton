@@ -201,6 +201,6 @@ struct accelerometer_t accel_lsm6dso = {
 	.set_accel_lowpassfilter = accel_lowpassfilter_store
 };
 
-struct accelerometer_t* get_accel_lsm6dso(){
+struct accelerometer_t* get_accel_lsm6dso(void){
 	return &accel_lsm6dso ;
 }

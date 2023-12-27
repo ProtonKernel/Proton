@@ -200,6 +200,6 @@ struct accelerometer_t accel_icm42632m = {
 	.set_accel_lowpassfilter = accel_lowpassfilter_store
 };
 
-struct accelerometer_t* get_accel_icm42632m(){
+struct accelerometer_t* get_accel_icm42632m(void){
 	return &accel_icm42632m;
 }

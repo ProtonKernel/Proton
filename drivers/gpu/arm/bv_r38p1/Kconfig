@@ -386,19 +386,6 @@ config MALI_HW_ERRATA_1485982_USE_CLOCK_ALTERNATIVE
 
 endif
 
-config MALI_ARBITRATION
-	bool "Enable Virtualization reference code"
-	depends on MALI_MIDGARD
-	default n
-	help
-	  Enables the build of several reference modules used in the reference
-	  virtualization setup for Mali
-	  If unsure, say N.
-
-if MALI_ARBITRATION
-# source "drivers/gpu/arm/midgard/arbitration/Kconfig"
-endif
-
 # source "drivers/gpu/arm/midgard/tests/Kconfig"
 
 endif

@@ -1,13 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
- *
- * Author: Hosung Kim <hosung0.kim@samsung.com>
- * Author: Changki Kim <changki.kim@samsung.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  */
 
 #include <linux/linkage.h>
@@ -18,15 +12,13 @@
  *	flush_cache_all()
  *	Corrupted registers: x0-x7, x9-x11
  *
- *	Flush the entire cache system.  The data cache flush is now achieved
+ *	Flush the entire cache system. The data cache flush is now achieved
  *	using atomic clean / invalidates working outwards from L1 cache. This
  *	is done using Set/Way based cache maintainance instructions.  The
  *	instruction cache can still be invalidated back to the point of
  *	unification in a single instruction.
  */
-
-ENTRY(flush_cache_all)
-flush_cache_all:
+SYM_FUNC_START(flush_cache_all)
 	mov	x12, lr
 	dmb	sy			// ensure ordering with previous memory accesses
 	mrs	x0, clidr_el1		// read clidr
@@ -47,6 +39,18 @@ loop1:
 	restore_irq x9
 	and	x2, x1, #7		// extract the length of the cache lines
 	add	x2, x2, #4		// add 4 (line length offset)
+
+	mrs     x14, id_aa64mmfr2_el1	// check architecture version
+	mov     x15, #0xf
+	and     x15, x15, x14, lsr #20
+	cbz     x15, format_32bit
+	mov     x4, #0x1fffff
+	and     x4, x4, x1, lsr #3      // find maximum number on the way size
+	clz     w5, w4          	// find bit position of way size increment
+	mov     x7, #0xffffff
+	and     x7, x7, x1, lsr #32	// extract max number of the index size
+	b       loop2
+format_32bit:
 	mov	x4, #0x3ff
 	and	x4, x4, x1, lsr #3	// find maximum number on the way size
 	clz	w5, w4			// find bit position of way size increment

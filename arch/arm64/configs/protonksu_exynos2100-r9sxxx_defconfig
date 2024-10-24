@@ -4732,8 +4732,8 @@ CONFIG_LEDS_TRIGGER_TIMER=y
 # CONFIG_ACCESSIBILITY is not set
 # CONFIG_INFINIBAND is not set
 CONFIG_EDAC_SUPPORT=y
-CONFIG_EDAC=y
-CONFIG_EDAC_LEGACY_SYSFS=y
+# CONFIG_EDAC is not set
+# CONFIG_EDAC_LEGACY_SYSFS is not set
 # CONFIG_EDAC_DEBUG is not set
 # CONFIG_EDAC_THUNDERX is not set
 # CONFIG_EDAC_XGENE is not set
@@ -5843,7 +5843,7 @@ CONFIG_ARM_PMU=y
 # CONFIG_ARM_SPE_PMU is not set
 # end of Performance monitor support
 
-CONFIG_RAS=y
+# CONFIG_RAS is not set
 
 #
 # Android

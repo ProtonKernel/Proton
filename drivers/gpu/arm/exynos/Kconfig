@@ -132,8 +132,6 @@ config MALI_EXYNOS_DEBUG
     bool "Enable Mali Exynos integration debug features"
     depends on MALI_MIDGARD
     depends on !KUNIT && !SEC_KUNIT
-    default y if SOC_EXYNOS9830
-    default y if SOC_EXYNOS2100
     default n
     help
       Mali Exynos integration debug features

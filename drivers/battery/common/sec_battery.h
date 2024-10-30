@@ -1141,6 +1141,10 @@ struct sec_battery_info {
 	bool display_test;
 	bool store_mode;
 
+	/* charging disabler */
+	bool charging_enabled;
+	bool charging_suspended;
+
 	/* usb suspend */
 	int prev_usb_conf;
 

@@ -88,7 +88,7 @@ anykernel3(){
     sed -i "s/patch_fstab/#patch_fstab/g" anykernel.sh
     sed -i "s/dump_boot/split_boot/g" anykernel.sh
     sed -i "s/write_boot/flash_boot/g" anykernel.sh
-    zip -r9 $PARENT_DIR/r9s_FPkernel_`cat $DIR/include/config/kernel.release`_`date '+%Y_%m_%d'`.zip * -x .git README.md *placeholder
+    zip -r9 $PARENT_DIR/r9s_Proton_`cat $DIR/include/config/kernel.release`_`date '+%Y_%m_%d'`.zip * -x .git README.md *placeholder
     cd $DIR
   fi
 }

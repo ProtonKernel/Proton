@@ -1286,7 +1286,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
 	return 0;
 
 unapply_new_state:
-	dev_err(p->dev, "Error applying setting, reverse things back\n");
+	dev_dbg(p->dev, "Error applying setting, reverse things back\n");
 
 	list_for_each_entry(setting2, &state->settings, node) {
 		if (&setting2->node == &setting->node)

@@ -6879,6 +6879,7 @@ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
 # end of Memory initialization
 # end of Kernel hardening options
 
+# CONFIG_SECURITY_DEFEX is not set
 # CONFIG_GAF is not set
 # CONFIG_SECURITY_DSMS is not set
 # CONFIG_FIVE is not set

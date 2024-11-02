@@ -1,6 +1,9 @@
 #!/bin/bash
 # FPKernel-BUILD menu based on afaneh menu
 
+# KernelSU 
+curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.3
+
 # Variables
 DIR=`readlink -f .`
 OUT_DIR=$DIR/out

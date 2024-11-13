@@ -1,9 +1,6 @@
 #!/bin/bash
 # FPKernel-BUILD menu based on afaneh menu
 
-# KernelSU 
-curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.3
-
 # Variables
 DIR=`readlink -f .`
 OUT_DIR=$DIR/out
@@ -12,11 +9,11 @@ PARENT_DIR=`readlink -f ${DIR}/..`
 export PLATFORM_VERSION=11
 export ANDROID_MAJOR_VERSION=r
 export CROSS_COMPILE=$PARENT_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-export CLANG_TRIPLE=$PARENT_DIR/clang-r416183b/bin/aarch64-linux-gnu-
+export CLANG_TRIPLE=$PARENT_DIR/aarch64-linux-android-4.9/bin/aarch64-linux-gnu-
 export ARCH=arm64
 export SEC_BUILD_CONF_VENDOR_BUILD_OS=13
-export LINUX_GCC_CROSS_COMPILE_PREBUILTS_BIN=$PARENT_DIR/aarch64-linux-android-4.9/bin
-export CLANG_PREBUILT_BIN=$PARENT_DIR/clang-r416183b/bin
+export LINUX_GCC_CROSS_COMPILE_PREBUILTS_BIN=$PARENT_DIR/aarch64-linux-android-4.9/bin/
+export CLANG_PREBUILT_BIN=$PARENT_DIR/aospclang/bin/
 export PATH=$PATH:$LINUX_GCC_CROSS_COMPILE_PREBUILTS_BIN:$CLANG_PREBUILT_BIN
 export LLVM=1
 KERNEL_MAKE_ENV="LOCALVERSION="
@@ -28,31 +25,6 @@ BBLUE=`echo -e "\033[1;34m"`	# Bold Blue
 BGREEN=`echo -e "\033[1;32m"`	# Bold Green
 UNDER_LINE=`echo -e "\e[4m"`	# Text Under Line
 STD=`echo -e "\033[0m"`		# Text Clear
- 
-# Functions
-
-toolchain(){
-  if [ ! -d $PARENT_DIR/aarch64-linux-android-4.9 ]; then
-
-    git clone --branch android-9.0.0_r59 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $PARENT_DIR/aarch64-linux-android-4.9
-    . $DIR/build_menu
-  fi
-}
-
-clang(){
-  if [ ! -d $PARENT_DIR/clang-r416183b ]; then
-    git clone https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b $PARENT_DIR/clang-r416183b
-    . $DIR/build_menu
-  fi
-}
-
-clean(){
-  echo "${BGREEN}***** Cleaning in Progress *****${STD}"
-  make clean
-  make mrproper
-  [ -d "$OUT_DIR" ] && rm -rf $OUT_DIR
-  echo "${BGREEN}***** Cleaning Done *****${STD}"
-}
 
 build_kernel(){
 
@@ -76,7 +48,6 @@ anykernel3(){
 
   if [ -e $DIR/arch/arm64/boot/Image ]; then
     cd $PARENT_DIR/AnyKernel3
-    git reset --hard
     cp $DIR/arch/arm64/boot/Image zImage
     sed -i "s/ExampleKernel by osm0sis/r9s Proton+ Kernel/g" anykernel.sh
     sed -i "s/=maguro/=r9s/g" anykernel.sh
@@ -98,7 +69,6 @@ anykernel3(){
 
 # Run once
 toolchain
-clang
 
 build_kernel
 anykernel3

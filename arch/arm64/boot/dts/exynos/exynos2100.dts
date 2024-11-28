@@ -3448,7 +3448,7 @@
 		gpu_pmu_status_local_pwr_mask = <0x01>;
 		gpu_max_clock = <0xd1790>;
 		gpu_max_clock_limit = <0xd1790>;
-		gpu_min_clock = <0x8ed28>;
+		gpu_min_clock = <0x1fbd0>;
 		gpu_dvfs_start_clock = <0x35f48>;
 		gpu_dvfs_bl_config_clock = <0x35f48>;
 		gpu_default_voltage = <0xcf850>;

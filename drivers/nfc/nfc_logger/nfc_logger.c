@@ -239,7 +239,7 @@ void nfc_logger_deinit(void)
 }
 
 #ifdef CONFIG_SEC_NFC_LOGGER_ADD_ACPM_LOG
-static __iomem *g_rtc_reg;
+static __iomem int *g_rtc_reg;
 
 u32 nfc_logger_acpm_get_rtc_time(void)
 {

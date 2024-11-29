@@ -384,6 +384,6 @@ struct gyroscope_t gyro_lsm6dso = {
 	.set_gyro_selftest_dps = gyro_selftest_dps_store,
 };
 
-struct gyroscope_t* get_gyro_lsm6dso(){
+struct gyroscope_t* get_gyro_lsm6dso(void){
 	return &gyro_lsm6dso;
 }

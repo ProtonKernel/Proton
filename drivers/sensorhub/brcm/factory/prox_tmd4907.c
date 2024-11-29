@@ -30,6 +30,6 @@ struct proximity_t prox_tmd4907 = {
 	.get_prox_position = proximity_position_show
 };
 
-struct proximity_t* get_prox_tmd4907(){
+struct proximity_t* get_prox_tmd4907(void){
 	return &prox_tmd4907;
 }

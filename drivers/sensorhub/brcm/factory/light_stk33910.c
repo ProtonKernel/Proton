@@ -38,6 +38,6 @@ struct light_t light_stk33910 = {
 	.get_light_circle = light_circle_show
 };
 
-struct light_t* get_light_stk33910(){
+struct light_t* get_light_stk33910(void){
 	return &light_stk33910;
 }

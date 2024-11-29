@@ -111,7 +111,7 @@ void reset_dp_hdcp_module(void)
 			&displayport->hpd_unplug_work, 0);
 }
 
-int displayport_hdcp22_authenticate()
+int displayport_hdcp22_authenticate(void)
 {
 #if IS_ENABLED(CONFIG_EXYNOS_HDCP2)
 #ifdef CONFIG_HDCP2_FUNC_TEST_MODE

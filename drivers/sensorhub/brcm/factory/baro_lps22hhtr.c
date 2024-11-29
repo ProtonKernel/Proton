@@ -65,6 +65,6 @@ struct barometer_t baro_lps22hhtr = {
 	.get_baro_temperature = pressure_temperature_show
 };
 
-struct barometer_t* get_baro_lps22hhtr() {
+struct barometer_t* get_baro_lps22hhtr(void) {
 	return &baro_lps22hhtr;
 }

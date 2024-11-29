@@ -2270,7 +2270,7 @@ static struct kobj_attribute hdm_wlan_attr =
 	__ATTR(hdm_wlan_loader, 0660, NULL, hdm_load_module);
 
 void
-dhd_hdm_wlan_sysfs_init()
+dhd_hdm_wlan_sysfs_init(void)
 {
 	DHD_ERROR(("export hdm_wlan_loader\n"));
 	if (sysfs_create_file(kernel_kobj, &hdm_wlan_attr.attr)) {

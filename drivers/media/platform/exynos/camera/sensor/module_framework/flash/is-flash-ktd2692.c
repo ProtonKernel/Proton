@@ -303,7 +303,7 @@ p_err:
 	return ret;
 }
 
-static int __init flash_ktd2692_platform_probe(struct platform_device *pdev)
+static int flash_ktd2692_platform_probe(struct platform_device *pdev)
 {
 	int ret = 0;
 	struct device *dev;

@@ -1,0 +1,27 @@
+From bfa69fb7a66439faa19829421b27c12a44443df7 Mon Sep 17 00:00:00 2001
+From: Tim Zimmermann <tim@linux4.de>
+Date: Sat, 15 May 2021 11:16:27 +0200
+Subject: [PATCH 09/13] drivers: net: wireless: broadcom: enable p2p mac
+ randomization support
+
+Change-Id: Ie7103ad2da7c080a4dff7c9d040b7c7fe6d08509
+---
+ drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+index 7e52ef0d5..036a43b34 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+@@ -418,7 +418,7 @@ DHDCFLAGS += -DWL_STA_ASSOC_RAND
+ #Soft AP MAC randomization
+ DHDCFLAGS += -DWL_SOFTAP_RAND
+ #p2p MAC randomization
+-#DHDCFLAGS += -DWL_P2P_RAND
++DHDCFLAGS += -DWL_P2P_RAND
+ 
+ # Set initial country code to World Wide Safe
+ DHDCFLAGS += -DCUSTOM_COUNTRY_CODE_XZ
+-- 
+2.39.2
+

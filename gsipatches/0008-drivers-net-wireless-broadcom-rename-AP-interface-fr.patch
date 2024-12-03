@@ -1,0 +1,136 @@
+From 74140fa2779a6e1bf071f293422910ec5481788d Mon Sep 17 00:00:00 2001
+From: Tim Zimmermann <tim@linux4.de>
+Date: Mon, 23 Nov 2020 08:47:19 +0100
+Subject: [PATCH 08/13] drivers: net: wireless: broadcom: rename AP interface
+ from swlan0 to wlan0
+
+* needed to get sta/ap concurrency working
+* see https://source.android.com/devices/tech/connect/wifi-sta-ap-concurrency?hl=en
+
+Change-Id: I0d3c6ac7e55d86d4fa460fa92c893702e2f6a53f
+---
+ drivers/net/wireless/broadcom/bcmdhd_101_10/Makefile      | 4 ++--
+ drivers/net/wireless/broadcom/bcmdhd_101_10/wl_cfg80211.c | 2 +-
+ drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile      | 6 +++---
+ drivers/net/wireless/broadcom/bcmdhd_101_16/wl_cfg80211.c | 2 +-
+ drivers/net/wireless/broadcom/bcmdhd_101_18/Makefile      | 4 ++--
+ drivers/net/wireless/broadcom/bcmdhd_101_18/wl_cfg80211.c | 2 +-
+ 6 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_10/Makefile b/drivers/net/wireless/broadcom/bcmdhd_101_10/Makefile
+index 241272255..1ece5d603 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_10/Makefile
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_10/Makefile
+@@ -498,7 +498,7 @@ ifneq ($(CONFIG_CFG80211_SCANTYPE_BKPORT),)
+ endif
+ 
+   DHDCFLAGS += -DWL_STATIC_IF
+-  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+ #OWE
+   DHDCFLAGS += -DWL_OWE
+ #SAE-FT
+@@ -785,7 +785,7 @@ ifneq ($(filter y m,$(CONFIG_BCM4375)),)
+   DHDCFLAGS += -DWL_SAE
+  endif
+  DHDCFLAGS += -DWL_STATIC_IF
+- DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++ DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+  #OWE
+  DHDCFLAGS += -DWL_OWE
+  # Disable HE on P2P
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_10/wl_cfg80211.c b/drivers/net/wireless/broadcom/bcmdhd_101_10/wl_cfg80211.c
+index 4e5cc2890..6e88d9004 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_10/wl_cfg80211.c
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_10/wl_cfg80211.c
+@@ -1254,7 +1254,7 @@ static const rsn_akm_wpa_auth_entry_t rsn_akm_wpa_auth_lookup_tbl[] = {
+ #define _S(x) #x
+ #define S(x) _S(x)
+ 
+-#define SOFT_AP_IF_NAME         "swlan0"
++#define SOFT_AP_IF_NAME         "wlan1"
+ 
+ /* watchdog timer for disconnecting when fw is not associated for FW_ASSOC_WATCHDOG_TIME ms */
+ uint32 fw_assoc_watchdog_ms = 0;
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+index 8eba343dd..7e52ef0d5 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+@@ -503,7 +503,7 @@ ifneq ($(CONFIG_CFG80211_SCANTYPE_BKPORT),)
+ endif
+ 
+   DHDCFLAGS += -DWL_STATIC_IF
+-  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+ #OWE
+   DHDCFLAGS += -DWL_OWE
+ # Disable HE on P2P based on peer support
+@@ -789,7 +789,7 @@ ifneq ($(filter y m,$(CONFIG_BCM4375)),)
+   DHDCFLAGS += -DWL_SAE
+  endif
+  DHDCFLAGS += -DWL_STATIC_IF
+- DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++ DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+  #OWE
+  DHDCFLAGS += -DWL_OWE
+ # Disable HE on P2P and SoftAP
+@@ -1078,7 +1078,7 @@ ifneq ($(CONFIG_BCM4361),)
+ DHDCFLAGS += -DWL_MBO
+ DHDCFLAGS += -DWL_OCE
+ DHDCFLAGS += -DWL_STATIC_IF
+-DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+ ifneq ($(CONFIG_CFG80211_FILS_BKPORT),)
+ #if kernel < 4.12, FILS patches need to be backported
+ DHDCFLAGS += -DWL_FILS
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_16/wl_cfg80211.c b/drivers/net/wireless/broadcom/bcmdhd_101_16/wl_cfg80211.c
+index e8c54d629..9aa7ff16d 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_16/wl_cfg80211.c
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_16/wl_cfg80211.c
+@@ -1246,7 +1246,7 @@ static const rsn_akm_wpa_auth_entry_t rsn_akm_wpa_auth_lookup_tbl[] = {
+ #define _S(x) #x
+ #define S(x) _S(x)
+ 
+-#define SOFT_AP_IF_NAME         "swlan0"
++#define SOFT_AP_IF_NAME         "wlan1"
+ 
+ /* watchdog timer for disconnecting when fw is not associated for FW_ASSOC_WATCHDOG_TIME ms */
+ uint32 fw_assoc_watchdog_ms = 0;
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_18/Makefile b/drivers/net/wireless/broadcom/bcmdhd_101_18/Makefile
+index 91657a273..5ee1f8c21 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_18/Makefile
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_18/Makefile
+@@ -516,7 +516,7 @@ ifneq ($(CONFIG_CFG80211_SCANTYPE_BKPORT),)
+ endif
+ 
+   DHDCFLAGS += -DWL_STATIC_IF
+-  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++  DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+ #OWE
+   DHDCFLAGS += -DWL_OWE
+ #SAE-FT
+@@ -821,7 +821,7 @@ ifneq ($(filter y m,$(CONFIG_BCM4375)),)
+   DHDCFLAGS += -DWL_SAE
+  endif
+  DHDCFLAGS += -DWL_STATIC_IF
+- DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"swlan0\""
++ DHDCFLAGS += -DWL_STATIC_IFNAME_PREFIX="\"wlan1\""
+  #OWE
+  DHDCFLAGS += -DWL_OWE
+  # Disable HE on P2P
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_18/wl_cfg80211.c b/drivers/net/wireless/broadcom/bcmdhd_101_18/wl_cfg80211.c
+index e2a6912e3..87b69a917 100755
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_18/wl_cfg80211.c
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_18/wl_cfg80211.c
+@@ -1271,7 +1271,7 @@ static const rsn_akm_wpa_auth_entry_t rsn_akm_wpa_auth_lookup_tbl[] = {
+ #define _S(x) #x
+ #define S(x) _S(x)
+ 
+-#define SOFT_AP_IF_NAME         "swlan0"
++#define SOFT_AP_IF_NAME         "wlan1"
+ 
+ /* watchdog timer for disconnecting when fw is not associated for FW_ASSOC_WATCHDOG_TIME ms */
+ uint32 fw_assoc_watchdog_ms = 0;
+-- 
+2.39.2
+

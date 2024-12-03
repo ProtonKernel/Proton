@@ -1,0 +1,27 @@
+From 7846119160f7040fbe66c549604f3765b7e746ea Mon Sep 17 00:00:00 2001
+From: Jesse Chan <jc@lineageos.org>
+Date: Sat, 20 May 2017 09:22:35 +0800
+Subject: [PATCH 07/13] drivers: vibrator: sec_vibrator: use AOSP-friendly
+ interface
+
+Signed-off-by: Francescodario Cuzzocrea <bosconovic@gmail.com>
+---
+ drivers/vibrator/common/sec_vibrator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vibrator/common/sec_vibrator.c b/drivers/vibrator/common/sec_vibrator.c
+index dfea0ad3f..ee56d7dd9 100755
+--- a/drivers/vibrator/common/sec_vibrator.c
++++ b/drivers/vibrator/common/sec_vibrator.c
+@@ -476,7 +476,7 @@ __visible_for_testing ssize_t intensity_show(struct device *dev, struct device_a
+ 
+ 	if (!is_valid_params(dev, attr, buf, ddata))
+ 		return -ENODATA;
+-	return snprintf(buf, VIB_BUFSIZE, "intensity: %u\n", ddata->intensity);
++	return snprintf(buf, VIB_BUFSIZE, "%u\n", ddata->intensity);
+ }
+ 
+ __visible_for_testing ssize_t multi_freq_store(struct device *dev, struct device_attribute *attr,
+-- 
+2.39.2
+

@@ -1,0 +1,74 @@
+From db7d5f26d2a0563f59a3ed4818abd752f754fab6 Mon Sep 17 00:00:00 2001
+From: Jesse Chan <jc@lineageos.org>
+Date: Sat, 21 Apr 2018 00:08:51 -0700
+Subject: [PATCH 04/13] drivers: battery_v2: sec_battery: export
+ {CURRENT/VOLTAGE}_MAX to sysfs
+
+Inform the system if we are charging normal, fast or rapidly. It will be
+displayed in the locksreen.
+
+Change-Id: Id0de196e02bd5393cb4fb90835f18caa1d2fe20d
+---
+ drivers/battery/common/sec_battery.c | 31 ++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/battery/common/sec_battery.c b/drivers/battery/common/sec_battery.c
+index 749324195..b7ed8bc12 100755
+--- a/drivers/battery/common/sec_battery.c
++++ b/drivers/battery/common/sec_battery.c
+@@ -5182,9 +5182,20 @@ static int sec_usb_get_property(struct power_supply *psy,
+ {
+ 	struct sec_battery_info *battery = power_supply_get_drvdata(psy);
+ 
+-	if (psp != POWER_SUPPLY_PROP_ONLINE)
++	switch (psp) {
++	case POWER_SUPPLY_PROP_ONLINE:
++		break;
++	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
++		/* V -> uV */
++		val->intval = battery->input_voltage * 1000000;
++		return 0;
++	case POWER_SUPPLY_PROP_CURRENT_MAX:
++		/* mA -> uA */
++		val->intval = battery->pdata->charging_current[battery->cable_type].input_current_limit * 1000;
++		return 0;
++	default:
+ 		return -EINVAL;
+-
++	}
+ 	if ((battery->health == POWER_SUPPLY_HEALTH_OVERVOLTAGE) ||
+ 		(battery->health == POWER_SUPPLY_EXT_HEALTH_UNDERVOLTAGE)) {
+ 		val->intval = 0;
+@@ -5261,6 +5272,14 @@ static int sec_ac_get_property(struct power_supply *psy,
+ 	case POWER_SUPPLY_PROP_TEMP:
+ 		val->intval = battery->chg_temp;
+ 		break;
++	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
++		/* V -> uV */
++		val->intval = battery->input_voltage * 1000000;
++		return 0;
++	case POWER_SUPPLY_PROP_CURRENT_MAX:
++		/* mA -> uA */
++		val->intval = battery->pdata->charging_current[battery->cable_type].input_current_limit * 1000;
++		return 0;
+ 	case POWER_SUPPLY_EXT_PROP_MIN ... POWER_SUPPLY_EXT_PROP_MAX:
+ 		switch (ext_psp) {
+ 			case POWER_SUPPLY_EXT_PROP_WATER_DETECT:
+@@ -5317,6 +5336,14 @@ static int sec_wireless_get_property(struct power_supply *psy,
+ 			return -EINVAL;
+ 		}
+ 		break;
++	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
++		/* V -> uV */
++		val->intval = battery->input_voltage * 1000000;
++		return 0;
++	case POWER_SUPPLY_PROP_CURRENT_MAX:
++		/* mA -> uA */
++		val->intval = battery->pdata->charging_current[battery->cable_type].input_current_limit * 1000;
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+-- 
+2.39.2
+

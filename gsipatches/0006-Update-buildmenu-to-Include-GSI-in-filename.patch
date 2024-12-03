@@ -1,0 +1,93 @@
+From 8aa1f30e6ba5a051f4f8d90c0083d78dd353a60f Mon Sep 17 00:00:00 2001
+From: haridhayal11 <haridhayal@gmail.com>
+Date: Sat, 2 Apr 2022 08:55:28 +0000
+Subject: [PATCH 06/13] Update buildmenu to Include GSI in filename
+
+---
+ build_menu | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/build_menu b/build_menu
+index 09bf09315..bfcf23b8a 100755
+--- a/build_menu
++++ b/build_menu
+@@ -18,7 +18,7 @@ export LLVM=1
+ #export USE_CCACHE=1
+ #export CCACHE_EXEC=/usr/bin/ccache
+ #export CCACHE_DIR=/mnt/ccache
+-#ccache -M 50G -F 0
++#ccache -M 20G -F 0
+ 
+ # Color
+ ON_BLUE=`echo -e "\033[44m"`	# On Blue
+@@ -58,7 +58,7 @@ clean(){
+ }
+ 
+ build_kernel(){
+-  KERNEL_MAKE_ENV="LOCALVERSION=-Hari-v${harikernelver}-OneUI"
++  KERNEL_MAKE_ENV="LOCALVERSION=-Hari-v${harikernelver}-GSI"
+   echo "${GREEN}***** Compiling kernel for ${VARIANT} *****${STD}"
+   [ ! -d "out" ] && mkdir out
+   make -j$(nproc) -C $(pwd) $KERNEL_MAKE_ENV hari_${VARIANT}_defconfig
+@@ -125,7 +125,7 @@ anykernel3(){
+     git reset --hard
+     cp $DIR/arch/arm64/boot/Image zImage
+     cp $DIR/out/dtbo.img dtbo.img
+-    sed -i "s/ExampleKernel by osm0sis/${VARIANT} HariKernel (OneUI) by Haridhayal/g" anykernel.sh
++    sed -i "s/ExampleKernel by osm0sis/${VARIANT} HariKernel (GSI) by Haridhayal/g" anykernel.sh
+     sed -i "s/=maguro/=${VARIANT}/g" anykernel.sh
+     sed -i "s/=toroplus/=/g" anykernel.sh
+     sed -i "s/=toro/=/g" anykernel.sh
+@@ -150,7 +150,7 @@ build_kernel_o1s(){
+   VARIANT=o1s
+   build_kernel
+   curtime=`date +"%m_%d_%H%M"`
+-  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
+   anykernel3
+   clean
+ }
+@@ -160,7 +160,7 @@ build_kernel_t2s(){
+   VARIANT=t2s
+   build_kernel
+   curtime=`date +"%m_%d_%H%M"`
+-  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
+   anykernel3
+   clean
+ }
+@@ -170,7 +170,7 @@ build_kernel_p3s(){
+   VARIANT=p3s
+   build_kernel
+   curtime=`date +"%m_%d_%H%M"`
+-  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
+   anykernel3
+   clean
+ }
+@@ -179,19 +179,19 @@ build_kernel_all_devices(){
+   read -p "Enter Kernel Release Version v" harikernelver
+   VARIANT=o1s
+   build_kernel
+-  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
+   anykernel3
+   clean
+ 
+   VARIANT=t2s
+   build_kernel
+-  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
+   anykernel3
+   clean
+ 
+   VARIANT=p3s
+   build_kernel
+-  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
+   anykernel3
+   clean
+   pause 'All the builds are done'
+-- 
+2.39.2
+

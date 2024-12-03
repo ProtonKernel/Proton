@@ -1,0 +1,292 @@
+From a582fe95bfe85cc840cfb36b8bd99258b46933eb Mon Sep 17 00:00:00 2001
+From: BlackMesa123 <brother12@hotmail.it>
+Date: Thu, 30 Jul 2020 20:59:22 +0300
+Subject: [PATCH 12/13] selinux: togglable selinux status
+
+---
+ security/selinux/Kconfig            | 14 ++++++++++++
+ security/selinux/hooks.c            | 13 ++++++++----
+ security/selinux/include/security.h |  2 +-
+ security/selinux/netif.c            |  2 +-
+ security/selinux/netnode.c          |  2 +-
+ security/selinux/netport.c          |  2 +-
+ security/selinux/selinuxfs.c        | 33 ++++++++++++++++++++++-------
+ security/selinux/ss/policydb.c      |  8 +++----
+ security/selinux/ss/services.c      | 12 ++++++++---
+ security/selinux/ss/status.c        |  4 +++-
+ 10 files changed, 68 insertions(+), 24 deletions(-)
+
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index c9e576c43..fa5b0ba95 100755
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -57,6 +57,20 @@ config SECURITY_SELINUX_DEVELOP
+ 	  can interactively toggle the kernel between enforcing mode and
+ 	  permissive mode (if permitted by the policy) via /selinux/enforce.
+ 
++config SECURITY_SELINUX_ALWAYS_ENFORCE
++	bool "NSA SELinux Always Enforcing"
++	depends on SECURITY_SELINUX_DEVELOP
++	default n
++	help
++	  This option will prevent anything from setting SELinux to permissive.
++
++config SECURITY_SELINUX_ALWAYS_PERMISSIVE
++	bool "NSA SELinux Always Permissive"
++	depends on SECURITY_SELINUX_DEVELOP
++	default n
++	help
++	  This option will prevent anything from setting SELinux to enforcing.
++
+ config SECURITY_SELINUX_AVC_STATS
+ 	bool "NSA SELinux AVC Statistics"
+ 	depends on SECURITY_SELINUX
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 119269528..2c87400e8 100755
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -121,9 +121,12 @@ static int __init enforcing_setup(char *str)
+ 	unsigned long enforcing;
+ 	if (!kstrtoul(str, 0, &enforcing)) {
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 		selinux_enforcing_boot = 1;
+ 		selinux_enforcing = 1;
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++		selinux_enforcing_boot = 0;
++		selinux_enforcing = 0;
+ #else
+ 		selinux_enforcing_boot = enforcing ? 1 : 0;
+ 		selinux_enforcing = enforcing ? 1 : 0;
+@@ -145,7 +148,7 @@ static int __init selinux_enabled_setup(char *str)
+ 	if (!kstrtoul(str, 0, &enabled))
+ 	{
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 		selinux_enabled = 1;
+ #else
+ 		selinux_enabled = enabled ? 1 : 0;
+@@ -7232,8 +7235,10 @@ static __init int selinux_init(void)
+ 		panic("SELinux: Unable to register AVC LSM notifier callback\n");
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enforcing_boot = 1;
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++	selinux_enforcing_boot = 0;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+ 	
+@@ -7335,7 +7340,7 @@ static int __init selinux_nf_ip_init(void)
+ {
+ 	int err;
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enabled = 1;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 00d18eda6..d9ae895c3 100755
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -239,7 +239,7 @@ struct extended_perms {
+ 
+ /* definitions of av_decision.flags */
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ #define AVD_FLAGS_PERMISSIVE	0x0000
+ #else
+ #define AVD_FLAGS_PERMISSIVE	0x0001
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 0cd6afb92..e0cc49648 100755
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -267,7 +267,7 @@ static __init int sel_netif_init(void)
+ 	int i;
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enabled = 1;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 2ec2e1a17..37a1d434c 100755
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -292,7 +292,7 @@ static __init int sel_netnode_init(void)
+ 	int iter;
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enabled = 1;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index 711e3d636..652042c1c 100755
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -226,7 +226,7 @@ static __init int sel_netport_init(void)
+ 	int iter;
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enabled = 1;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 1c472fbde..2e5c0c5df 100755
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -161,13 +161,13 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 	old_value = enforcing_enabled(state);
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
+-	// If build is user build and enforce option is set, selinux is always enforcing
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
++	// If always enforce option is set, selinux is always enforcing
+ 	new_value = 1;
+-    length = avc_has_perm(&selinux_state,
+-				      current_sid(), SECINITSID_SECURITY,
+-				      SECCLASS_SECURITY, SECURITY__SETENFORCE,
+-				      NULL);
++	length = avc_has_perm(&selinux_state,
++				current_sid(), SECINITSID_SECURITY,
++				SECCLASS_SECURITY, SECURITY__SETENFORCE,
++				NULL);
+ 	audit_log(audit_context(), GFP_KERNEL, AUDIT_MAC_STATUS,
+ 			"enforcing=%d old_enforcing=%d auid=%u ses=%u"
+ 			" enabled=%d old-enabled=%d lsm=selinux res=1",
+@@ -175,10 +175,27 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
+ 			audit_get_sessionid(current),
+ 			selinux_enabled, selinux_enabled);
+-    enforcing_set(state, new_value);
++	enforcing_set(state, new_value);
+ 	avc_ss_reset(state->avc, 0);
+ 	selnl_notify_setenforce(new_value);
+ 	selinux_status_update_setenforce(state, new_value);
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++	// If always permissive option is set, selinux is always permissive
++	new_value = 0;
++	length = avc_has_perm(&selinux_state,
++				current_sid(), SECINITSID_SECURITY,
++				SECCLASS_SECURITY, SECURITY__SETENFORCE,
++				NULL);
++	audit_log(audit_context(), GFP_KERNEL, AUDIT_MAC_STATUS,
++			"enforcing=%d old_enforcing=%d auid=%u ses=%u"
++			" enabled=%d old-enabled=%d lsm=selinux res=1",
++			new_value, selinux_enforcing,
++			from_kuid(&init_user_ns, audit_get_loginuid(current)),
++			audit_get_sessionid(current),
++			selinux_enabled, selinux_enabled);
++	enforcing_set(state, new_value);
++	selnl_notify_setenforce(new_value);
++	selinux_status_update_setenforce(state, new_value);
+ #else
+ 	if (new_value != selinux_enforcing) { // SEC_SELINUX_PORTING_COMMON Change to use RKP
+ 		length = avc_has_perm(&selinux_state,
+@@ -2133,7 +2150,7 @@ static int __init init_sel_fs(void)
+ 					  sizeof(NULL_FILE_NAME)-1);
+ 	int err;
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enabled = 1;
+ #endif
+ // ] SEC_SELINUX_PORTING_COMMON
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index fee7bdd7b..84e77ec0d 100755
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1476,9 +1476,9 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	return 0;
+ bad:
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifndef CONFIG_ALWAYS_ENFORCE
++#ifndef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	panic("SELinux:Failed to type read");
+-#endif /*CONFIG_ALWAYS_ENFORCE*/
++#endif /*CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE*/
+ // ] SEC_SELINUX_PORTING_COMMON
+ 	type_destroy(key, typdatum, NULL);
+ 	return rc;
+@@ -2548,9 +2548,9 @@ out:
+ 	return rc;
+ bad:
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifndef CONFIG_ALWAYS_ENFORCE
++#ifndef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	panic("SELinux:Failed to load policy");
+-#endif /*CONFIG_ALWAYS_ENFORCE*/
++#endif /*CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE*/
+ // ] SEC_SELINUX_PORTING_COMMON
+ 	policydb_destroy(p);
+ 	goto out;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index e7e72c092..89eb54441 100755
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -745,8 +745,10 @@ out:
+ 	kfree(t);
+ 
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+     	selinux_enforcing = 1;
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++    	selinux_enforcing = 0;
+ #endif
+ 	
+ 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP 
+@@ -1673,8 +1675,10 @@ out:
+ 	kfree(t);
+ 	kfree(n);
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	selinux_enforcing = 1;
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++	selinux_enforcing = 0;
+ #endif
+ 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP 
+             return 0;
+@@ -1976,8 +1980,10 @@ static inline int convert_context_handle_invalid_context(
+ 	u32 len;
+ 
+ // [ SEC_SELINUX_PORTING_COMMON 
+-	#ifdef CONFIG_ALWAYS_ENFORCE
++	#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 	    selinux_enforcing = 1;
++	#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++	    selinux_enforcing = 0;
+ 	#endif
+ 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP
+ 		return -EINVAL;
+diff --git a/security/selinux/ss/status.c b/security/selinux/ss/status.c
+index 780be54de..b080b9f8a 100755
+--- a/security/selinux/ss/status.c
++++ b/security/selinux/ss/status.c
+@@ -54,8 +54,10 @@ struct page *selinux_kernel_status_page(struct selinux_state *state)
+ 			status->version = SELINUX_KERNEL_STATUS_VERSION;
+ 			status->sequence = 0;
+ // [ SEC_SELINUX_PORTING_COMMON
+-#ifdef CONFIG_ALWAYS_ENFORCE
++#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+ 			status->enforcing = 1;
++#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
++			status->enforcing = 0;
+ #else
+ 			status->enforcing = enforcing_enabled(state);
+ #endif
+-- 
+2.39.2
+

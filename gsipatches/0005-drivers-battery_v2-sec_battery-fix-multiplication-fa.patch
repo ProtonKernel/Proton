@@ -1,0 +1,45 @@
+From 31419cab78beae4660637bc5262548101d0224bd Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@cryptomilk.org>
+Date: Mon, 18 Jan 2021 13:35:11 +0100
+Subject: [PATCH 05/13] drivers: battery_v2: sec_battery: fix multiplication
+ factor for input voltage
+
+Change-Id: I3c8ac04bc7f4bd8be7d6e6447388b6fb59e045fe
+---
+ drivers/battery/common/sec_battery.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/battery/common/sec_battery.c b/drivers/battery/common/sec_battery.c
+index b7ed8bc12..439f9759a 100755
+--- a/drivers/battery/common/sec_battery.c
++++ b/drivers/battery/common/sec_battery.c
+@@ -5187,7 +5187,7 @@ static int sec_usb_get_property(struct power_supply *psy,
+ 		break;
+ 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
+ 		/* V -> uV */
+-		val->intval = battery->input_voltage * 1000000;
++		val->intval = battery->input_voltage * 100000;
+ 		return 0;
+ 	case POWER_SUPPLY_PROP_CURRENT_MAX:
+ 		/* mA -> uA */
+@@ -5274,7 +5274,7 @@ static int sec_ac_get_property(struct power_supply *psy,
+ 		break;
+ 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
+ 		/* V -> uV */
+-		val->intval = battery->input_voltage * 1000000;
++		val->intval = battery->input_voltage * 100000;
+ 		return 0;
+ 	case POWER_SUPPLY_PROP_CURRENT_MAX:
+ 		/* mA -> uA */
+@@ -5338,7 +5338,7 @@ static int sec_wireless_get_property(struct power_supply *psy,
+ 		break;
+ 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
+ 		/* V -> uV */
+-		val->intval = battery->input_voltage * 1000000;
++		val->intval = battery->input_voltage * 100000;
+ 		return 0;
+ 	case POWER_SUPPLY_PROP_CURRENT_MAX:
+ 		/* mA -> uA */
+-- 
+2.39.2
+

@@ -1,0 +1,915 @@
+From 34ace415464fff5b00cb0edb608fc145f7604004 Mon Sep 17 00:00:00 2001
+From: haridhayal11 <haridhayal@gmail.com>
+Date: Sat, 14 May 2022 11:30:39 +0530
+Subject: [PATCH 02/13] dts: t2s: Remove 60Hz only display modes from dts
+
+This fixes 120Hz on aosp/gsi
+---
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r02.dts | 110 ------------------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r16.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r17.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r18.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r19.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r20.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r21.dts |  66 -----------
+ .../dts/samsung/t2s/t2s_eur_openx_w01_r22.dts |  67 -----------
+ 8 files changed, 573 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r02.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r02.dts
+index c71b8d713..91d99759a 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r02.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r02.dts
+@@ -5396,27 +5396,6 @@
+ 					phandle = <0x57>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x53>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5528,27 +5507,6 @@
+ 					phandle = <0x5d>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x59>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5569,27 +5527,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x5e>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x5f>;
+-				};
+ 			};
+ 
+ 			n2s_s6e3hab_panel_display_modes {
+@@ -5639,48 +5576,6 @@
+ 					phandle = <0x62>;
+ 				};
+ 
+-				n2s_s6e3hab_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x28>;
+-					cmd_lp_ref = <0x284d>;
+-					phandle = <0x60>;
+-				};
+-
+-				n2s_s6e3hab_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x28>;
+-					cmd_lp_ref = <0x284d>;
+-					phandle = <0x63>;
+-				};
+-
+ 				n2s_s6e3hab_panel_display_mode_1080x2400_48ns {
+ 					id = "1080x2400_48NS";
+ 					width = <0x438>;
+@@ -10131,21 +10026,16 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		n2s_s6e3hab_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes";
+ 		n2s_s6e3hab_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes/n2s_s6e3hab_panel_display_mode_1080x2400_120hs";
+ 		n2s_s6e3hab_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes/n2s_s6e3hab_panel_display_mode_1080x2400_96hs";
+-		n2s_s6e3hab_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes/n2s_s6e3hab_panel_display_mode_1080x2400_60hs";
+-		n2s_s6e3hab_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes/n2s_s6e3hab_panel_display_mode_1080x2400_60ns";
+ 		n2s_s6e3hab_panel_display_mode_1080x2400_48ns = "/fragment@panel_display_mode/__overlay__/n2s_s6e3hab_panel_display_modes/n2s_s6e3hab_panel_display_mode_1080x2400_48ns";
+ 		key_voldown = "/fragment@51/__overlay__/key-voldown";
+ 		key_volup = "/fragment@51/__overlay__/key-volup";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r16.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r16.dts
+index de88aded2..80401995b 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r16.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r16.dts
+@@ -5626,27 +5626,6 @@
+ 					phandle = <0x69>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x65>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5758,27 +5737,6 @@
+ 					phandle = <0x6f>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6b>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5799,27 +5757,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x70>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x71>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10636,16 +10573,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@63/__overlay__/key-voldown";
+ 		key_volup = "/fragment@63/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@63/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r17.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r17.dts
+index 006b24829..e6dc1af69 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r17.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r17.dts
+@@ -5681,27 +5681,6 @@
+ 					phandle = <0x6c>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x68>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5813,27 +5792,6 @@
+ 					phandle = <0x72>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6e>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5854,27 +5812,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x73>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x74>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10693,16 +10630,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@66/__overlay__/key-voldown";
+ 		key_volup = "/fragment@66/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@66/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r18.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r18.dts
+index 1bc0fb96c..136169e0f 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r18.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r18.dts
+@@ -5744,27 +5744,6 @@
+ 					phandle = <0x6f>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6b>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5876,27 +5855,6 @@
+ 					phandle = <0x75>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x71>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5917,27 +5875,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x76>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x77>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10697,16 +10634,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@69/__overlay__/key-voldown";
+ 		key_volup = "/fragment@69/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@69/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r19.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r19.dts
+index 5d18d41e0..540c1879d 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r19.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r19.dts
+@@ -5725,27 +5725,6 @@
+ 					phandle = <0x6e>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6a>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5857,27 +5836,6 @@
+ 					phandle = <0x74>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x70>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5898,27 +5856,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x75>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x76>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10712,16 +10649,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@68/__overlay__/key-voldown";
+ 		key_volup = "/fragment@68/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@68/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r20.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r20.dts
+index 9d6f73888..bfa8cc818 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r20.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r20.dts
+@@ -5743,27 +5743,6 @@
+ 					phandle = <0x6e>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6a>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5875,27 +5854,6 @@
+ 					phandle = <0x74>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x70>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5916,27 +5874,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x75>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x76>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10736,16 +10673,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@68/__overlay__/key-voldown";
+ 		key_volup = "/fragment@68/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@68/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r21.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r21.dts
+index 1a42631f2..4af8a45ba 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r21.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r21.dts
+@@ -5743,27 +5743,6 @@
+ 					phandle = <0x6e>;
+ 				};
+ 
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6a>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5875,27 +5854,6 @@
+ 					phandle = <0x74>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x70>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5916,27 +5874,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x75>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x76>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10752,16 +10689,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@68/__overlay__/key-voldown";
+ 		key_volup = "/fragment@68/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@68/__overlay__/dwmmc2_cd_ext_irq";
+diff --git a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r22.dts b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r22.dts
+index 281f96c61..22cf62421 100755
+--- a/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r22.dts
++++ b/arch/arm64/boot/dts/samsung/t2s/t2s_eur_openx_w01_r22.dts
+@@ -5742,28 +5742,6 @@
+ 					cmd_lp_ref = <0x13e5>;
+ 					phandle = <0x6e>;
+ 				};
+-
+-				n2s_old_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x6a>;
+-				};
+-
+ 				n2s_old_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5875,27 +5853,6 @@
+ 					phandle = <0x74>;
+ 				};
+ 
+-				n2s_panel_display_mode_1080x2400_60hs {
+-					id = "1080x2400_60HS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x01>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x01>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x70>;
+-				};
+-
+ 				n2s_panel_display_mode_1080x2400_48hs {
+ 					id = "1080x2400_48HS";
+ 					width = <0x438>;
+@@ -5916,27 +5873,6 @@
+ 					cmd_lp_ref = <0x3631>;
+ 					phandle = <0x75>;
+ 				};
+-
+-				n2s_panel_display_mode_1080x2400_60ns {
+-					id = "1080x2400_60NS";
+-					width = <0x438>;
+-					height = <0x960>;
+-					refresh_rate = <0x3c>;
+-					refresh_mode = <0x00>;
+-					panel_refresh_rate = <0x3c>;
+-					panel_refresh_mode = <0x00>;
+-					panel_te_st = <0x00>;
+-					panel_te_ed = <0x00>;
+-					panel_te_sw_skip_count = <0x00>;
+-					panel_te_hw_skip_count = <0x00>;
+-					dsc_en = <0x01>;
+-					dsc_cnt = <0x02>;
+-					dsc_slice_num = <0x02>;
+-					dsc_slice_w = <0x21c>;
+-					dsc_slice_h = <0x78>;
+-					cmd_lp_ref = <0x2879>;
+-					phandle = <0x76>;
+-				};
+ 			};
+ 		};
+ 	};
+@@ -10752,16 +10688,13 @@
+ 		n2s_old_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_old_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_96hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_old_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_60hs";
+ 		n2s_old_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_old_panel_display_modes/n2s_old_panel_display_mode_1080x2400_48hs";
+ 		n2s_panel_display_modes = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes";
+ 		n2s_panel_display_mode_1080x2400_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_120hs";
+ 		n2s_panel_display_mode_1080x2400_60hs_120hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs_120hs";
+ 		n2s_panel_display_mode_1080x2400_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_96hs";
+ 		n2s_panel_display_mode_1080x2400_48hs_96hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs_96hs";
+-		n2s_panel_display_mode_1080x2400_60hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60hs";
+ 		n2s_panel_display_mode_1080x2400_48hs = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_48hs";
+-		n2s_panel_display_mode_1080x2400_60ns = "/fragment@panel_display_mode/__overlay__/n2s_panel_display_modes/n2s_panel_display_mode_1080x2400_60ns";
+ 		key_voldown = "/fragment@68/__overlay__/key-voldown";
+ 		key_volup = "/fragment@68/__overlay__/key-volup";
+ 		dwmmc2_cd_ext_irq = "/fragment@68/__overlay__/dwmmc2_cd_ext_irq";
+-- 
+2.39.2
+

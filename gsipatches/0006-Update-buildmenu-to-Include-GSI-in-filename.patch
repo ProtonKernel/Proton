@@ -1,7 +1,7 @@
 From 8aa1f30e6ba5a051f4f8d90c0083d78dd353a60f Mon Sep 17 00:00:00 2001
 From: haridhayal11 <haridhayal@gmail.com>
 Date: Sat, 2 Apr 2022 08:55:28 +0000
-Subject: [PATCH 06/13] Update buildmenu to Include GSI in filename
+Subject: [PATCH 06/13] Update buildmenu to Include AOSP-GSI in filename
 
 ---
  build_menu | 18 +++++++++---------
@@ -25,7 +25,7 @@ index 09bf09315..bfcf23b8a 100755
  
  build_kernel(){
 -  KERNEL_MAKE_ENV="LOCALVERSION=-Hari-v${harikernelver}-OneUI"
-+  KERNEL_MAKE_ENV="LOCALVERSION=-Hari-v${harikernelver}-GSI"
++  KERNEL_MAKE_ENV="LOCALVERSION=-Hari-v${harikernelver}-AOSP-GSI"
    echo "${GREEN}***** Compiling kernel for ${VARIANT} *****${STD}"
    [ ! -d "out" ] && mkdir out
    make -j$(nproc) -C $(pwd) $KERNEL_MAKE_ENV hari_${VARIANT}_defconfig
@@ -34,7 +34,7 @@ index 09bf09315..bfcf23b8a 100755
      cp $DIR/arch/arm64/boot/Image zImage
      cp $DIR/out/dtbo.img dtbo.img
 -    sed -i "s/ExampleKernel by osm0sis/${VARIANT} HariKernel (OneUI) by Haridhayal/g" anykernel.sh
-+    sed -i "s/ExampleKernel by osm0sis/${VARIANT} HariKernel (GSI) by Haridhayal/g" anykernel.sh
++    sed -i "s/ExampleKernel by osm0sis/${VARIANT} HariKernel (AOSP-GSI) by Haridhayal/g" anykernel.sh
      sed -i "s/=maguro/=${VARIANT}/g" anykernel.sh
      sed -i "s/=toroplus/=/g" anykernel.sh
      sed -i "s/=toro/=/g" anykernel.sh
@@ -43,7 +43,7 @@ index 09bf09315..bfcf23b8a 100755
    build_kernel
    curtime=`date +"%m_%d_%H%M"`
 -  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
  }
@@ -52,7 +52,7 @@ index 09bf09315..bfcf23b8a 100755
    build_kernel
    curtime=`date +"%m_%d_%H%M"`
 -  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
  }
@@ -61,7 +61,7 @@ index 09bf09315..bfcf23b8a 100755
    build_kernel
    curtime=`date +"%m_%d_%H%M"`
 -  releasefilename=HariKernel_Test_${curtime}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_Test_${curtime}_GSI_${VARIANT}
++  releasefilename=HariKernel_Test_${curtime}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
  }
@@ -70,21 +70,21 @@ index 09bf09315..bfcf23b8a 100755
    VARIANT=o1s
    build_kernel
 -  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
  
    VARIANT=t2s
    build_kernel
 -  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
  
    VARIANT=p3s
    build_kernel
 -  releasefilename=HariKernel_v${harikernelver}_OneUI_${VARIANT}
-+  releasefilename=HariKernel_v${harikernelver}_GSI_${VARIANT}
++  releasefilename=HariKernel_v${harikernelver}_AOSP-GSI_${VARIANT}
    anykernel3
    clean
    pause 'All the builds are done'

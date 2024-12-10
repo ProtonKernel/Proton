@@ -21,6 +21,21 @@ export PATH=$PATH:$LINUX_GCC_CROSS_COMPILE_PREBUILTS_BIN:$CLANG_PREBUILT_BIN
 export LLVM=1
 KERNEL_MAKE_ENV="LOCALVERSION="
 
+# New paths
+PACKING_DIR="$DIR/vboot"
+TMP_DIR="$PACKING_DIR/tmp"
+MOD_OUTDIR="$PACKING_DIR/modules_out"
+DTB_IMAGE="$TMP_DIR/dtb.img"
+RAMDISK_TEMPLATE="$PACKING_DIR/vboot_ramdisk"
+TMP_RAMDISK="$TMP_DIR/tmp_ramdisk"
+TMP_MOD="$TMP_RAMDISK/lib/modules"
+VBOOT_FILE="$TMP_DIR/vendor_boot.img"
+DTB_FILE="arch/arm64/boot/dts/exynos/exynos2100.dtb"
+# Tools
+MKBOOTIMG="$PACKING_DIR/tools/mkbootimg.py"
+MKDTBOIMG="$PACKING_DIR/tools/mkdtboimg.py"
+
+
 # Color
 ON_BLUE=`echo -e "\033[44m"`	# On Blue
 BRED=`echo -e "\033[1;31m"`	# Bold Red
@@ -67,6 +82,67 @@ build_kernel(){
 
     echo "${BGREEN}***** Ready to Roar *****${STD}"
   fi
+  make -j$(nproc) -C $(pwd) $KERNEL_MAKE_ENV INSTALL_MOD_STRIP="--strip-debug --keep-section=.ARM.attributes" INSTALL_MOD_PATH="$MOD_OUTDIR" modules_install
+}
+
+post_build() {
+  ## Post build setup
+  rm -rf $TMP_DIR $VBOOT_FILE $TMP_RAMDISK
+  mkdir -p $TMP_DIR $TMP_MOD/0.0 $TMP_RAMDISK
+
+  cp -r $RAMDISK_TEMPLATE/* $TMP_RAMDISK/
+
+  # Handle compiled modules
+  if ! find "$MOD_OUTDIR/lib/modules" -mindepth 1 -type d | read; then
+      echo -e "\nERROR: Unknown error!\n"
+      exit 1
+  fi
+
+  missing_modules=""
+
+  # Check and copy compiled modules
+  for module in $(cat "$RAMDISK_TEMPLATE/lib/modules/modules.load"); do
+      if i=$(find "$MOD_OUTDIR/lib/modules" -name "$module"); [ -f "$i" ]; then
+          cp -f "$i" "$TMP_MOD/0.0/$module"
+      else
+          missing_modules="$missing_modules $module"
+      fi
+  done
+
+  if [ -n "$missing_modules" ]; then
+      echo "ERROR: the following modules were not found: $missing_modules"
+      exit 1
+  fi
+
+  # Prepare ramdisk
+  depmod 0.0 -b $TMP_RAMDISK
+  sed -i 's|\([^ ]\+\)|/lib/modules/\1|g' "$TMP_MOD/0.0/modules.dep"
+  find "$TMP_MOD/0.0" -name "modules.*" ! -name "modules.dep" ! -name "modules.softdep" ! -name "modules.alias" -exec rm -f {} +
+  cp -f "$RAMDISK_TEMPLATE/lib/modules/modules.load" "$TMP_MOD/0.0/modules.load"
+  mv "$TMP_MOD/0.0/"* "$TMP_MOD/"
+  rmdir "$TMP_MOD/0.0"
+
+  # Build the images
+  echo -e "\nINFO: Building dtb image..."
+  python $MKDTBOIMG create $DTB_IMAGE --custom0=0x00000000 --custom1=0xff000000 --version=0 --page_size=2048 $DTB_FILE || exit 1
+
+  echo -e "\nINFO: Building vendor_boot image..."
+  cd $TMP_RAMDISK
+  find . -print | cpio --quiet -o -H newc -R root:root | gzip > $TMP_DIR/ramdisk.gz
+  cd $TMP_DIR
+  echo "androidboot.hardware=exynos2100 androidboot.selinux=permissive loop.max_part=7" > bootconfig
+
+  $MKBOOTIMG --header_version 3 \
+      --vendor_boot "$VBOOT_FILE" \
+	  --vendor_bootconfig "$TMP_DIR/bootconfig" \
+      --dtb "$DTB_IMAGE" \
+      --vendor_ramdisk "$TMP_DIR/ramdisk.gz" \
+      --os_version 11.0.0 \
+      --os_patch_level 2024-08 \
+	  --board "SRPUG16A010KU" || exit 1
+
+  cd "$DIR"
+  echo -e "INFO: Done!"
 }
 
 anykernel3(){
@@ -76,7 +152,6 @@ anykernel3(){
 
   if [ -e $DIR/arch/arm64/boot/Image ]; then
     cd $PARENT_DIR/AnyKernel3
-    git reset --hard
     cp $DIR/arch/arm64/boot/Image zImage
     sed -i "s/ExampleKernel by osm0sis/r9s Proton+ Kernel/g" anykernel.sh
     sed -i "s/=maguro/=r9s/g" anykernel.sh
@@ -101,4 +176,5 @@ toolchain
 clang
 
 build_kernel
+post_build
 anykernel3

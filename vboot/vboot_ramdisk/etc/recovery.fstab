@@ -1,0 +1,28 @@
+# Android fstab file.
+#<src>                  <mnt_point>         <type>    <mnt_flags and options>                               <fs_mgr_flags>
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
+
+system                                             /system             ext4      ro,barrier=1                                          wait,logical,first_stage_mount,avb=vbmeta_system,avb_keys=/avb/q-gsi.avbpubkey:/avb/r-gsi.avbpubkey:/avb/s-gsi.avbpubkey
+vendor                                             /vendor             ext4      ro,barrier=1                                          wait,logical,first_stage_mount,avb=vbmeta_system
+/dev/block/platform/13100000.ufs/by-name/boot      /boot               emmc      defaults                                              first_stage_mount,formattable,avb=boot
+/dev/block/platform/13100000.ufs/by-name/vendor_boot /vendor_boot      emmc      defaults                                              first_stage_mount,formattable,avb=vendor_boot
+/dev/block/platform/13100000.ufs/by-name/dtbo      /dtbo               emmc      defaults                                              first_stage_mount,formattable,avb=dtbo
+/dev/block/platform/13100000.ufs/by-name/vbmeta    /vbmeta             emmc      defaults                                              first_stage_mount,formattable,avb=vbmeta
+/dev/block/platform/13100000.ufs/by-name/vbmeta_system    /vbmeta_system             emmc      defaults                                first_stage_mount,formattable,avb=vbmeta_system
+/dev/block/platform/13100000.ufs/by-name/metadata  /metadata           ext4      noatime,nosuid,nodev,discard,sync                     wait,formattable,first_stage_mount,check
+/dev/block/platform/13100000.ufs/by-name/userdata  /data               f2fs      rw,noatime,nosuid,nodev,discard,fsync_mode=nobarrier,inlinecrypt  latemount,formattable,wait,check,quota,reservedsize=128M,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2,fsverity,keydirectory=/metadata/vold/metadata_encryption
+/dev/block/platform/13100000.ufs/by-name/efs       /mnt/vendor/efs     ext4      defaults,rw,noatime					wait
+/dev/block/platform/13100000.ufs/by-name/persist   /mnt/vendor/persist ext4      noatime,nosuid,nodev,barrier=1,data=ordered,nodelalloc,nomblk_io_submit,errors=panic wait,notrim
+/dev/block/platform/13100000.ufs/by-name/misc      /misc               emmc      defaults                                              defaults
+#/dev/block/platform/13100000.ufs/by-name/userdata  /data               f2fs      nodev,noatime,nosuid,inlinecrypt                      wait,fileencryption=aes-256-xts:aes-256-cts:v2,fsverity
+/dev/block/platform/13100000.ufs/by-name/recovery  /recovery           emmc      defaults                                              defaults
+/dev/block/platform/13100000.ufs/by-name/cache     /cache              ext4      noatime,nosuid,nodev,nomblk_io_submit                 wait
+
+# VOLD
+/devices/platform/132e0000.dwmmc2/mmc_host*        auto                auto      default                                               voldmanaged=sdcard1:auto,encryptable=
+/devices/platform/10e00000.usb*                    auto                vfat      default                                               voldmanaged=usb1:auto
+/devices/platform/10e00000.usb*			   auto                vfat      default                                               voldmanaged=usb2:auto
+
+# SWAP
+/dev/block/zram0                                   none                swap      defaults                                              wait,zramsize=2147483648

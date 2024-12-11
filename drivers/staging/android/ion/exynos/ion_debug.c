@@ -18,7 +18,7 @@
 
 static const char *ion_heap_dump_type(enum ion_heap_type type)
 {
-	if (type == ION_EXYNOS_HEAP_TYPE_CARVEOUT)
+	if ((int)type == (int)ION_EXYNOS_HEAP_TYPE_CARVEOUT)
 		return "carveout";
 
 	if (type == ION_HEAP_TYPE_DMA)
@@ -123,7 +123,7 @@ static int ion_debug_heap_show(struct seq_file *s, void *unused)
 	      heap->name, ion_heap_dump_type(heap->type), heap->id);
 
 	if (heap->type == ION_HEAP_TYPE_DMA ||
-	    heap->type == ION_EXYNOS_HEAP_TYPE_CARVEOUT)
+	    (int)heap->type == (int)ION_EXYNOS_HEAP_TYPE_CARVEOUT)
 		ion_contig_heap_show(s, exynos_heap);
 	else
 		ion_noncontig_heap_show(s, exynos_heap);

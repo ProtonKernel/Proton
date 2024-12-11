@@ -1,0 +1,1 @@
+export WP="$(realpath $PWD/../)"

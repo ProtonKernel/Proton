@@ -131,7 +131,6 @@ usb_f_ss_mon_gadget.ko
 dwc3.ko
 dwc3-haps.ko
 dwc3-of-simple.ko
-dwc3-qcom.ko
 cdc-acm.ko
 usblp.ko
 cdc-wdm.ko

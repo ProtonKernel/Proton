@@ -100,4 +100,21 @@ typedef struct qspinlock {
 #define _Q_LOCKED_VAL		(1U << _Q_LOCKED_OFFSET)
 #define _Q_PENDING_VAL		(1U << _Q_PENDING_OFFSET)
 
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+/*
+ * Bitfields in locked byte
+ *  2-0 : locked
+ *    3 : debug en
+ *  7-4 : owner cpu
+ */
+#define _Q_OWNER_IN_LOCKED_OFFSET	4
+#define _Q_OWNER_BITS			4
+#define _Q_OWNER_OFFSET			(_Q_LOCKED_OFFSET + _Q_OWNER_IN_LOCKED_OFFSET)
+#define _Q_OWNER_MASK			_Q_SET_MASK(OWNER)
+
+#define _Q_DBGEN_IN_LOCKED_OFFSET	3
+#define _Q_DBGEN_OFFSET			(_Q_LOCKED_OFFSET + _Q_DBGEN_IN_LOCKED_OFFSET)
+#define _Q_DBGEN_VAL			(1U << _Q_DBGEN_OFFSET)
+#endif
+
 #endif /* __ASM_GENERIC_QSPINLOCK_TYPES_H */

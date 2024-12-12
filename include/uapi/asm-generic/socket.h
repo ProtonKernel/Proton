@@ -119,6 +119,12 @@
 
 #define SO_DETACH_REUSEPORT_BPF 68
 
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
+#define SO_SET_DOMAIN_NAME		1000
+#define SO_SET_DNS_UID			1001
+#define SO_SET_DNS_PID			1002
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+
 #if !defined(__KERNEL__)
 
 #if __BITS_PER_LONG == 64 || (defined(__x86_64__) && defined(__ILP32__))

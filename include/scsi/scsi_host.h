@@ -39,6 +39,12 @@ struct scsi_transport_template;
 #define SG_NONE 0
 #define SG_ALL	SG_CHUNK_SIZE
 
+#ifdef CONFIG_ARCH_NO_SG_CHAIN
+#define SG_UFS SG_ALL
+#else
+#define SG_UFS 256
+#endif
+
 #define MODE_UNKNOWN 0x00
 #define MODE_INITIATOR 0x01
 #define MODE_TARGET 0x02

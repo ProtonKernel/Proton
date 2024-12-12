@@ -8,6 +8,7 @@
 #ifndef MADERA_CORE_H
 #define MADERA_CORE_H
 
+#include <linux/clk.h>
 #include <linux/gpio/consumer.h>
 #include <linux/interrupt.h>
 #include <linux/mfd/madera/pdata.h>
@@ -27,6 +28,13 @@ enum madera_type {
 	WM1840 = 7,
 	CS47L15 = 8,
 	CS42L92 = 9,
+};
+
+enum {
+	MADERA_MCLK1,
+	MADERA_MCLK2,
+	MADERA_MCLK3,
+	MADERA_NUM_MCLK
 };
 
 #define MADERA_MAX_CORE_SUPPLIES	2
@@ -155,6 +163,7 @@ struct snd_soc_dapm_context;
  * @irq_dev:		the irqchip child driver device
  * @irq_data:		pointer to irqchip data for the child irqchip driver
  * @irq:		host irq number from SPI or I2C configuration
+ * @mclk:		Structure holding clock supplies
  * @out_clamp:		indicates output clamp state for each analogue output
  * @out_shorted:	indicates short circuit state for each analogue output
  * @hp_ena:		bitflags of enable state for the headphone outputs
@@ -184,14 +193,19 @@ struct madera {
 	struct regmap_irq_chip_data *irq_data;
 	int irq;
 
+	struct clk_bulk_data mclk[MADERA_NUM_MCLK];
+
 	unsigned int num_micbias;
 	unsigned int num_childbias[MADERA_MAX_MICBIAS];
 
+	unsigned int out_clamp[MADERA_MAX_OUTPUT];
+	unsigned int out_shorted[MADERA_MAX_OUTPUT];
+	unsigned int hp_ena;
+	unsigned int ep_sel;
+	unsigned int hp_impedance_x100[MADERA_MAX_ACCESSORY];
+
 	struct snd_soc_dapm_context *dapm;
 	struct mutex dapm_ptr_lock;
-	unsigned int hp_ena;
-	bool out_clamp[MADERA_MAX_HP_OUTPUT];
-	bool out_shorted[MADERA_MAX_HP_OUTPUT];
 
 	struct blocking_notifier_head notifier;
 };

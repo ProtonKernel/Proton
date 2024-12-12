@@ -117,6 +117,8 @@ void persistent_ram_free_old(struct persistent_ram_zone *prz);
 ssize_t persistent_ram_ecc_string(struct persistent_ram_zone *prz,
 	char *str, size_t len);
 
+void register_hook_logger(hook_func_t func);
+int pram_hook_pmsg(char *buffer, size_t count);
 /*
  * Ramoops platform data
  * @mem_size	memory size for ramoops

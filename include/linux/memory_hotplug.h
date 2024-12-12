@@ -339,6 +339,9 @@ static inline int remove_memory(int nid, u64 start, u64 size)
 static inline void __remove_memory(int nid, u64 start, u64 size) {}
 #endif /* CONFIG_MEMORY_HOTREMOVE */
 
+extern int memory_block_online(struct memory_block *mem);
+extern int memory_block_offline(struct memory_block *mem);
+extern int mem_onoff_operation(struct memory_block *mem, bool online);
 extern void __ref free_area_init_core_hotplug(int nid);
 extern int __add_memory(int nid, u64 start, u64 size);
 extern int add_memory(int nid, u64 start, u64 size);

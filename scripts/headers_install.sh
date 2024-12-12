@@ -94,6 +94,10 @@ include/uapi/linux/eventpoll.h:CONFIG_PM_SLEEP
 include/uapi/linux/hw_breakpoint.h:CONFIG_HAVE_MIXED_BREAKPOINTS_REGS
 include/uapi/linux/pktcdvd.h:CONFIG_CDROM_PKTCDVD_WCACHE
 include/uapi/linux/raw.h:CONFIG_MAX_RAW_DEVS
+include/uapi/linux/bpf.h:CONFIG_MPTCP
+include/uapi/linux/if.h:CONFIG_MPTCP
+include/uapi/linux/in.h:CONFIG_MPTCP
+include/uapi/linux/tcp.h:CONFIG_MPTCP
 "
 
 for c in $configs

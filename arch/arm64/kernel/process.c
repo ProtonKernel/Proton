@@ -293,6 +293,17 @@ void show_regs(struct pt_regs * regs)
 	dump_backtrace(regs, NULL);
 }
 
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+void show_regs_auto_comment(struct pt_regs * regs, bool comm)
+{
+	__show_regs(regs);
+	if (comm)
+		dump_backtrace_auto_comment(regs, NULL);
+	else
+		dump_backtrace(regs, NULL);
+}
+#endif
+
 static void tls_thread_flush(void)
 {
 	write_sysreg(0, tpidr_el0);

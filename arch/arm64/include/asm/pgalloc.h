@@ -14,6 +14,9 @@
 #include <asm/tlbflush.h>
 
 #include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
+#ifdef CONFIG_RKP
+#include <linux/rkp.h>
+#endif
 
 #define PGD_SIZE	(PTRS_PER_PGD * sizeof(pgd_t))
 
@@ -23,6 +26,17 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	gfp_t gfp = GFP_PGTABLE_USER;
 	struct page *page;
+
+#ifdef CONFIG_RKP
+	/* FIXME not zeroing the page */
+	pmd_t *rkp_ropage = NULL;
+
+	if (mm == &init_mm) {
+		rkp_ropage = (pmd_t *)rkp_ro_alloc();
+		if (rkp_ropage)
+			return rkp_ropage;
+	}
+#endif
 
 	if (mm == &init_mm)
 		gfp = GFP_PGTABLE_KERNEL;
@@ -40,8 +54,17 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
 static inline void pmd_free(struct mm_struct *mm, pmd_t *pmdp)
 {
 	BUG_ON((unsigned long)pmdp & (PAGE_SIZE-1));
+#ifdef CONFIG_RKP
+	if (is_rkp_ro_buffer((u64)pmdp)) {
+		rkp_ro_free((void *)pmdp);
+	} else {
+		pgtable_pmd_page_dtor(virt_to_page(pmdp));
+		free_page((unsigned long)pmdp);
+	}
+#else
 	pgtable_pmd_page_dtor(virt_to_page(pmdp));
 	free_page((unsigned long)pmdp);
+#endif
 }
 
 static inline void __pud_populate(pud_t *pudp, phys_addr_t pmdp, pudval_t prot)
@@ -64,13 +87,27 @@ static inline void __pud_populate(pud_t *pudp, phys_addr_t pmdp, pudval_t prot)
 
 static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
+#ifdef CONFIG_RKP
+	pud_t *rkp_ropage = NULL;
+
+	rkp_ropage = (pud_t *)rkp_ro_alloc();
+	if (rkp_ropage)
+		return rkp_ropage;
+#endif
 	return (pud_t *)__get_free_page(GFP_PGTABLE_USER);
 }
 
 static inline void pud_free(struct mm_struct *mm, pud_t *pudp)
 {
 	BUG_ON((unsigned long)pudp & (PAGE_SIZE-1));
+#ifdef CONFIG_RKP
+	if (is_rkp_ro_buffer((u64)pudp))
+		rkp_ro_free((void *)pudp);
+	else
+		free_page((unsigned long)pudp);
+#else
 	free_page((unsigned long)pudp);
+#endif
 }
 
 static inline void __pgd_populate(pgd_t *pgdp, phys_addr_t pudp, pgdval_t prot)

@@ -21,6 +21,16 @@
 #include <linux/stddef.h>
 #include <linux/types.h>
 
+/*
+ * Struct for stacking the bottom 'n' FP/SIMD registers.
+ */
+struct fpsimd_partial_state {
+	u32		fpsr;
+	u32		fpcr;
+	u32		num_regs;
+	__uint128_t	vregs[32];
+};
+
 #ifdef CONFIG_COMPAT
 /* Masks for extracting the FPSR and FPCR from the FPSCR */
 #define VFP_FPSCR_STAT_MASK	0xf800009f
@@ -51,6 +61,10 @@ extern void fpsimd_bind_state_to_cpu(struct user_fpsimd_state *state,
 
 extern void fpsimd_flush_task_state(struct task_struct *target);
 extern void fpsimd_save_and_flush_cpu_state(void);
+
+extern void fpsimd_save_partial_state(struct fpsimd_partial_state *state,
+				      u32 num_regs);
+extern void fpsimd_load_partial_state(struct fpsimd_partial_state *state);
 
 /* Maximum VL that SVE VL-agnostic software can transparently support */
 #define SVE_VL_ARCH_MAX 0x100

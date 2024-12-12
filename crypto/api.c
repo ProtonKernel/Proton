@@ -22,6 +22,10 @@
 #include <linux/completion.h>
 #include "internal.h"
 
+#ifdef CONFIG_CRYPTO_FIPS_FUNC_TEST
+#include "fips140_test.h"
+#endif
+
 LIST_HEAD(crypto_alg_list);
 EXPORT_SYMBOL_GPL(crypto_alg_list);
 DECLARE_RWSEM(crypto_alg_sem);
@@ -556,6 +560,14 @@ err:
 }
 EXPORT_SYMBOL_GPL(crypto_alloc_tfm);
 
+#ifdef CONFIG_CRYPTO_FIPS_FUNC_TEST
+static void hexdump(unsigned char *buf, unsigned int len)
+{
+	print_hex_dump(KERN_INFO, "FIPS FUNC : ", DUMP_PREFIX_OFFSET,
+			16, 1, buf, len, false);
+}
+#endif
+
 /*
  *	crypto_destroy_tfm - Free crypto transform
  *	@mem: Start of tfm slab
@@ -577,7 +589,21 @@ void crypto_destroy_tfm(void *mem, struct crypto_tfm *tfm)
 		alg->cra_exit(tfm);
 	crypto_exit_ops(tfm);
 	crypto_mod_put(alg);
+#ifdef CONFIG_CRYPTO_FIPS_FUNC_TEST
+	if (!strcmp("zeroization", get_fips_functest_mode())) {
+		int t = ksize(mem);
+
+		pr_err("FIPS FUNC : Zeroization %s %d\n", __func__, t);
+		hexdump(mem, t);
+		kzfree(mem);
+		pr_err("FIPS FUNC : Zeroization %s %d\n", __func__, t);
+		hexdump(mem, t);
+	} else {
+		kzfree(mem);
+	}
+#else
 	kzfree(mem);
+#endif /* CONFIG_CRYPTO_FIPS_FUNC_TEST */
 }
 EXPORT_SYMBOL_GPL(crypto_destroy_tfm);
 

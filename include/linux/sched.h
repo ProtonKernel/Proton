@@ -31,6 +31,7 @@
 #include <linux/task_io_accounting.h>
 #include <linux/posix-timers.h>
 #include <linux/rseq.h>
+#include <linux/sec_debug_types.h>
 #include <linux/android_kabi.h>
 #include <linux/android_vendor.h>
 
@@ -1292,6 +1293,11 @@ struct task_struct {
 	unsigned long			prev_lowest_stack;
 #endif
 
+	/*
+	 * [0] : sec_debug_wait.type
+	 * [1] : sec_debug_wait.data
+	 * [2] : Used by FIVE project
+	 */
 	ANDROID_VENDOR_DATA_ARRAY(1, 3);
 
 	ANDROID_KABI_RESERVE(1);

@@ -19,6 +19,9 @@
 #include <linux/uaccess.h>
 #include <linux/security.h>
 #include <linux/lsm_hooks.h>
+#ifdef CONFIG_FIVE
+#include <uapi/linux/magic.h>
+#endif
 #include "integrity.h"
 
 static struct rb_root integrity_iint_tree = RB_ROOT;
@@ -92,6 +95,13 @@ static inline void iint_lockdep_annotate(struct integrity_iint_cache *iint,
 static void iint_init_always(struct integrity_iint_cache *iint,
 			     struct inode *inode)
 {
+#ifdef CONFIG_FIVE
+	kfree(iint->five_label);
+	iint->five_label = NULL;
+	iint->five_flags = 0UL;
+	iint->five_status = FIVE_FILE_UNKNOWN;
+	iint->five_signing = false;
+#endif
 	iint->ima_hash = NULL;
 	iint->version = 0;
 	iint->flags = 0UL;
@@ -199,6 +209,11 @@ static void iint_init_once(void *foo)
 	struct integrity_iint_cache *iint = foo;
 
 	memset(iint, 0, sizeof(*iint));
+#ifdef CONFIG_FIVE
+	iint->five_flags = 0UL;
+	iint->five_status = FIVE_FILE_UNKNOWN;
+	iint->five_signing = false;
+#endif
 }
 
 static int __init integrity_iintcache_init(void)
@@ -228,12 +243,21 @@ int integrity_kernel_read(struct file *file, loff_t offset,
 	mm_segment_t old_fs;
 	char __user *buf = (char __user *)addr;
 	ssize_t ret;
+#ifdef CONFIG_FIVE
+	struct inode *inode = file_inode(file);
+#endif
 
 	if (!(file->f_mode & FMODE_READ))
 		return -EBADF;
 
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
+
+#ifdef CONFIG_FIVE
+	if (inode->i_sb->s_magic == OVERLAYFS_SUPER_MAGIC && file->private_data)
+		file = (struct file *)file->private_data;
+#endif
+
 	ret = __vfs_read(file, buf, count, &offset);
 	set_fs(old_fs);
 

@@ -2670,9 +2670,8 @@ static void ip6_negative_advice(struct sock *sk,
 	if (rt->rt6i_flags & RTF_CACHE) {
 		rcu_read_lock();
 		if (rt6_check_expired(rt)) {
-			/* rt/dst can not be destroyed yet,
-			 * because of rcu_read_lock()
-			 */
+			/* counteract the dst_release() in sk_dst_reset() */
+			dst_hold(dst);
 			sk_dst_reset(sk);
 			rt6_remove_exception_rt(rt);
 		}

@@ -54,12 +54,10 @@ static inline u64 fuse_dentry_time(const struct dentry *entry)
 
 static void fuse_dentry_settime(struct dentry *dentry, u64 time)
 {
+	/* fuse: delete dentry if inode got I_ATTR_FORCE_SYNC state
 	struct fuse_conn *fc = get_fuse_conn_super(dentry->d_sb);
 	bool delete = !time && fc->delete_stale;
-	/*
-	 * Mess with DCACHE_OP_DELETE because dput() will be faster without it.
-	 * Don't care about races, either way it's just an optimization
-	 */
+
 	if ((!delete && (dentry->d_flags & DCACHE_OP_DELETE)) ||
 	    (delete && !(dentry->d_flags & DCACHE_OP_DELETE))) {
 		spin_lock(&dentry->d_lock);
@@ -69,7 +67,7 @@ static void fuse_dentry_settime(struct dentry *dentry, u64 time)
 			dentry->d_flags |= DCACHE_OP_DELETE;
 		spin_unlock(&dentry->d_lock);
 	}
-
+	*/
 	__fuse_dentry_settime(dentry, time);
 }
 
@@ -293,9 +291,24 @@ static void fuse_dentry_release(struct dentry *dentry)
 }
 #endif
 
+/* @fs.sec -- 63ff82f9216c9b6d003e7d45699d54b833344719 -- */
 static int fuse_dentry_delete(const struct dentry *dentry)
 {
-	return time_before64(fuse_dentry_time(dentry), get_jiffies_64());
+	struct fuse_inode *fi;
+
+	/*
+	if (time_before64(fuse_dentry_time(dentry), get_jiffies_64()))
+		return 1;
+	*/
+
+	if (d_really_is_negative(dentry))
+		return 0;
+
+	fi = get_fuse_inode(d_inode(dentry));
+	if (test_bit(FUSE_I_ATTR_FORCE_SYNC, &fi->state))
+		return 1;
+
+	return 0;
 }
 
 /*
@@ -349,6 +362,7 @@ const struct dentry_operations fuse_root_dentry_operations = {
 	.d_init		= fuse_dentry_init,
 	.d_release	= fuse_dentry_release,
 #endif
+	.d_canonical_path = fuse_dentry_canonical_path,
 };
 
 int fuse_valid_type(int m)
@@ -1035,6 +1049,8 @@ static int fuse_update_get_attr(struct inode *inode, struct file *file,
 		sync = false;
 	else if (request_mask & READ_ONCE(fi->inval_mask))
 		sync = true;
+	else if (test_bit(FUSE_I_ATTR_FORCE_SYNC, &fi->state))
+		sync = true;
 	else
 		sync = time_before64(fi->i_time, get_jiffies_64());
 
@@ -1225,7 +1241,8 @@ static int fuse_permission(struct inode *inode, int mask)
 		u32 perm_mask = STATX_MODE | STATX_UID | STATX_GID;
 
 		if (perm_mask & READ_ONCE(fi->inval_mask) ||
-		    time_before64(fi->i_time, get_jiffies_64())) {
+		    time_before64(fi->i_time, get_jiffies_64()) ||
+		    test_bit(FUSE_I_ATTR_FORCE_SYNC, &fi->state)) {
 			refreshed = true;
 
 			err = fuse_perm_getattr(inode, mask);
@@ -1465,7 +1482,7 @@ void fuse_set_nowrite(struct inode *inode)
 	BUG_ON(fi->writectr < 0);
 	fi->writectr += FUSE_NOWRITE;
 	spin_unlock(&fi->lock);
-	wait_event(fi->page_waitq, fi->writectr == FUSE_NOWRITE);
+	fuse_wait_event(fi->page_waitq, fi->writectr == FUSE_NOWRITE);
 }
 
 /*

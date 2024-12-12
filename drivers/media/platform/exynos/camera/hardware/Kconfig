@@ -1,0 +1,16 @@
+config USE_SENSOR_GROUP
+	bool "Use sensor group feature"
+	depends on EXYNOS_PABLO_ISP
+	default y
+	help
+	  Enalbe sensor group feature.
+
+config CAMERA_PDP
+	bool "Use PDP"
+	depends on EXYNOS_DEVICE_CAMERA_MODULE
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  Use to build PDP.
+
+source "drivers/media/platform/exynos/camera/hardware/api/Kconfig"

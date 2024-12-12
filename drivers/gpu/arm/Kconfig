@@ -1,0 +1,94 @@
+#
+# (C) COPYRIGHT 2012 ARM Limited. All rights reserved.
+#
+# This program is free software and is provided to you under the terms of the
+# GNU General Public License version 2 as published by the Free Software
+# Foundation, and any use by you of this program is subject to the terms
+# of such GNU licence.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, you can access it online at
+# http://www.gnu.org/licenses/gpl-2.0.html.
+#
+# SPDX-License-Identifier: GPL-2.0
+#
+#
+
+menu "ARM GPU Configuration"
+
+choice
+	prompt "Mali Version Configuration"
+	default MALI_DDK_VALHALL_R32P1 if $(SEC_BUILD_CONF_VENDOR_BUILD_OS) <= 12
+	default MALI_DDK_VALHALL_R32P1 if $(SEC_BUILD_CONF_VENDOR_BUILD_OS) = 13
+	default MALI_DDK_VALHALL_R38P0 if $(SEC_BUILD_CONF_VENDOR_BUILD_OS) >= 14
+
+	help
+	  Select Mali GPU driver version.
+
+config MALI_DDK_NONE
+	bool "None"
+
+config MALI_DDK_VALHALL_R20P0
+	bool "Valhall r20p0"
+
+config MALI_DDK_VALHALL_R23P0
+	bool "Valhall r23p0 driver"
+
+config MALI_DDK_VALHALL_R24P0
+	bool "Valhall r24p0 driver"
+
+config MALI_DDK_VALHALL_R25P1
+	bool "Valhall r25p1 driver"
+
+config MALI_DDK_VALHALL_R26P0
+	bool "Valhall r26p0 driver"
+
+config MALI_DDK_VALHALL_R32P1
+	bool "Valhall r32p1 driver"
+
+config MALI_DDK_VALHALL_R38P0
+	bool "Valhall r38p0 driver"
+
+config MALI_DDK_VALHALL_R38P1
+	bool "Valhall r38p1 driver"
+
+endchoice
+
+if MALI_DDK_VALHALL_R20P0
+source "drivers/gpu/arm/v_r20p0/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R23P0
+source "drivers/gpu/arm/v_r23p0/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R24P0
+source "drivers/gpu/arm/v_r24p0/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R25P1
+source "drivers/gpu/arm/bv_r25p1/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R26P0
+source "drivers/gpu/arm/bv_r26p0/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R32P1
+source "drivers/gpu/arm/bv_r32p1/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R38P0
+source "drivers/gpu/arm/bv_r38p0/Kconfig"
+endif
+
+if MALI_DDK_VALHALL_R38P1
+source "drivers/gpu/arm/bv_r38p1/Kconfig"
+endif
+
+endmenu

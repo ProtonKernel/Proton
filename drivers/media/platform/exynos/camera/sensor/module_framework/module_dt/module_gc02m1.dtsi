@@ -1,0 +1,189 @@
+/*
+ * SAMSUNG EXYNOSxxxx board camera device tree source
+ *
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/camera/exynos_is_dt.h>
+
+#ifndef USE_VENDOR_PWR_PIN_NAME
+#define GC02M1_IOVDD "CAM_VLDO3"     /* CAM_VDDIO_1P8 : CAM_VLDO3 is used for all camera commonly */
+#define GC02M1_AVDD	"CAM_VLDO6"     /* RCAM1_AVDD1_2P9 */
+#define GC02M1_DVDD	"CAM_VLDO1"     /* RCAM1_DVDD_1P1 */
+#endif
+
+/ {
+	fragment@camera {
+		target-path = "/";
+		__overlay__ {
+			is_sensor_gc02m1: is_sensor_gc02m1@6E {
+				compatible = "samsung,sensor-module";
+
+				/* common */
+				sensor_id = <SENSOR_NAME_GC02M1>;
+				active_width = <1600>;
+				active_height = <1200>;
+				margin_left = <0>;
+				margin_right = <0>;
+				margin_top = <0>;
+				margin_bottom = <0>;
+				max_framerate = <60>;
+				bitwidth = <10>;
+				use_retention_mode = <SENSOR_RETENTION_INACTIVE>;
+				sensor_maker = "GALAXYCORE";
+				sensor_name = "GC02M1";
+				setfile_name = "setfile_gc02m1.bin";
+				sensor_module_type = <SENSOR_TYPE_MONO>;
+
+				status = "okay";
+
+				/* sensor modes */
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+
+					/* 0 : 1600x1200@30fps 4:3 */
+					mode0 {
+						common = <1600 1200 30 0 0 CSI_DATA_LANES_1 672 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1600 1200	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+					};
+
+					scenario_vision_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; 		pin = <act value dealy voltage>;	gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_vision_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; 		pin = <act value dealy voltage>;	gpio = <gpx# # 0x1>; */
+					};
+				};
+			};
+
+			is_sensor_gc02m1_macro: is_sensor_gc02m1_macro@A4 {
+				compatible = "samsung,sensor-module";
+
+				/* common */
+				sensor_id = <SENSOR_NAME_GC02M1>;
+				active_width = <1600>;
+				active_height = <1200>;
+				margin_left = <0>;
+				margin_right = <0>;
+				margin_top = <0>;
+				margin_bottom = <0>;
+				max_framerate = <60>;
+				bitwidth = <10>;
+				use_retention_mode = <SENSOR_RETENTION_INACTIVE>;
+				sensor_maker = "GALAXYCORE";
+				sensor_name = "GC02M1";
+				setfile_name = "setfile_gc02m1_macro.bin";
+
+				status = "okay";
+
+				/* sensor modes */
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+
+					/* 0 : 1600x1200@30fps 4:3 */
+					mode0 {
+						common = <1600 1200 30 0 0 CSI_DATA_LANES_1 672 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1600 1200	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+					};
+
+					scenario_vision_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; 		pin = <act value dealy voltage>;	gpio = <gpx# # 0x1>; */
+					};
+
+					scenario_vision_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; 		pin = <act value dealy voltage>;	gpio = <gpx# # 0x1>; */
+					};
+				};
+			};
+
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */

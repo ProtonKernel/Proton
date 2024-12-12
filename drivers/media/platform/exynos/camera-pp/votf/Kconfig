@@ -1,0 +1,6 @@
+menuconfig VIDEO_EXYNOS_CAMERA_POSTPROCESS_VOTF
+	tristate "EXYNOS CAMERA POSTPROCESS VOTF Driver"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS
+	default n
+	help
+		This is a representative exynos CAMERA-PP VOTF device.

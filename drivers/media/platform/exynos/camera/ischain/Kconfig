@@ -1,0 +1,20 @@
+config EXYNOS_PABLO_ISP
+	bool "Use Chain driver"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	default y
+	help
+	  This config abstracts driver source folder.
+
+choice PABLO_HW_VERSION
+	prompt "Select Pablo HW Version"
+	depends on EXYNOS_PABLO_ISP
+	help
+	  Select Pablo ISP Version.
+
+source "drivers/media/platform/exynos/camera/ischain/is-v8_1_0/Kconfig"
+source "drivers/media/platform/exynos/camera/ischain/is-v8_10_0/Kconfig"
+source "drivers/media/platform/exynos/camera/ischain/is-v8_20_0/Kconfig"
+
+source "drivers/media/platform/exynos/camera/ischain/is-v9_1_0/Kconfig"
+
+endchoice

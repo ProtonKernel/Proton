@@ -1,0 +1,8 @@
+#
+# net: logging dropped skb
+#
+
+comment "Enable Dropdump to logging dropped network packet"
+
+config SUPPORT_DROPDUMP
+	tristate "Network packet drop logging service for tcpdump"

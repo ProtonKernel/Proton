@@ -39,6 +39,18 @@
 
 #include "rndis.h"
 
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+int rndis_ul_max_pkt_per_xfer_rcvd;
+module_param(rndis_ul_max_pkt_per_xfer_rcvd, int, 0444);
+MODULE_PARM_DESC(rndis_ul_max_pkt_per_xfer_rcvd,
+		"Max num of REMOTE_NDIS_PACKET_MSGs received in a single transfer");
+
+int rndis_ul_max_xfer_size_rcvd;
+module_param(rndis_ul_max_xfer_size_rcvd, int, 0444);
+MODULE_PARM_DESC(rndis_ul_max_xfer_size_rcvd,
+		"Max size of bus transfer received");
+extern struct rndis_multipacket *g_rndis_mp;
+#endif
 
 /* The driver for your USB chip needs to support ep0 OUT to work with
  * RNDIS, plus all three CDC Ethernet endpoints (interrupt not optional).
@@ -576,12 +588,21 @@ static int rndis_init_response(struct rndis_params *params,
 	resp->MinorVersion = cpu_to_le32(RNDIS_MINOR_VERSION);
 	resp->DeviceFlags = cpu_to_le32(RNDIS_DF_CONNECTIONLESS);
 	resp->Medium = cpu_to_le32(RNDIS_MEDIUM_802_3);
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+	resp->MaxPacketsPerTransfer = cpu_to_le32(g_rndis_mp->max_pkt_per_xfer);
+	resp->MaxTransferSize = cpu_to_le32(g_rndis_mp->max_pkt_per_xfer *
+		(params->dev->mtu
+		+ sizeof(struct ethhdr)
+		+ sizeof(struct rndis_packet_msg_type)
+		+ 22));
+#else
 	resp->MaxPacketsPerTransfer = cpu_to_le32(1);
 	resp->MaxTransferSize = cpu_to_le32(
-		  params->dev->mtu
+		params->dev->mtu
 		+ sizeof(struct ethhdr)
 		+ sizeof(struct rndis_packet_msg_type)
 		+ 22);
+#endif
 	resp->PacketAlignmentFactor = cpu_to_le32(0);
 	resp->AFListOffset = cpu_to_le32(0);
 	resp->AFListSize = cpu_to_le32(0);
@@ -967,6 +988,11 @@ int rndis_set_param_dev(struct rndis_params *params, struct net_device *dev,
 	params->dev = dev;
 	params->filter = cdc_filter;
 
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+	rndis_ul_max_xfer_size_rcvd = 0;
+	rndis_ul_max_pkt_per_xfer_rcvd = 0;
+#endif
+
 	return 0;
 }
 EXPORT_SYMBOL_GPL(rndis_set_param_dev);
@@ -998,6 +1024,15 @@ int rndis_set_param_medium(struct rndis_params *params, u32 medium, u32 speed)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(rndis_set_param_medium);
+
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+void rndis_set_max_pkt_xfer(u8 max_pkt_per_xfer)
+{
+	pr_debug("%s:\n", __func__);
+
+	g_rndis_mp->max_pkt_per_xfer = max_pkt_per_xfer;
+}
+#endif
 
 void rndis_add_hdr(struct sk_buff *skb)
 {
@@ -1068,6 +1103,84 @@ static rndis_resp_t *rndis_add_response(struct rndis_params *params, u32 length)
 	return r;
 }
 
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+int rndis_rm_hdr(struct gether *port,
+			struct sk_buff *skb,
+			struct sk_buff_head *list)
+{
+	int num_pkts = 1;
+
+	if (skb->len > rndis_ul_max_xfer_size_rcvd)
+		rndis_ul_max_xfer_size_rcvd = skb->len;
+
+	while (skb->len) {
+		struct rndis_packet_msg_type *hdr;
+		struct sk_buff          *skb2;
+		u32             msg_len, data_offset, data_len;
+
+		/* some rndis hosts send extra byte to avoid zlp, ignore it */
+		if (skb->len == 1) {
+			dev_kfree_skb_any(skb);
+			return 0;
+		}
+
+		if (skb->len < sizeof(*hdr)) {
+			pr_err("invalid rndis pkt: skblen:%u hdr_len:%zu",
+					skb->len, sizeof(*hdr));
+			dev_kfree_skb_any(skb);
+			return -EINVAL;
+		}
+
+		hdr = (void *)skb->data;
+		msg_len = le32_to_cpu(hdr->MessageLength);
+		data_offset = le32_to_cpu(hdr->DataOffset);
+		data_len = le32_to_cpu(hdr->DataLength);
+
+		if (skb->len < msg_len ||
+				((data_offset + data_len + 8) > msg_len)) {
+			pr_err("invalid rndis message: %d/%d/%d/%d, len:%d\n",
+					le32_to_cpu(hdr->MessageType),
+					msg_len, data_offset, data_len, skb->len);
+			dev_kfree_skb_any(skb);
+			return -EOVERFLOW;
+		}
+		if (le32_to_cpu(hdr->MessageType) != RNDIS_MSG_PACKET) {
+			pr_err("invalid rndis message: %d/%d/%d/%d, len:%d\n",
+					le32_to_cpu(hdr->MessageType),
+					msg_len, data_offset, data_len, skb->len);
+			dev_kfree_skb_any(skb);
+			return -EINVAL;
+		}
+
+		skb_pull(skb, data_offset + 8);
+
+		if (data_len == skb->len ||
+				data_len == (skb->len - 1)) {
+			skb_trim(skb, data_len);
+			break;
+		}
+
+		skb2 = skb_clone(skb, GFP_ATOMIC);
+		if (!skb2) {
+			pr_err("%s:skb clone failed\n", __func__);
+			dev_kfree_skb_any(skb);
+			return -ENOMEM;
+		}
+
+		skb_pull(skb, msg_len - sizeof(*hdr));
+		skb_trim(skb2, data_len);
+		skb_queue_tail(list, skb2);
+
+		num_pkts++;
+	}
+
+	if (num_pkts > rndis_ul_max_pkt_per_xfer_rcvd)
+		rndis_ul_max_pkt_per_xfer_rcvd = num_pkts;
+
+	skb_queue_tail(list, skb);
+	return 0;
+}
+#else
 int rndis_rm_hdr(struct gether *port,
 			struct sk_buff *skb,
 			struct sk_buff_head *list)
@@ -1093,6 +1206,7 @@ int rndis_rm_hdr(struct gether *port,
 	skb_queue_tail(list, skb);
 	return 0;
 }
+#endif
 EXPORT_SYMBOL_GPL(rndis_rm_hdr);
 
 #ifdef CONFIG_USB_GADGET_DEBUG_FILES

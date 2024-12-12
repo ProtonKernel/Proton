@@ -1,0 +1,262 @@
+config EXYNOS_DPU30
+	tristate "Samsung Exynos Display Sub-system (DPP, DECON, MIPI, DISPLAYPORT)"
+	select EXYNOS_IOMMU if !UML
+	select MEDIA_CAMERA_SUPPORT
+	select PHY_EXYNOS_MIPI_DSIM
+	depends on FB
+
+if EXYNOS_DPU30
+config EXYNOS_DPP
+	bool "Samsung Exynos Display Post Processor driver"
+	depends on EXYNOS_DPU30
+	default y
+
+config EXYNOS_MIPI_DSIM
+	bool "Samsung Exynos MIPI-DSI driver"
+	depends on EXYNOS_DPU30
+	default y
+	help
+	  Enable MIPI-DSI driver.
+
+config EXYNOS_DISPLAYPORT
+	bool "Enable featuring of CONFIG_EXYNOS_DISPLAYPORT"
+	depends on EXYNOS_DPU30
+	default n
+	help
+	  Enable DISPLAYPORT driver.
+
+config EXYNOS_DISPLAYPORT_MODULE
+	tristate "Samsung Exynos DISPLAYPORT driver"
+	select EXYNOS_DISPLAYPORT
+	depends on EXYNOS_DPU30
+	default n
+	help
+	  Enable DISPLAYPORT MODULE driver.
+
+config EXYNOS_DECON_DQE
+	bool "Samsung Exynos DQE driver"
+	depends on EXYNOS_DPU30
+	default n
+	help
+	  Enable DQE driver.
+
+config EXYNOS_WINDOW_UPDATE
+        bool "Support Window Update Mode"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_BLOCK_MODE
+	bool "Support Blocking Mode"
+        depends on EXYNOS_DPU30
+        default y
+
+config EXYNOS_HIBERNATION
+	bool "Support Display Hibernation Mode"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_CHANGE_HIBER_CNT
+	bool "Change Hibernation Entry Count at Runtime"
+        depends on EXYNOS_DPU30 && EXYNOS_HIBERNATION
+        default n
+
+config EXYNOS_DIRECT_PD_CTRL
+	bool "Support Direct DPU Power Domain Control For Hibernation (EXPERIMENTAL)"
+        depends on EXYNOS_DPU30 && EXYNOS_HIBERNATION
+        default n
+
+config EXYNOS_HIBERNATION_EARLY_WAKEUP
+	bool "Support Hibernation Early Wakeup (EXPERIMENTAL)"
+        depends on EXYNOS_DPU30 && EXYNOS_HIBERNATION
+        default n
+
+config EXYNOS_DOZE
+	bool "Support DOZE mode"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_DOZE_HIBERNATION
+    bool "Support Display Hibernation Mode"
+		depends on EXYNOS_DOZE && EXYNOS_HIBERNATION
+		default n
+
+config EXYNOS_AFBC_DEBUG
+	bool "Support AFBC Decoder Debug"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_DECON_BUFFER_SANITY_CHECK
+	bool "Support DMA Buffer Sanity Check for Debugging"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_MULTIRESOLUTION
+	bool "Support Multi Resolution LCD"
+	depends on EXYNOS_DPU30 && EXYNOS_WINDOW_UPDATE
+	default n
+
+config EXYNOS_VIRTUAL_DISPLAY
+	bool "Support Virtual Display Mode"
+	depends on EXYNOS_DPU30
+	default n
+	help
+	  If this menu is enabled, you can boot up board without LCD.
+
+config EXYNOS_READ_ESD_SOLUTION
+	bool "Support ESD solution using read DDI power state"
+	depends on EXYNOS_DPU30
+	default n
+	help
+	  If this menu is enabled, you can detect ESD of panel.
+
+config EXYNOS_READ_ESD_SOLUTION_TEST
+	bool "Support ESD solution using read DDI power state"
+	depends on EXYNOS_READ_ESD_SOLUTION
+	default n
+	help
+	  If this menu is enabled, you can test ESD recovery.
+
+config EXYNOS_LOW_PERSISTENCE
+	bool "Support Low Persistence Mode"
+        depends on EXYNOS_DPU30
+	default n
+
+config EXYNOS_CURSOR
+	bool "Support Cursor Async Mode"
+        depends on EXYNOS_DPU30
+	default n
+
+config EXYNOS_DSIM_DITHER
+	bool "DSIM SSCG feature"
+        depends on EXYNOS_MIPI_DSIM
+        default n
+
+config DECON_BTS_LEGACY
+	bool "Legacy BTS scheme of display"
+        depends on EXYNOS_DPU30
+        default n
+
+config DECON_BTS_VRR_ASYNC
+	bool "BTS support VRR Async"
+        depends on EXYNOS_DPU30
+        default n
+
+config FB_TEST
+	bool "Framebuffer test only"
+        depends on EXYNOS_DPU30
+        default n
+
+config DSIM_CMD_TEST
+	bool "DSIM command test only"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_FREQ_HOP
+	bool "Support DPHY PLL Frequency Hopping"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_PLL_SLEEP
+	bool "Support DPHY PLL Sleep"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_EWR
+	bool "Support early wake up"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_LIMIT_ROTATION
+	bool "Limit Rotation based on Size and Bit-depth"
+        depends on EXYNOS_DPU30
+        default n
+
+config EXYNOS_SUPPORT_READBACK
+	bool "Support readback buffer"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_SUPPORT_WB
+	bool "Support write back"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_SUPPORT_HWFC
+	bool "Support HardwareFlowContrl"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_LATENCY_MONITOR
+	bool "Read Data Latency Monitor"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_EMUL_DISP
+	bool "Support Emulator Display"
+		depends on EXYNOS_DPU30
+		default n
+endif
+
+config EXYNOS_COMMON_PANEL
+	depends on EXYNOS_DPU30
+	select BACKLIGHT_CLASS_DEVICE
+	default y
+	tristate "Support Exynos Common Panel Driver"
+
+config EXYNOS_DECON_LCD_CABC
+	bool "Support CABC using DDI command"
+	depends on EXYNOS_COMMON_PANEL
+	default n
+	help
+	  If this menu is enabled, you can control CABC mode of panel.
+
+config EXYNOS_DMA_DSIMFC
+	bool "Support DMA DSIM Fast Command"
+        depends on EXYNOS_DPU30
+	default n
+
+config EXYNOS_SUPPORT_VOTF_IN
+	bool "Support vOTF input"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_SUPPORT_8K_SPLIT
+	bool "Support 8k Split processing"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_SBWC_LIBREQ
+	bool "Support Exynos SWBC Decode Library"
+		depends on EXYNOS_DPU30
+		default n
+
+config EXYNOS_SET_ACTIVE
+	bool "(MCD)Support Set active control for mres/vrr"
+	depends on EXYNOS_DPU30
+	default y
+
+config USE_DISPLAYPORT_PDIC_EVENT_QUEUE
+	bool "use queue for PDIC notifications"
+        depends on EXYNOS_DISPLAYPORT
+        default n
+	help
+	  For supporting PDIC event queue
+
+config DISPLAYPORT_ENG
+	bool "DISPLAYPORT eng bin"
+	depends on EXYNOS_DISPLAYPORT
+	default n
+	help
+	  For DISPLAYPORT eng binary
+
+config MCDHDR
+	bool "Supprot HDR/WCG Driver for MCD"
+	depends on EXYNOS_DPU30
+	default n
+
+config DP_DRV_TEST
+	bool "KUnit test for dp_drv_test"
+	depends on SEC_KUNIT
+	default n
+	help
+	  enable KUNIT test for Displayport driver

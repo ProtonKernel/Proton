@@ -1,0 +1,329 @@
+/*
+ * SAMSUNG EXYNOSxxxx board camera device tree source
+ *
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/camera/exynos_is_dt.h>
+
+/ {
+	fragment@camera {
+		target-path = "/";
+		__overlay__ {
+			is_sensor_3j1: is_sensor_3j1@10 {
+				compatible = "samsung,sensor-module";
+
+				/* common */
+				sensor_id = <SENSOR_NAME_S5K3J1>;
+				active_width = <3968>;
+				active_height = <2736>;
+				margin_left = <0>;
+				margin_right = <0>;
+				margin_top = <0>;
+				margin_bottom = <0>;
+				max_framerate = <240>;
+				bitwidth = <10>;
+				use_retention_mode = <SENSOR_RETENTION_UNSUPPORTED>;
+				sensor_maker = "SLSI";
+				sensor_name = "SAK3J1";
+				setfile_name = "setfile_3j1.bin";
+
+				status = "okay";
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT0*/ 1000 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 512 84 1>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT1*/ 1001 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 512 84 1>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				/* 3J1 sensor setting version - S5K3J1S_EVT0_Ver_0.10_1800718_forVendor */
+				/* sensor modes */
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						common = <3648 2736 30 0 0 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3648 2736	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 2736>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 684	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 684>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode1 {
+						common = <2736 2736 30 0 1 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 2736 2736	/* out */ HW_FORMAT_RAW10 VC_NOTHING 2736 2736>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2736 684	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2736 684>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode2 {
+						common = <3968 2232 30 0 2 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3968 2232	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3968 2232>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3968 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3968 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode3 {
+						common = <3968 1880 30 0 3 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3968 1880	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3968 1880>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3968 470	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3968 470>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode4 {
+						common = <2944 2208 30 0 4 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 2944 2208	/* out */ HW_FORMAT_RAW10 VC_NOTHING 2944 2208>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2944 552	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2944 552>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode5 {
+						common = <3216 1808 30 0 5 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3216 1808	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3216 1808>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3216 452	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3216 452>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode6 {
+						common = <3216 1528 30 0 6 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3216 1528	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3216 1528>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3216 382	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3216 382>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode7 {
+						common = <2208 2208 30 0 7 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 2208 2208	/* out */ HW_FORMAT_RAW10 VC_NOTHING 2208 2208>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2208 552	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2208 552>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode8 {
+						common = <1824 1368 30 0 8 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1824 1368	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1824 1368>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1824 342	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1824 342>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode9 {
+						common = <1988 1120 120 0 9 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1988 1120	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1988 1120>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode10 {
+						common = <1988 1120 240 0 10 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1988 1120	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1988 1120>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode11 {
+						common = <912 684 120 0 11 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 912 684	/* out */ HW_FORMAT_RAW10 VC_NOTHING 912 684>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; special_mode = <IS_SPECIAL_MODE_FASTAE>; };
+					};
+					mode12 {
+						common = <1472 1104 30 0 12 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1472 1104	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1472 1104>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1472 276	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1472 276>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode13 {
+						common = <1616 904 30 0 13 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1616 904	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1616 904>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1616 226	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1616 226>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode14 {
+						common = <1616 768 30 0 14 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1616 768	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1616 768>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1616 192	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1616 192>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode15 {
+						common = <1104 1104 30 0 15 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1104 1104	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1104 1104>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1104 276	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1104 276>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode16 { /* FD unlock mode */
+						common = <3648 2736 30 0 16 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE EX_PDSTAT_OFF>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3648 2736	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 2736>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 342	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 342>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+					};
+					mode17 {
+						common = <3968 2232 60 0 17 CSI_DATA_LANES_4 2392 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3968 2232	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3968 2232>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3968 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3968 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode18 {
+						common = <3216 2208 30 0 18 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3216 2208	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3216 2208>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3216 552	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3216 552>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode19 { /* MF */
+						common = <3648 2648 30 0 19 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3648 2648	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 2648>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 662	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 662>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode20 { /* MF */
+						common = <3648 2052 60 0 20 CSI_DATA_LANES_4 2392 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3648 2052	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 2052>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 512	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 512>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode21 { /* MF */
+						common = <3648 2052 30 0 21 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3648 2052	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3648 2052>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 512	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 512>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode22 {
+						common = <1988 1120 30 0 22 CSI_DATA_LANES_4 1807 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MOD3 EX_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1988 1120	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1988 1120>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 280	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 280>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0	/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "VDDAF_2.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						20 { pname = "VDDA_2.95V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						30 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						40 { pname = "VDDD_1.05V_VT"; pin = <PIN_REGULATOR 1 1000>; };
+						50 { pname = "on_i2c"; pin = <PIN_I2C 1 10>; };
+						60 { pname = "rst_high"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpp13 0 0x1>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; };
+						80 { pname = "MCLK"; pin = <PIN_MCLK 1 9000>; };
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "MCLK"; pin = <PIN_MCLK 0 1>; };
+						20 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						30 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						40 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						50 { pname = "rst_low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 0 0x1>; };
+						60 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						70 { pname = "VDDAF_2.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						80 { pname = "VDDD_1.05V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						90 { pname = "VDDA_2.95V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						100 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+					};
+
+					scenario_vision_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "VDDAF_2.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						20 { pname = "VDDA_2.95V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						30 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						40 { pname = "VDDD_1.05V_VT"; pin = <PIN_REGULATOR 1 1000>; };
+						50 { pname = "on_i2c"; pin = <PIN_I2C 1 10>; };
+						60 { pname = "rst_high"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpp13 0 0x1>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; };
+						80 { pname = "MCLK"; pin = <PIN_MCLK 1 9000>; };
+					};
+
+					scenario_vision_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "MCLK"; pin = <PIN_MCLK 0 1>; };
+						20 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						30 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						40 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						50 { pname = "rst_low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 0 0x1>; };
+						60 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						70 { pname = "VDDAF_2.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						80 { pname = "VDDD_1.05V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						90 { pname = "VDDA_2.95V_VT"; pin = <PIN_REGULATOR 0 0>; };
+						100 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						20 { pname = "on_i2c"; pin = <PIN_I2C 1 10>; };
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						20 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+					};
+				};
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */

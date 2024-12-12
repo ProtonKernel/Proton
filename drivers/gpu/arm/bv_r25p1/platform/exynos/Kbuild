@@ -1,0 +1,43 @@
+#
+# (C) COPYRIGHT 2012 ARM Limited. All rights reserved.
+#
+# This program is free software and is provided to you under the terms of the
+# GNU General Public License version 2 as published by the Free Software
+# Foundation, and any use by you of this program is subject to the terms
+# of such GNU licence.
+#
+# A copy of the licence is included with the program, and can also be obtained
+# from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301, USA.
+#
+#
+
+MALI_CUSTOMER_RELEASE = 1
+DEFINES +=-DMALI_SEC_PROBE_TEST=0
+
+# EXYNOS THERMAL
+THERMAL_PATH = $(srctree)/drivers/thermal/samsung/
+
+KBASE_PATH = $(srctree)/drivers/gpu/arm/bv_r25p1
+
+ccflags-y += $(DEFINES) -I$(THERMAL_PATH) -I$(KBASE_PATH) -I$(KBASE_PATH)/debug \
+	-I$(KBASE_PATH)/debug/backend
+subdir-ccflags-y += $(DEFINES) -I$(THERMAL_PATH)
+
+soc_name := $(shell echo $(CONFIG_EXYNOS_SOC_NAME))
+
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_integration_callbacks.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/mali_kbase_platform.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_notifier.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_control.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_pmqos.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_utilization.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_dvfs_handler.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_dvfs_api.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_dvfs_governor.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_job_fence_debug.o
+mali_kbase-y += $(MALI_PLATFORM_DIR)/gpu_llc.o
+mali_kbase-$(CONFIG_MALI_DEBUG_SYS) += $(MALI_PLATFORM_DIR)/gpu_custom_interface.o
+mali_kbase-$(CONFIG_CPU_THERMAL_IPA) += $(MALI_PLATFORM_DIR)/gpu_ipa.o
+mali_kbase-$(CONFIG_MALI_EXYNOS_SECURE_RENDERING_LEGACY) += $(MALI_PLATFORM_DIR)/gpu_protected_mode.o
+mali_kbase-$(CONFIG_MALI_EXYNOS_SECURE_RENDERING_ARM) += $(MALI_PLATFORM_DIR)/gpu_protected_mode.o

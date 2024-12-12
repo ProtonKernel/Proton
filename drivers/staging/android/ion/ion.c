@@ -26,6 +26,18 @@
 #include <linux/uaccess.h>
 
 #include "ion_private.h"
+#include "ion_bltin.h"
+
+/*
+ * ION_IOC_FREE and ion_handle_data is deprecated from ION after 4.14.
+ * But it is used to study the version of ION by libion in Android.
+ * Therefore, ion_ioctl() should not blaim if a user send ION_IOC_FREE.
+ */
+struct ion_handle_data {
+	int handle;
+};
+
+#define ION_IOC_FREE	_IOWR(ION_IOC_MAGIC, 1, struct ion_handle_data)
 
 #define ION_CURRENT_ABI_VERSION  2
 
@@ -56,8 +68,10 @@ static int ion_alloc_fd(size_t len, unsigned int heap_id_mask,
 		return PTR_ERR(dmabuf);
 
 	fd = dma_buf_fd(dmabuf, O_CLOEXEC);
-	if (fd < 0)
+	if (fd < 0) {
+		pr_err("%s: failed to get dmabuf fd err %d\n", __func__, -fd);
 		dma_buf_put(dmabuf);
+	}
 
 	return fd;
 }
@@ -111,8 +125,10 @@ static int ion_query_heaps(struct ion_heap_query *query)
 		goto out;
 	}
 
-	if (query->cnt <= 0)
+	if (query->cnt <= 0) {
+		pr_err("%s: invalid heapdata cnt %u\n", __func__, query->cnt);
 		goto out;
+	}
 
 	max_cnt = query->cnt;
 
@@ -166,8 +182,10 @@ static long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	int ret = 0;
 	union ion_ioctl_arg data;
 
-	if (_IOC_SIZE(cmd) > sizeof(data))
+	if (_IOC_SIZE(cmd) > sizeof(data)) {
+		pr_err("%s: unknown ioctl %#x\n", __func__, cmd);
 		return -EINVAL;
+	}
 
 	/*
 	 * The copy_from_user is unconditional here for both read and write
@@ -208,6 +226,9 @@ static long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		data.ion_abi_version = ION_CURRENT_ABI_VERSION;
 		break;
 	default:
+		if (cmd != ION_IOC_FREE)
+			pr_err("%s: unknown ioctl %#x\n", __func__, cmd);
+
 		return -ENOTTY;
 	}
 
@@ -481,6 +502,36 @@ static int ion_init_sysfs(void)
 	return 0;
 }
 
+void show_ion_heap_size(struct seq_file *s)
+{
+	struct ion_device *dev = internal_dev;
+	struct ion_heap *heap;
+
+	if (!down_read_trylock(&dev->lock))
+		return;
+
+	plist_for_each_entry(heap, &dev->heaps, node)
+	if (s) {
+		seq_printf(s, "ion%s: %8lu kB\n", heap->name,
+			heap->num_of_alloc_bytes >> 10);
+	} else {
+		pr_cont("ion%s:%lukB ", heap->name,
+			heap->num_of_alloc_bytes >> 10);
+	}
+	up_read(&dev->lock);
+}
+
+static int ion_heap_size_notifier(struct notifier_block *nb,
+				  unsigned long action, void *data)
+{
+	show_ion_heap_size((struct seq_file *)data);
+	return 0;
+}
+
+static struct notifier_block ion_heap_size_nb = {
+	.notifier_call = ion_heap_size_notifier,
+};
+
 static int ion_device_create(void)
 {
 	struct ion_device *idev;
@@ -510,6 +561,10 @@ static int ion_device_create(void)
 	init_rwsem(&idev->lock);
 	plist_head_init(&idev->heaps);
 	internal_dev = idev;
+
+	ion_bltin_debug_init(idev->debug_root);
+
+	show_mem_extra_notifier_register(&ion_heap_size_nb);
 	return 0;
 
 err_sysfs:

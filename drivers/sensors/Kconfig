@@ -1,0 +1,88 @@
+#
+# grip sensors configuration
+#
+
+menuconfig SENSORS
+	bool "Sensor devices"
+	help
+	  Say Y here, and a list of sensors drivers will be displayed.
+	  Everything that didn't fit into the other categories is here. This option
+	  doesn't affect the kernel.
+	  If unsure, say Y.
+
+config SENSORS_SX9360
+	depends on I2C
+	tristate "SX9360 driver"
+	default n
+	help
+	  Say Y here if you use sx9360.
+	  This option enables grip sensors using
+	  SemTech sx9360 device driver.
+	  Say N here if you do not use sx9360.
+
+config SENSORS_SX9360_SUB
+	depends on I2C
+	tristate "SX9360 sub driver"
+	default n
+	help
+	  Say Y here if you use sx9360 sub.
+	  This option enables grip sensors using
+	  SemTech sx9360 sub device driver.
+	  Say N here if you do not use sx9360 sub.
+
+config SENSORS_SX9364
+	depends on I2C
+	tristate "SX9364 driver"
+	default n
+	help
+	  Say Y here if you use sx9364.
+	  This option enables grip sensors using
+	  SemTech sx9360 device driver.
+	  Say N here if you do not use sx9364.
+
+config SENSORS_SX9364_SUB
+	depends on I2C
+	tristate "SX9364_SUB driver"
+	default n
+	help
+	  Say Y here if you use sx9364_sub.
+	  This option enables grip sensors using
+	  SemTech sx9364_sub device driver.
+	  Say N here if you do not use sx9364_sub.
+
+config SENSORS_SX9364_SUB2
+	depends on I2C
+	tristate "SX9364_SUB2 driver"
+	default n
+	help
+	  Say Y here if you use sx9364_sub2.
+	  This option enables grip sensors using
+	  SemTech sx9364_sub2 device driver.
+	  Say N here if you do not use sx9364_sub2.
+
+config SENSORS_ISG5320A
+	depends on I2C
+	tristate "ISG5320A grip"
+	default n
+	help
+	  If you say yes here if you use ISG5320A for grip.
+	  This option enables grip sensors using
+	  IMAGIS ISG5320A device driver for grip.
+
+config SENSORS_ISG5320A_SUB
+	depends on I2C
+	tristate "ISG5320A sub grip"
+	default n
+	help
+	  If you say yes here if you use ISG5320A for grip.
+	  This option enables grip sensors using
+	  IMAGIS ISG5320A device driver for grip.
+
+config SENSORS_ISG5320A_O1S
+	depends on I2C
+	tristate "ISG5320A O1S grip"
+	default n
+	help
+	  If you say yes here if you use O1S project for grip.
+	  This option enables grip sensors using
+	  O1S device driver for grip.

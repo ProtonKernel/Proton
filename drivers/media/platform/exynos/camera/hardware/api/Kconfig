@@ -1,0 +1,77 @@
+config MC_SCALER_V5_0
+	bool "Use MC-SCALER H/W v5.0"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v5.0
+
+config MC_SCALER_V8_0
+	bool "Use MC-SCALER H/W v8.0"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v8.0
+
+config MC_SCALER_V8_1
+	bool "Use MC-SCALER H/W v8.1"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v8.1
+
+config MC_SCALER_V8_10
+	bool "Use MC-SCALER H/W v8.10"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v8.10
+
+config MC_SCALER_V8_20
+	bool "Use MC-SCALER H/W v8.20"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v8.20
+
+config MC_SCALER_V9_1
+	bool "Use MC-SCALER H/W v9.1"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use mc-scaler v9.1
+
+config VRA_V2_0
+	bool "Use VRA H/W v2.0"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+	  use vra v2.0
+
+config PDP_V1_0
+        bool "Use PDP H/W v1.0"
+	depends on EXYNOS_PABLO_ISP
+        default n
+        help
+          use PDP v1.0
+
+config PDP_V1_0_0
+        bool "Use PDP H/W v1.0.0"
+	depends on EXYNOS_PABLO_ISP
+        default n
+        help
+          use PDP v1.0.0
+
+config PDP_V3_1
+        bool "Use PDP H/W v3.1"
+	depends on EXYNOS_PABLO_ISP
+        default n
+        help
+          use PDP v3.1
+
+config YUVPP_V2_1
+        bool "Use YUVPP H/W v2.1"
+	depends on EXYNOS_PABLO_ISP
+        default n
+        help
+          use YUVPP v2.1
+

@@ -8,8 +8,26 @@
  */
 
 #include <linux/platform_device.h>
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+#include <linux/usb/exynos_usb_audio.h>
+#endif
 
 #include "core.h"
+
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+struct host_data xhci_data;
+EXPORT_SYMBOL_GPL(xhci_data);
+#endif
+
+struct usb_xhci_pre_alloc {
+	u8 *pre_dma_alloc;
+	u64 offset;
+
+	dma_addr_t	dma;
+};
+
+struct usb_xhci_pre_alloc xhci_pre_alloc;
+EXPORT_SYMBOL_GPL(xhci_pre_alloc);
 
 static int dwc3_host_get_irq(struct dwc3 *dwc)
 {
@@ -49,6 +67,9 @@ int dwc3_host_init(struct dwc3 *dwc)
 	struct resource		*res;
 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
 	int			prop_idx = 0;
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	dma_addr_t	dma;
+#endif
 
 	irq = dwc3_host_get_irq(dwc);
 	if (irq < 0)
@@ -75,6 +96,11 @@ int dwc3_host_init(struct dwc3 *dwc)
 	}
 
 	xhci->dev.parent	= dwc->dev;
+	//xhci->dev.dma_mask	= dwc->dev->dma_mask;
+	//xhci->dev.dma_parms	= dwc->dev->dma_parms;
+	//xhci->dev.archdata.dma_ops = dwc->dev->archdata.dma_ops;
+
+	dma_set_coherent_mask(&xhci->dev, dwc->dev->coherent_dma_mask);
 
 	dwc->xhci = xhci;
 
@@ -92,6 +118,14 @@ int dwc3_host_init(struct dwc3 *dwc)
 
 	if (dwc->usb2_lpm_disable)
 		props[prop_idx++] = PROPERTY_ENTRY_BOOL("usb2-lpm-disable");
+
+	/* pre dma_alloc */
+	xhci_pre_alloc.pre_dma_alloc = dma_alloc_coherent(dwc->dev, SZ_2M,
+					&xhci_pre_alloc.dma, GFP_KERNEL);
+	if (!xhci_pre_alloc.pre_dma_alloc) {
+		dev_err(dwc->dev, "%s: dma_alloc fail!!!!\n", __func__);
+		goto err;
+	}
 
 	/**
 	 * WORKAROUND: dwc3 revisions <=3.00a have a limitation
@@ -113,11 +147,29 @@ int dwc3_host_init(struct dwc3 *dwc)
 		}
 	}
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	/* In data buf alloc */
+	xhci_data.in_data_addr = dma_alloc_coherent(dwc->dev,
+			(PAGE_SIZE * 256), &dma, GFP_KERNEL);
+	xhci_data.in_data_dma = dma;
+	dev_info(dwc->dev, "// IN Data address = 0x%llx (DMA), %p (virt)",
+		(unsigned long long)xhci_data.in_data_dma, xhci_data.in_data_addr);
+
+	/* Out data buf alloc */
+	xhci_data.out_data_addr = dma_alloc_coherent(dwc->dev,
+			(PAGE_SIZE * 256), &dma, GFP_KERNEL);
+	xhci_data.out_data_dma = dma;
+	dev_info(dwc->dev, "// OUT Data address = 0x%llx (DMA), %p (virt)",
+		(unsigned long long)xhci_data.out_data_dma, xhci_data.out_data_addr);
+#endif
+
+#if 0 // block that host enable is called in booting time
 	ret = platform_device_add(xhci);
 	if (ret) {
 		dev_err(dwc->dev, "failed to register xHCI device\n");
 		goto err;
 	}
+#endif
 
 	return 0;
 err:

@@ -84,6 +84,11 @@ static DECLARE_WORK(update_topology_flags_work, update_topology_flags_workfn);
 
 static DEVICE_ATTR_RO(cpu_capacity);
 
+void topology_update(void)
+{
+	schedule_work(&update_topology_flags_work);
+}
+
 static int register_cpu_capacity_sysctl(void)
 {
 	int i;

@@ -1,0 +1,100 @@
+# drivers/samsung/debug/Kconfig
+#
+# Copyright (c) 2010-2020 Samsung Electronics Co., Ltd.
+#               http://www.samsung.com/
+#
+# Licensed under GPLv2
+
+menu "Samsung TN Extension Feature"
+config SEC_EXT
+	bool "Samsung TN extension Feature"
+	default y
+
+menuconfig SEC_DEBUG
+	tristate "Enable Samsung Debugging features"
+	default n
+
+config SEC_REBOOT
+	tristate "Enable TN reboot features"
+	default n
+	help
+	  Samsung TN reboot extension Feature. Do additional work when reboot.
+
+config SEC_PMIC_PWRKEY
+	bool "Enable PMIC power key for key crash"
+	help
+	  SEC key crash for PMIC power key.
+
+config SEC_PMIC_PWRKEY_DTNAME
+	string "PMIC power key dt node name"
+	depends on SEC_PMIC_PWRKEY
+	default ""
+	help
+	  Select PMIC power key dt node with key code.
+
+config SEC_KEY_NOTIFIER
+	tristate "Enable Samsung key event notifier"
+	default n
+	help
+	  Samsung Key input event notifier
+
+config SEC_PARAM
+	tristate "Enable Param modification"
+	default n
+	help
+	  Samsung TN Param Feature.
+
+config SEC_BOOTSTAT
+	tristate "Enable TN Bootstat logging"
+	depends on SEC_EXT
+	default n
+	help
+	  This adds support for Samsung boot-stat
+	  To compile this driver as a module, choose M here.
+
+config DRV_SAMSUNG
+	tristate "Samsung sec class/sysfs Feature"
+	depends on SEC_EXT
+	default n
+	help
+	  Samsung sysfs name 'sec' directory create.
+
+config ARGOS
+	tristate "Throughput monitoring Feature"
+	default n
+	help
+	  This option enables monitoring the data throughput and doing several actions for
+	  enhancing the performance such as adjusting the CPU freqency, allocating the tasks
+	  to the appropriate CPU and so on
+
+config ARGOS_CLUSTER_NUM
+	int "The number of CPU clusters (1 ~ 3)"
+	range 1 3
+	depends on ARGOS
+	default 2
+	help
+	  This option enables that argos supports 3 clusters in SMP nodes.
+
+comment "Samsung TN Build Options"
+config SEC_FACTORY
+	bool "SAMSUNG Factory build option"
+	depends on SEC_EXT
+	default n
+	select SEC_PANIC_PCIE_ERR
+	help
+	  Include some codes for Factory binary.
+	  This option is enabled by Factory build option.
+	  In samsung build script, '-F' enables this option.
+
+config SAMSUNG_PRODUCT_SHIP
+	bool "set up for product shipping"
+	depends on SEC_EXT
+	default n
+	help
+	  This option is enabled by SHIP build option.
+	  In samsung build script, '-s' enables this option.
+
+endmenu
+source "drivers/samsung/misc/Kconfig"
+source "drivers/samsung/pm/Kconfig"
+

@@ -1,0 +1,8 @@
+MCD_PANEL_PATH := drivers/video/fbdev/exynos/panel
+if SOC_EXYNOS2100 || SOC_EXYNOS9830 || SOC_EXYNOS9820 || SOC_EXYNOS9610 || UML
+
+source "drivers/video/fbdev/exynos/dpu30/Kconfig"
+source "drivers/video/fbdev/exynos/panel/Kconfig"
+source "drivers/video/fbdev/exynos/dp_logger/Kconfig"
+
+endif

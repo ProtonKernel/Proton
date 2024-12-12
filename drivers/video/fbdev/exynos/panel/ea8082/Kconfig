@@ -1,0 +1,8 @@
+menuconfig EXYNOS_DECON_LCD_EA8082
+	tristate "EA8082 DDI Panel Driver"
+	depends on MCD_PANEL && EXYNOS_MIPI_DSIM
+	default n
+	help
+		This enables EA8082 DDI dependent panel drivers of
+		common panel driver. say Y, if you have a panel based on
+		the EA8082 DDI.

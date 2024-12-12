@@ -1,0 +1,35 @@
+config VIDEO_EXYNOS_PABLO_ISP
+	tristate "Exynos Pablo Camera Driver"
+	depends on VIDEO_EXYNOS
+	select MEDIA_EXYNOS
+	select VIDEO_EXYNOS_FIMC_IS2
+	select EXYNOS_PABLO_ISP
+	select VIDEOBUF2_DMA_SG
+	default n
+	help
+	  This is a v4l2 driver for exynos FIMC-IS device.
+
+config DISABLE_CAMERA_MEM_ATTR
+	bool "Disable memory attr change"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	default n
+
+config DISABLE_CAMERA_SIMD
+	bool "Disable simd ops"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	default n
+
+config CAMERA_DVFS_V2
+	bool "Use Camera DVFS V2"
+	depends on EXYNOS_PABLO_ISP
+	default n
+	help
+		Enable Camera DVFS v2 feature.
+
+# Chain driver
+source "drivers/media/platform/exynos/camera/ischain/Kconfig"
+source "drivers/media/platform/exynos/camera/hardware/Kconfig"
+source "drivers/media/platform/exynos/camera/vendor/Kconfig"
+
+# Sensor driver
+source "drivers/media/platform/exynos/camera/sensor/Kconfig"

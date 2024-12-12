@@ -345,6 +345,44 @@ err:
 	return count;
 }
 
+static int memory_process_operation(struct memory_block *mem, int optype)
+{
+	int ret;
+
+	ret = lock_device_hotplug_sysfs();
+	if (ret)
+		return ret;
+
+	switch (optype) {
+	case MMOP_ONLINE_MOVABLE:
+		mem->online_type = optype;
+		ret = device_online(&mem->dev);
+		break;
+	case MMOP_OFFLINE:
+		ret = device_offline(&mem->dev);
+		break;
+	default:
+		ret = -EINVAL; /* should never happen */
+	}
+
+	unlock_device_hotplug();
+
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+int memory_block_online(struct memory_block *mem)
+{
+	return memory_process_operation(mem, MMOP_ONLINE_MOVABLE);
+}
+
+int memory_block_offline(struct memory_block *mem)
+{
+	return memory_process_operation(mem, MMOP_OFFLINE);
+}
+
 /*
  * phys_device is a bad name for this.  What I really want
  * is a way to differentiate between memory ranges that

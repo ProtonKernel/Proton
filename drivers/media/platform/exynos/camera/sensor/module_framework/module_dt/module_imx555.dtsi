@@ -1,0 +1,182 @@
+/*
+ * SAMSUNG EXYNOSxxxx board camera device tree source
+ *
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/camera/exynos_is_dt.h>
+
+/ {
+	fragment@camera {
+		target-path = "/";
+		__overlay__ {
+			is_sensor_imx555: is_sensor_imx555@34 {
+				compatible = "samsung,sensor-module";
+
+				/* common */
+				sensor_id = <SENSOR_NAME_IMX555>;
+				active_width = <4032>;
+				active_height = <3024>;
+				margin_left = <0>;
+				margin_right = <0>;
+				margin_top = <0>;
+				margin_bottom = <0>;
+				max_framerate = <960>;
+				bitwidth = <10>;
+				use_retention_mode = <SENSOR_RETENTION_UNSUPPORTED>;
+				sensor_maker = "SONY";
+				sensor_name = "imx555";
+				setfile_name = "setfile_imx555.bin";
+
+				status = "okay";
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not avaliable */>;	/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </* not avaliable */>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not avaliable */>;	/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </* not avaliable */>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				/* sensor modes */
+				modes {
+					/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+					/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						common = <4032 3024 30 0 0 CSI_DATA_LANES_3 2996 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4032 3024	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4032 3024>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 756	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 4032 756>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						/* option { votf = <1>; }; */
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						30 { pname = "VDDA_2.95V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						40 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						50 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						60 { pname = "VDDAF_2.8V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						90 { pname = "on_i2c"; pin = <PIN_I2C 1 0>; };
+						100 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; };
+						110 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 3000>; gpio = <&gpm14 0 0x1>; };
+						120 { pname = "MCLK"; pin = <PIN_MCLK 1 1500>; };
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						10 { pname = "VDDAF_2.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						20 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						30 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						40 { pname = "VDDA_2.95V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						60 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						80 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						90 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						110 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						130 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+					};
+
+					scenario_vision_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 300>; };
+						30 { pname = "VDDA_2.95V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						40 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						50 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						60 { pname = "VDDAF_2.8V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						90 { pname = "on_i2c"; pin = <PIN_I2C 1 0>; };
+						100 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; };
+						110 { pname = "MCLK"; pin = <PIN_MCLK 1 1500>; };
+						120 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 3000>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_vision_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "VDDAF_2.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						20 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						30 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						40 { pname = "VDDA_2.95V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						60 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						80 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						90 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						100 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						110 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						130 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+					};
+
+					scenario_retention_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_SENSOR_RETENTION_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "(retention) sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; };
+						30 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						40 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						50 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						60 { pname = "VDDAF_2.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						70 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						80 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						90 { pname = "VDDA_2.95V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						110 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						20 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 1000>; };
+						30 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 1000>; };
+						40 { pname = "on_i2c"; pin = <PIN_I2C 1 0>; };
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						20 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 1000>; };
+						30 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						40 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+					};
+				};
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */

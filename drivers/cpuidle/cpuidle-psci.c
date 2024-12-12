@@ -17,6 +17,7 @@
 #include <linux/of_device.h>
 #include <linux/psci.h>
 #include <linux/slab.h>
+#include <linux/reboot.h>
 
 #include <asm/cpuidle.h>
 
@@ -202,6 +203,23 @@ out_kfree_drv:
 	return ret;
 }
 
+static int psci_idle_reboot_notifier(struct notifier_block *this,
+				unsigned long event, void *_cmd)
+{
+	switch (event) {
+	case SYSTEM_POWER_OFF:
+	case SYS_RESTART:
+		cpuidle_pause();
+		break;
+	}
+
+	return NOTIFY_OK;
+}
+
+static struct notifier_block psci_idle_reboot_nb = {
+	.notifier_call = psci_idle_reboot_notifier,
+};
+
 /*
  * psci_idle_init - Initializes PSCI cpuidle driver
  *
@@ -220,6 +238,10 @@ static int __init psci_idle_init(void)
 		if (ret)
 			goto out_fail;
 	}
+
+	register_reboot_notifier(&psci_idle_reboot_nb);
+
+	cpuidle_profile_init();
 
 	return 0;
 

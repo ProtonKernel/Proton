@@ -1533,9 +1533,15 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
 	int err;
 	struct notifier_block *nb;
 
+	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
+	if (err)
+		return err;
+
 	nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
-	if (!nb)
-		return -ENOMEM;
+	if (!nb) {
+		err = -ENOMEM;
+		goto out_err;
+	}
 
 	nb->notifier_call = iommu_bus_notifier;
 
@@ -1543,20 +1549,14 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
 	if (err)
 		goto out_free;
 
-	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-	if (err)
-		goto out_err;
-
-
 	return 0;
+
+out_free:
+	kfree(nb);
 
 out_err:
 	/* Clean up */
 	bus_for_each_dev(bus, NULL, NULL, remove_iommu_group);
-	bus_unregister_notifier(bus, nb);
-
-out_free:
-	kfree(nb);
 
 	return err;
 }

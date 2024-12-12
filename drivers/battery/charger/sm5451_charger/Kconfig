@@ -1,0 +1,8 @@
+config CHARGER_SM5451
+	tristate "SM5451 direct charger support"
+	depends on I2C
+	help
+	  Say Y here to enable support for the SM5451 direct charger.
+	  SM5451 is a direct charging IC.
+	  SM5451 is dependent on I2C
+	  so it needs to be defined.

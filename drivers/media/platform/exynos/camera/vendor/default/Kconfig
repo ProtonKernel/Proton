@@ -1,0 +1,11 @@
+#
+# Generic vendor feature config states
+#
+
+# Enable the vendor features
+config SECURE_CAMERA_USE
+	tristate "Use secure camera"
+	depends on CAMERA_VENDER_DEFAULT
+	default n
+	---help---
+	  Use secure camera.

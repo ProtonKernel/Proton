@@ -1,0 +1,86 @@
+#include <dt-bindings/battery/sec-battery.h>
+
+&pinctrl_2 {
+	mfc_irq_default: mfc_int_default {
+			 GPIO_CONFIG_PUD_DRV(AP,gpa3,1, FUNC_INPUT_WAKEUP, PULL_NONE, DRV_LV1);
+		 };
+};
+
+&pinctrl_2 {
+	wpc_det_default: wpc_det_default {
+			 GPIO_CONFIG_PUD(AP,gpa2,0, FUNC_INPUT_WAKEUP, PULL_NONE);
+		 };
+};
+
+&pinctrl_0 {
+	wpc_en_default: wpc_en_default {
+			 GPIO_CONFIG_PUD(AP,gpb5,1, FUNC_OUTPUT_LOW, PULL_NONE);
+		 };
+};
+
+#define FOD_FLAG_NONE			0
+#define FOD_FLAG_ADD			1
+#define FOD_FLAG_USE_CC			2
+#define FOD_FLAG_USE_DEFAULT	3
+#define SET_FOD_CC(_flag)		(FOD_FLAG_ ##_flag)
+#define SET_FOD_CV(_flag)		(FOD_FLAG_ ##_flag << 4)
+#define SET_FOD_FULL(_flag)		(FOD_FLAG_ ##_flag << 8)
+
+&hsi2c_3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	clock-frequency = <100000>;
+
+	mfc_charger: mfc-charger@3b {
+		compatible = "idt,mfc-charger";
+		reg = <0x3b>;
+		status = "okay";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&mfc_irq_default &wpc_det_default &wpc_en_default>;
+
+		battery,wpc_int = <SEC_GPIO_REF(AP,gpa3,1) 1>; /* MFC_AP_INT */
+		battery,wpc_det = <SEC_GPIO_REF(AP,gpa2,0) 0>; /* WPC_DET */
+#if 0
+		battery,mst_pwr_en = <SEC_GPIO_REF(${mst_pwr_en_gpio}) 0>; /* MST_PWR_EN */
+#endif
+		battery,wpc_en = <SEC_GPIO_REF(AP,gpb5,1) 0>; /* WPC_EN */
+
+		battery,charger_name = "max77705-charger";
+		battery,fuelgauge_name = "max77705-fuelgauge";
+		battery,wireless_charger_name = "mfc-charger";
+		battery,wc_cover_rpp = <0x44>;
+		battery,phone_fod_threshold = <0x3b>;
+		battery,wireless20_vout_list = <WIRELESS_VOUT_11V WIRELESS_VOUT_11V WIRELESS_VOUT_11V>;
+		battery,wireless20_vrect_list = <MFC_AFC_CONF_12V_TX MFC_AFC_CONF_12_5V_TX MFC_AFC_CONF_12_5V_TX>;
+		battery,wireless20_max_power_list = <SEC_WIRELESS_RX_POWER_12W SEC_WIRELESS_RX_POWER_15W SEC_WIRELESS_RX_POWER_15W>;
+		battery,oc_fod1 = <1100>;
+
+		fod_list {
+			count = <1>;
+
+			pad_0x00 { /* DEFAULT */
+				flag = <(SET_FOD_CC(ADD) | SET_FOD_CV(ADD) | SET_FOD_FULL(ADD))>;
+				cc = <150 64 142 53 150 38 150 34 155 18 156 17>;
+				cv = <150 94 142 83 150 68 150 64 155 48 156 47>;
+				full = <255 127 255 127 255 127 255 127 255 127 255 127>;
+			};
+		};
+	};
+};
+
+/* /home/dpi/qb5_8814/workspace/P4_1716/android/kernel/kmodule/battery/wireless/mfc_charger_gki/mfc_charger.r9s.dtsi */
+&mfc_charger {
+	battery,wireless20_vout_list = <WIRELESS_VOUT_10V WIRELESS_VOUT_11V WIRELESS_VOUT_11V>;
+	battery,tx_gear_min_op_freq_delay = <4000>;
+	battery,wpc_vout_ctrl_full = <WIRELESS_VOUT_4_5V_STEP>;
+	battery,wpc_headroom_ctrl_full;
+
+	fod_list {
+		pad_0x00 { /* DEFAULT */
+			cc = <150 62 142 51 150 37 150 27 155 15 156 13>;
+			cv = <150 92 142 81 150 67 150 57 155 45 156 43>;
+		};
+	};
+};

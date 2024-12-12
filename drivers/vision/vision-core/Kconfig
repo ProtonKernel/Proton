@@ -1,0 +1,21 @@
+config VISION_CORE
+        bool "Vision Core"
+        help
+	  Vision core module enablement
+
+          Vision core module handles all vision related
+          modules.
+	  Enabling this module enables NPU, and related
+	  support code.
+
+menuconfig VISION_CORE_M
+	tristate "Vision Core Module"
+	depends on VISION_CORE
+	help
+		Support module build
+
+menuconfig VISION_UNITTEST
+        bool "Build unittest for Vision"
+        depends on VISION_CORE
+        help
+	  Include unittest code into the vision-core

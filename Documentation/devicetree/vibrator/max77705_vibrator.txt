@@ -1,0 +1,49 @@
+MAXIM max77705 haptic vibrator
+
+Required properties:
+
+ - compatible: Must be "maxim,max77705_vibrator".
+
+ - haptic,motor_type: "LINEAR" or "LINEAR_0832RC" or "LINEAR_1040"
+
+ - pwms: Pwm phandle of the device.
+
+ - haptic,frequency: Vibrator frequency value. If 150Hz, "1500".
+
+ - haptic,normal_ratio: Duty percentage of pwm.
+
+Optional properties:
+
+ - haptic,multi_frequency: Number of frequency values. If this value is defined,
+   haptic,frequency must have an array of these values.
+
+ - haptic,overdrive_ratio: Overdrive duty percentage of pwm.
+
+ - pinctrl variants.
+
+Examples:
+
+ &max77705 {
+	 max77705_vibrator {
+		 compatible = "maxim,max77705_vibrator";
+		 status = "okay";
+		 pwms = <&pwm 0 50000 0>;
+		 haptic,frequency = <2000>; /* 200Hz */
+		 haptic,normal_ratio = <90>;
+		 haptic,motor_type = "LINEAR_0832RC";
+	 };
+ };
+
+ &max77705 {
+	 max77705_vibrator {
+		 compatible = "maxim,max77705_vibrator";
+		 status = "okay";
+		 pwms = <&pwm 0 50000 0>;
+		 haptic,multi_frequency = <7>;
+		 haptic,frequency = <1575 1200 1500 2000 1800 2000 2000>;
+		 haptic,normal_ratio = <75>;
+		 haptic,overdrive_ratio = <95>;
+		 haptic,motor_type = "LINEAR_1040";
+	 };
+ };
+

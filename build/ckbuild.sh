@@ -13,7 +13,7 @@ PC_REPO="https://github.com/kdrag0n/proton-clang"
 LZ_REPO="https://gitlab.com/Jprimero15/lolz_clang.git"
 
 # Other
-DEFAULT_DEFCONFIG="exynos2100-r9sxxx_defconfig"
+DEFAULT_DEFCONFIG="proton_exynos2100-r9sxxx_defconfig"
 KERNEL_URL="https://github.com/ProtonKernel/Proton"
 AK3_URL="https://github.com/Flopster101/AnyKernel3-A25"
 AK3_TEST=0
@@ -80,7 +80,7 @@ fi
 
 ## Customizable vars
 # Kernel verison
-K_VER="TEST"
+K_VER="v3"
 
 # Toggles
 USE_CCACHE=1
@@ -150,12 +150,12 @@ LINUX_VER=$(make kernelversion 2>/dev/null)
 FK_TYPE=""
 if [ $DO_KSU -eq 1 ]; then
     FK_TYPE="KSU"
-    DEFCONFIG="none" # This kernel doesn't have a split config for KSU.
+    DEFCONFIG="protonksu_exynos2100-r9sxxx_defconfig"
 else
     FK_TYPE="Vanilla"
 fi
-ZIP_PATH="$KDIR/build/Proton_$K_VER-$FK_TYPE-$CODENAME-$DATE.zip"
-TAR_PATH="$KDIR/build/Proton_$K_VER-$FK_TYPE-$CODENAME-$DATE.tar"
+ZIP_PATH="$KDIR/build/Proton+_$K_VER-$FK_TYPE-$CODENAME-$DATE.zip"
+TAR_PATH="$KDIR/build/Proton+_$K_VER-$FK_TYPE-$CODENAME-$DATE.tar"
 
 echo -e "\nINFO: Build info:
 - Device: $DEVICE ($CODENAME)

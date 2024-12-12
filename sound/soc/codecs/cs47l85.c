@@ -267,6 +267,14 @@ static int cs47l85_hp_ev(struct snd_soc_dapm_widget *w,
 	}
 }
 
+static const struct soc_enum cs47l85_input_rate =
+	SOC_VALUE_ENUM_SINGLE(MADERA_INPUT_RATE,
+			      MADERA_IN_RATE_SHIFT,
+			      0x0f,
+			      MADERA_SYNC_RATE_ENUM_SIZE,
+			      madera_rate_text,
+			      madera_rate_val);
+
 static const struct snd_kcontrol_new cs47l85_snd_controls[] = {
 SOC_ENUM("IN1 OSR", madera_in_dmic_osr[0]),
 SOC_ENUM("IN2 OSR", madera_in_dmic_osr[1]),
@@ -430,6 +438,12 @@ SOC_ENUM("LHPF2 Mode", madera_lhpf2_mode),
 SOC_ENUM("LHPF3 Mode", madera_lhpf3_mode),
 SOC_ENUM("LHPF4 Mode", madera_lhpf4_mode),
 
+SOC_ENUM("Sample Rate 2", madera_sample_rate[0]),
+SOC_ENUM("Sample Rate 3", madera_sample_rate[1]),
+SOC_ENUM("ASYNC Sample Rate 2", madera_sample_rate[2]),
+
+MADERA_RATE_ENUM("FX Rate", madera_fx_rate),
+
 MADERA_RATE_ENUM("ISRC1 FSL", madera_isrc_fsl[0]),
 MADERA_RATE_ENUM("ISRC2 FSL", madera_isrc_fsl[1]),
 MADERA_RATE_ENUM("ISRC3 FSL", madera_isrc_fsl[2]),
@@ -534,11 +548,16 @@ SOC_DOUBLE("SPKDAT2 Switch", MADERA_PDM_SPK2_CTRL_1, MADERA_SPK2L_MUTE_SHIFT,
 SOC_ENUM("Output Ramp Up", madera_out_vi_ramp),
 SOC_ENUM("Output Ramp Down", madera_out_vd_ramp),
 
+MADERA_RATE_ENUM("SPDIF1 Rate", madera_spdif_rate),
+
 SOC_SINGLE("Noise Gate Switch", MADERA_NOISE_GATE_CONTROL,
 	   MADERA_NGATE_ENA_SHIFT, 1, 0),
 SOC_SINGLE_TLV("Noise Gate Threshold Volume", MADERA_NOISE_GATE_CONTROL,
 	       MADERA_NGATE_THR_SHIFT, 7, 1, madera_ng_tlv),
 SOC_ENUM("Noise Gate Hold", madera_ng_hold),
+
+MADERA_RATE_ENUM("Output Rate 1", madera_output_rate),
+SOC_ENUM("In Rate", cs47l85_input_rate),
 
 CS47L85_NG_SRC("HPOUT1L", MADERA_NOISE_GATE_SELECT_1L),
 CS47L85_NG_SRC("HPOUT1R", MADERA_NOISE_GATE_SELECT_1R),
@@ -790,15 +809,18 @@ static const struct snd_kcontrol_new cs47l85_output_anc_src[] = {
 static const struct snd_soc_dapm_widget cs47l85_dapm_widgets[] = {
 SND_SOC_DAPM_SUPPLY("SYSCLK", MADERA_SYSTEM_CLOCK_1, MADERA_SYSCLK_ENA_SHIFT,
 		    0, madera_sysclk_ev,
-		    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
+		    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+		    SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
 SND_SOC_DAPM_SUPPLY("ASYNCCLK", MADERA_ASYNC_CLOCK_1,
-		    MADERA_ASYNC_CLK_ENA_SHIFT, 0, NULL, 0),
+		    MADERA_ASYNC_CLK_ENA_SHIFT, 0, madera_clk_ev,
+		    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 SND_SOC_DAPM_SUPPLY("OPCLK", MADERA_OUTPUT_SYSTEM_CLOCK,
 		    MADERA_OPCLK_ENA_SHIFT, 0, NULL, 0),
 SND_SOC_DAPM_SUPPLY("ASYNCOPCLK", MADERA_OUTPUT_ASYNC_CLOCK,
 		    MADERA_OPCLK_ASYNC_ENA_SHIFT, 0, NULL, 0),
-SND_SOC_DAPM_SUPPLY("DSPCLK", MADERA_DSP_CLOCK_1,
-		    MADERA_DSP_CLK_ENA_SHIFT, 0, NULL, 0),
+SND_SOC_DAPM_SUPPLY("DSPCLK", MADERA_DSP_CLOCK_1, MADERA_DSP_CLK_ENA_SHIFT,
+		    0, madera_clk_ev,
+		    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 
 SND_SOC_DAPM_REGULATOR_SUPPLY("DBVDD2", 0, 0),
 SND_SOC_DAPM_REGULATOR_SUPPLY("DBVDD3", 0, 0),
@@ -2005,12 +2027,18 @@ static const struct snd_soc_dapm_route cs47l85_dapm_routes[] = {
 	{ "IN3R", NULL, "IN3R Mode" },
 
 	{ "IN4L", NULL, "DMICCLK4" },
+	{ "IN4L", NULL, "DMICDAT4" },
+	{ "IN4R", NULL, "DMICCLK4" },
 	{ "IN4R", NULL, "DMICDAT4" },
 
 	{ "IN5L", NULL, "DMICCLK5" },
+	{ "IN5L", NULL, "DMICDAT5" },
+	{ "IN5R", NULL, "DMICCLK5" },
 	{ "IN5R", NULL, "DMICDAT5" },
 
 	{ "IN6L", NULL, "DMICCLK6" },
+	{ "IN6L", NULL, "DMICDAT6" },
+	{ "IN6R", NULL, "DMICCLK6" },
 	{ "IN6R", NULL, "DMICDAT6" },
 
 	MADERA_MIXER_ROUTES("OUT1L", "HPOUT1L"),
@@ -2491,6 +2519,28 @@ static irqreturn_t cs47l85_adsp2_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+static const char * const cs47l85_dmic_refs[] = {
+	"MICVDD",
+	"MICBIAS1",
+	"MICBIAS2",
+	"MICBIAS3",
+};
+
+static const char * const cs47l85_dmic_inputs[] = {
+	"IN1L",
+	"IN1R",
+	"IN2L",
+	"IN2R",
+	"IN3L",
+	"IN3R",
+	"IN4L",
+	"IN4R",
+	"IN5L",
+	"IN5R",
+	"IN6L",
+	"IN6R",
+};
+
 static int cs47l85_component_probe(struct snd_soc_component *component)
 {
 	struct cs47l85 *cs47l85 = snd_soc_component_get_drvdata(component);
@@ -2503,11 +2553,16 @@ static int cs47l85_component_probe(struct snd_soc_component *component)
 	madera->dapm = snd_soc_component_get_dapm(component);
 	mutex_unlock(&madera->dapm_ptr_lock);
 
-	ret = madera_init_inputs(component);
+	ret = madera_init_inputs(component,
+				 cs47l85_dmic_inputs,
+				 ARRAY_SIZE(cs47l85_dmic_inputs),
+				 cs47l85_dmic_refs,
+				 ARRAY_SIZE(cs47l85_dmic_refs));
 	if (ret)
 		return ret;
 
-	ret = madera_init_outputs(component, CS47L85_MONO_OUTPUTS);
+	ret = madera_init_outputs(component, NULL, CS47L85_MONO_OUTPUTS,
+				  CS47L85_MONO_OUTPUTS);
 	if (ret)
 		return ret;
 

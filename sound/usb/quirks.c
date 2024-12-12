@@ -1631,6 +1631,7 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 		usleep_range(1000, 2000);
 
+#ifndef CONFIG_USB_HOST_SAMSUNG_FEATURE
 	/*
 	 * Samsung USBC Headset (AKG) need a tiny delay after each
 	 * class compliant request. (Model number: AAM625R or AAM627R)
@@ -1638,6 +1639,7 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
 	if (chip->usb_id == USB_ID(0x04e8, 0xa051) &&
 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 		usleep_range(5000, 6000);
+#endif
 }
 
 /*

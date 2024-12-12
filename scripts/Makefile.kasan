@@ -48,3 +48,8 @@ CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
 		$(instrumentation_flags)
 
 endif # CONFIG_KASAN_SW_TAGS
+
+# clang+kasan stack usage bug workaround
+ifneq ($(CONFIG_FRAME_WARN),0)
+CFLAGS_KASAN += -Wno-error=frame-larger-than=
+endif

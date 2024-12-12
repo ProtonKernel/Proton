@@ -173,10 +173,10 @@ static void *mppe_alloc(unsigned char *options, int optlen)
 	struct ppp_mppe_state *state;
 	struct crypto_shash *shash;
 	unsigned int digestsize;
-
+	// SEC_VPN: remove FIPS check
 	if (optlen != CILEN_MPPE + sizeof(state->master_key) ||
-	    options[0] != CI_MPPE || options[1] != CILEN_MPPE ||
-	    fips_enabled)
+	    options[0] != CI_MPPE || options[1] != CILEN_MPPE )
+	    // || fips_enabled )
 		goto out;
 
 	state = kzalloc(sizeof(*state), GFP_KERNEL);
@@ -660,7 +660,8 @@ static struct compressor ppp_mppe = {
 static int __init ppp_mppe_init(void)
 {
 	int answer;
-	if (fips_enabled || !crypto_has_ahash("sha1", 0, CRYPTO_ALG_ASYNC))
+	// SEC_VPN: remove FIPS check
+	if (/*fips_enabled || */ !crypto_has_ahash("sha1", 0, CRYPTO_ALG_ASYNC))
 		return -ENODEV;
 
 	sha_pad = kmalloc(sizeof(struct sha_pad), GFP_KERNEL);

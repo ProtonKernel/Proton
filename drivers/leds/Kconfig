@@ -834,6 +834,12 @@ config LEDS_LM36274
 	  Say Y to enable the LM36274 LED driver for TI LMU devices.
 	  This supports the LED device LM36274.
 
+config LEDS_S2MPB02
+	tristate "LED support for the S2MPB02"
+	depends on LEDS_CLASS && MFD_S2MPB02
+	help
+	  This option enables support for the LEDs on the S2MPB02.
+
 comment "LED Triggers"
 source "drivers/leds/trigger/Kconfig"
 

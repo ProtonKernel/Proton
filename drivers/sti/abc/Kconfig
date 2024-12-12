@@ -1,0 +1,114 @@
+comment "Samsung ABC Options"
+config SEC_ABC
+	tristate "Samsung ABC Feature"
+	depends on SEC_STI
+	default n
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) Driver Feature
+	  This driver is to catch abnormal behavior in each device drivers
+	  It depends on SEC_STI Feature
+
+comment "Samsung ABC Common Options"
+config SEC_ABC_COMMON
+	tristate "Samsung ABC COMMON Feature"
+	depends on SEC_ABC
+	default y
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) Driver Common Feature
+	  This config is for ABC Driver Core Code
+	  It depends on SEC_ABC Feature
+
+comment "Samsung ABC MOTTO Options"
+config SEC_ABC_MOTTO
+	tristate "Samsung ABC MOTTO Feature"
+	depends on SEC_ABC
+	default n
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) MOTTO Function Feature
+	  This config is to support MOTTO Function
+	  It depends on SEC_ABC Feature
+
+comment "Samsung ABC_COMMON KUNIT Options"
+config SEC_ABC_COMMON_KUNIT
+	tristate "Samsung ABC_COMMON KUNIT Feature"
+	depends on SEC_ABC && SEC_KUNIT
+	default n
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) KUNIT Function Feature
+	  This config is to support ABC_COMMON KUNIT Function
+	  It depends on SEC_ABC && SEC_KUNIT Feature
+
+comment "Samsung ABC Hub Options"
+config SEC_ABC_HUB
+	tristate "Samsung ABC Hub Feature"
+	depends on SEC_ABC
+	default n
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) Hub Driver Feature
+	  This config controls ABC Hub driver which supports ABC Driver
+	  And it consists of abc_hub_core & abc_hub_cond & abc_hub_bootc.
+	  It depends on SEC_ABC Feature
+
+comment "Samsung ABC Hub Core Options"
+config SEC_ABC_HUB_CORE
+	bool "Samsung ABC Hub Core Feature"
+	depends on SEC_ABC_HUB
+	default y
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) Hub Driver's Core Feature
+	  This function controls sub modules for supporting ABC Driver
+	  It depends on SEC_ABC_HUB Feature
+
+comment "Samsung ABC Hub Connect Detect Options"
+config SEC_ABC_HUB_COND
+	bool "Samsung ABC Hub Connect Detect Feature"
+	depends on SEC_ABC_HUB
+	depends on !SEC_FACTORY
+	default n
+	help
+	  Samsung COND(Connect Detect) Feature
+	  This function is to detect connect h/w problem
+	  It is sub module of ABC Hub Driver
+	  It depends on SEC_ABC_HUB Feature
+	  
+comment "Samsung ABC Hub Connect Detect Options"
+config SEC_ABC_HUB_COND_DAVINCI
+	bool "Samsung Davinci ABC Hub Connect Detect Feature"
+	depends on SEC_ABC_HUB_COND
+	default n
+	help
+	  Samsung COND(Connect Detect) Feature
+	  This function is to detect connect h/w problem
+	  It is sub module of ABC Hub Driver
+	  It depends on SEC_ABC_HUB Feature
+
+comment "Samsung ABC Hub Booting Time Check Options"
+config SEC_ABC_HUB_BOOTC
+	bool "Samsung ABC Hub Booting Time Check Feature"
+	depends on SEC_ABC_HUB
+	default n
+	help
+	  Samsung BOOTC(Booting Time Check) Feature
+	  This function is to check booting time
+	  It is sub module of ABC Hub Driver
+	  It depends on SEC_ABC_HUB Feature
+
+comment "Samsung ABC Hub Booting Time Check eng mode Options"
+config SEC_ABC_HUB_BOOTC_ENG
+	bool "Samsung ABC Hub Booting Time Check eng mode Feature"
+	depends on SEC_ABC_HUB_BOOTC
+	default n
+	help
+	  Samsung BOOTC(Booting Time Check) eng mode Feature
+	  This function is to apply eng binary booting time spec
+	  It depends on SEC_ABC_HUB_BOOTC Feature
+
+comment "Samsung ABC_HUB KUNIT Options"
+config SEC_ABC_HUB_KUNIT
+	tristate "Samsung ABC_HUB KUNIT Feature"
+	depends on SEC_ABC_HUB && SEC_KUNIT
+	default n
+	help
+	  Samsung ABC(Abnormal Behavior Catcher) Hub KUNIT Function Feature
+	  This config is to support ABC Hub KUNIT Function
+	  It depends on SEC_ABC_HUB && SEC_KUNIT Feature

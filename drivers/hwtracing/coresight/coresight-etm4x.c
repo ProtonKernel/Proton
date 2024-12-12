@@ -110,7 +110,7 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
 	writel_relaxed(config->pe_sel, drvdata->base + TRCPROCSELR);
 	writel_relaxed(config->cfg, drvdata->base + TRCCONFIGR);
 	/* nothing specific implemented */
-	writel_relaxed(0x0, drvdata->base + TRCAUXCTLR);
+	writel_relaxed(0x2, drvdata->base + TRCAUXCTLR);
 	writel_relaxed(config->eventctrl0, drvdata->base + TRCEVENTCTL0R);
 	writel_relaxed(config->eventctrl1, drvdata->base + TRCEVENTCTL1R);
 	writel_relaxed(config->stall_ctrl, drvdata->base + TRCSTALLCTLR);
@@ -737,8 +737,8 @@ static void etm4_set_default_config(struct etmv4_config *config)
 	config->eventctrl0 = 0x0;
 	config->eventctrl1 = 0x0;
 
-	/* disable stalling */
-	config->stall_ctrl = 0x0;
+	/* set threshold level */
+	config->stall_ctrl = 0xc;
 
 	/* enable trace synchronization every 4096 bytes, if available */
 	config->syncfreq = 0xC;
@@ -748,6 +748,12 @@ static void etm4_set_default_config(struct etmv4_config *config)
 
 	/* TRCVICTLR::EVENT = 0x01, select the always on logic */
 	config->vinst_ctrl |= BIT(0);
+
+	/* Sets the threshold for instruction trace cycle counting */
+	config->ccctlr = 0x4;
+
+	/* Enable Global timestamp */
+	config->cfg |= BIT(11);
 }
 
 static u64 etm4_get_ns_access_type(struct etmv4_config *config)
@@ -1212,6 +1218,9 @@ static const struct amba_id etm4_ids[] = {
 	CS_AMBA_UCI_ID(0x000f0211, uci_id_etm4),/* Qualcomm Kryo */
 	CS_AMBA_ID(0x000bb802),			/* Qualcomm Kryo 385 Cortex-A55 */
 	CS_AMBA_ID(0x000bb803),			/* Qualcomm Kryo 385 Cortex-A75 */
+	CS_AMBA_ID(0x000bbd05),			/* Samsung Cortex-A55 */
+	CS_AMBA_ID(0x000bbd41),			/* Samsung Hercules */
+	CS_AMBA_ID(0x000bbd44),			/* Samsung Hera */
 	{},
 };
 

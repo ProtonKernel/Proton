@@ -1637,8 +1637,13 @@ static int fill_ext_prop(struct usb_configuration *c, int interface, u8 *buf)
 int
 composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 {
+#ifdef CONFIG_GKI_USB
+	struct usb_composite_dev	*cdev = NULL;
+	struct usb_request		*req = NULL;
+#else
 	struct usb_composite_dev	*cdev = get_gadget_data(gadget);
 	struct usb_request		*req = cdev->req;
+#endif
 	int				value = -EOPNOTSUPP;
 	int				status = 0;
 	u16				w_index = le16_to_cpu(ctrl->wIndex);
@@ -1664,6 +1669,16 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 	 * gadget might need to intercept e.g. a control-OUT completion
 	 * when we delegate to it.
 	 */
+#ifdef CONFIG_GKI_USB
+	if (gadget)
+		cdev = get_gadget_data(gadget);
+	if (cdev == NULL) {
+		pr_info("%s: cdev is NULL\n", __func__);
+		return -ENODEV;
+	}
+	req = cdev->req;
+#endif
+
 	req->zero = 0;
 	req->context = cdev;
 	req->complete = composite_setup_complete;
@@ -2065,6 +2080,12 @@ void composite_disconnect(struct usb_gadget *gadget)
 {
 	struct usb_composite_dev	*cdev = get_gadget_data(gadget);
 	unsigned long			flags;
+
+	if (cdev == NULL) {
+		WARN(1, "%s: Calling disconnect on a Gadget that is \
+			 not connected\n", __func__);
+		return;
+	}
 
 	/* REVISIT:  should we have config and device level
 	 * disconnect callbacks?

@@ -1,0 +1,18 @@
+&smd {
+	max77705_charger: max77705-charger {
+			charger,fac_vsys = <3800>;
+	};
+
+	battery {
+		battery,fgsrc_switch_name = "max77705-charger";
+		battery,otg_name = "max77705-otg";
+	};
+};
+
+
+/* /home/dpi/qb5_8814/workspace/P4_1716/android/kernel/kmodule/battery/charger/max77705_charger_gki/max77705_charger.r9s.dtsi */
+&max77705_charger {
+	charger,enable_sysovlo_irq;
+	charger,fsw = <0>; /* 3MHz */
+	charger,wc_current_step = <25>;
+};

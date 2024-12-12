@@ -138,5 +138,22 @@ obj-$(CONFIG_REGULATOR_WM831X) += wm831x-ldo.o
 obj-$(CONFIG_REGULATOR_WM8350) += wm8350-regulator.o
 obj-$(CONFIG_REGULATOR_WM8400) += wm8400-regulator.o
 obj-$(CONFIG_REGULATOR_WM8994) += wm8994-regulator.o
+TARGET = s2mps19-regulator
+$(TARGET)-objs += s2mps19_regulator.o s2mps19_powermeter.o
+obj-$(CONFIG_REGULATOR_S2MPS19) += $(TARGET).o
+
+TARGET = s2mps20-regulator
+$(TARGET)-objs += s2mps20_regulator.o s2mps20_powermeter.o
+obj-$(CONFIG_REGULATOR_S2MPS20) += $(TARGET).o
+
+obj-$(CONFIG_REGULATOR_S2MPS23)		+= s2mps23-regulator.o
+s2mps23-regulator-$(CONFIG_REGULATOR_S2MPS23)	+= s2mps23_regulator.o s2mps23_powermeter.o
+
+obj-$(CONFIG_REGULATOR_S2MPS24)		+= s2mps24-regulator.o
+s2mps24-regulator-$(CONFIG_REGULATOR_S2MPS24)	+= s2mps24_regulator.o s2mps24_powermeter.o
+
+obj-$(CONFIG_REGULATOR_S2MPB02) += s2mpb02-regulator.o
+obj-$(CONFIG_REGULATOR_S2MPB03) += s2mpb03.o
 
 ccflags-$(CONFIG_REGULATOR_DEBUG) += -DDEBUG
+

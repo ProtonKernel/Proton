@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# SEC Input device configuration
+#
+
+config INPUT_SEC_INPUT
+	tristate "Support for SEC input layer"
+	help
+	  Say Y here if you want to use sec cmd.
+
+config SEC_DEBUG_TSP_LOG
+	tristate "Support for tsp_msg"
+	help
+	  Say Y here if you want to use tsp_msg node.
+
+config INPUT_TOUCHSCREEN_TCLMV2
+	tristate "touchscreen tclmv2"
+	help
+	  Say Y here if you want to use tclm.
+
+config INPUT_SEC_SECURE_TOUCH
+	tristate "input sec secure touch"
+	depends on INPUT
+	help
+	  Say Y here if you need to use sec secure touch.
+
+config TOUCHSCREEN_DUMP_MODE
+	tristate "touchscreen dump mode"
+	help
+	  Say Y here if you need to get raw data.
+
+config INPUT_SEC_NOTIFIER
+	tristate "input sec notifier"
+	help
+	  Say Y here if you need to use input notifier.
+
+config TOUCHSCREEN_DUAL_FOLDABLE
+	tristate "Dual TSP IC for Foldable"
+	help
+	  Say Y here if you need to use dual tsp.
+
+config SEC_INPUT_CMD_TEST
+	tristate "KUnit test for tsp_common_test"
+	depends on SEC_KUNIT
+	help
+	  TODO: Describe config fully.
+

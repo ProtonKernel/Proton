@@ -43,6 +43,7 @@ static int is_activesync(struct usb_interface_descriptor *desc)
 		&& desc->bInterfaceProtocol == 1;
 }
 
+#if !defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 static bool is_audio(struct usb_interface_descriptor *desc)
 {
 	return desc->bInterfaceClass == USB_CLASS_AUDIO;
@@ -52,6 +53,7 @@ static bool is_uac3_config(struct usb_interface_descriptor *desc)
 {
 	return desc->bInterfaceProtocol == UAC_VERSION_3;
 }
+#endif
 
 int usb_choose_configuration(struct usb_device *udev)
 {
@@ -118,6 +120,7 @@ int usb_choose_configuration(struct usb_device *udev)
 			continue;
 		}
 
+#if !defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 		/*
 		 * Select first configuration as default for audio so that
 		 * devices that don't comply with UAC3 protocol are supported.
@@ -142,6 +145,7 @@ int usb_choose_configuration(struct usb_device *udev)
 			 */
 			continue;
 		}
+#endif
 
 		/* When the first config's first interface is one of Microsoft's
 		 * pet nonstandard Ethernet-over-USB protocols, ignore it unless

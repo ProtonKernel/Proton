@@ -1,0 +1,8 @@
+source "drivers/media/platform/exynos/camera/sensor/module_framework/cis/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/actuator/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/laser_af/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/flash/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/ois/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/aperture/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/pafstat/Kconfig"
+source "drivers/media/platform/exynos/camera/sensor/module_framework/eeprom/Kconfig"

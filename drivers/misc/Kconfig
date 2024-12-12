@@ -424,6 +424,12 @@ config SRAM
 config SRAM_EXEC
 	bool
 
+config EXYNOS_PASR
+	bool "Exynos PASR driver"
+	depends on MEMORY_HOTPLUG
+	help
+	  This driver allows you to control PASR during suspend state.
+
 config VEXPRESS_SYSCFG
 	bool "Versatile Express System Configuration driver"
 	depends on VEXPRESS_CONFIG
@@ -502,4 +508,6 @@ source "drivers/misc/cxl/Kconfig"
 source "drivers/misc/ocxl/Kconfig"
 source "drivers/misc/cardreader/Kconfig"
 source "drivers/misc/habanalabs/Kconfig"
+source "drivers/misc/tzdev/Kconfig"
+source "drivers/misc/tui/Kconfig"
 endmenu

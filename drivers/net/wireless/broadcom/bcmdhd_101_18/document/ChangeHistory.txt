@@ -1,0 +1,508 @@
+BCM4389 DHD 101.18.63 for Android S OS - Palette(P3) Project
+
+
+DHD 101.18.63 - 2021.10.07
+Kernel Panic
+ - CS00012209247(By LEE EONJI) Fixed kernel crash due to wrong ieee channel update in cfg80211 roam/connect indication
+ - CS00012210345(By Kim TaeYong) Fixed Kernel Panic by added the busy state for pm callback function
+
+Others
+ - CS00012198776(By Min Hyun-Kee) Fixed to show 6Ghz scan result at first boot
+ - CS00012210127(By Park Jun-young) Skipped dongle memory dump caused by EXCESS_PM_AWAKE under weak signal(-80 dBm)
+ - CS00012211206(By Choi Sung-gi) Fixed power consumption issue due to Idle ROAM while LCD off
+
+
+DHD 101.18.62 - 2021.09.16
+Others
+ - CS00012203918(By Choi Hyeonu) Removed SSID in PNO log message due to protect personal information
+ - CS00012206375(By Sinwoo Park) Fixed CTS failure due to RTT burstsize mismatch
+ - Cleaned up excess PM info explicitly on WiFi stop
+
+
+DHD 101.18.61 - 2021.09.02
+Others
+ - CS00012187270(By Hyeonu Choi) Added New Android private command SET_DWELL_TIME in order to one-shot set scan dwell times
+ - CS00012198566(By Jeong Min Cheol) DHD: Apply new pcie rc driver changes for S OS MSM platform
+ - CS00012203713(By Kim MinSoo) Fixed to restore WiFi Optimizer related IOVAR values when turning off WiFi
+ - CS00012206101(By Choi Jongmin) Added 6G PSC channel concurrency for SoftAP creation
+ - CS00012206194(By Myung Jung-Young) Changed the excess pm setting to be called in pm suspend/resume
+
+
+DHD 101.18.57 - 2021.08.20
+Others
+ - CS00012200952(By Lee SoonHo) Fixed not to do passive scan during P2P GO up phase
+ - CS00012201435(By Yoon YeJi) Added to update RCC frequencies list
+ - CS00012202540(By Park Jun-young) Changed the DHD IOVARs for setting resume to be called in early resume
+ - Fixed to get a proper memdump for repeated PM awake event condition before disconnection
+
+
+DHD 101.18.56 - 2021.08.06
+Others
+ - CS00012199412(By Kim TaeYong) Removed unused codes for KMI break API (Partial)
+ - CS00012200300(By Choi Hyeonu) Added return BCME_UNSUPPORTED for unknown private command
+ - CS00012200344(By Choi Jongmin) Changed the 11mode of softap bigdata for bit operation
+ - Fixed to operate EXCESS_PM_AWAKE feature properly under the concurrency scenarios
+ - RTT : Added RTT error handling and report to framework to void unnecessary timeout
+
+
+DHD 101.18.54 - 2021.07.23
+Others
+ - CS00012193996(By Kim Beom Jip) Fixed to return nan capability error value properly
+ - CS00012196490(By Lee sanguk) Added private cmd to set MIMO/SISO for SoftAP
+ - CS00012196959(By Choi Hyeonu) Added config ID in TWT status output
+ - CS00012198349(By Choi Hyeonu) Enabled TWT feature for GS21 Android S OS project
+ - CS00012198527(By Lee SoonHo) Fixed not to access nan wake lock after WiFi turned off
+ - CS00012198644(By Choi Junsu) Fixed OOB caused by invalid memory access
+ - CS00012198644(By Choi Junsu) Fixed OOB caused by strlen
+ - CS00012199012(By Jeong Min Cheol) Fixed FATAL_NOC_ERROR when triggering sysfs dump and calling dhd_stop() at same time
+
+
+DHD 101.18.49 - 2021.07.09
+New Feature
+ - CS00011795047(By Park Jun-young) Added IGMP offload Feature
+      (This patch should be sync up with FW 20.80.66 or higher version)
+
+Kernel Panic
+ - CS00012196505(By Gu JaYoung) Fixed kernel panic caused by invalid address access during watch FOTA
+
+Others
+ - CS00011635065(By Park Jun-young) Changed the DHD IOVARs for setting suspend/resume to be called in pm_notifier
+ - CS00011780474(By LEE EONJI) Added pre-memory allocation for DHD flow ring
+ - CS00011966158(By Park Jun-young) Fixed the excess_pm feature to be enabled in MPC mode as well
+ - CS00011966158(By Park Jun-young) Fixed to occur hang event for MPC_DUR_EXCEEDED
+ - CS00012073142(By Park Jun-young) Added dump PM duration to debug power consumption issue
+ - CS00012185391(By Park Jun-young) Added to trigger memdump when repeated excess awake event
+ - CS00012187292(By Choi Hyeonu) Introduced dump_in_progress sysfs to trigger/monitor dump
+ - CS00012188198(By Myung Jung-Young) Suppressed BLE scan during DHCP session
+ - CS00012193990(By Min SungBin) Fixed NOC error by removing remained DHCP helper timer at disconnection
+ - CS00012195846(By Min SungBin) Moved iovar request on pm_resume to pm_complete
+ - Fixed to clean up 4 way handshake handler when it gets ack after transmit failure
+ - Fixed to wlan oob interrupt type to level-triggered
+ - Fixed TWT event data parsing issue
+ - Prevented delay for dongle memory dump after dhd_stop
+
+
+DHD 101.18.42.2 - 2021.07.20
+Others
+ - CS00012198527(By Lee SoonHo) Fixed not to access nan wake lock after WiFi turned off
+ - CS00012198644(By Choi Junsu) Fixed OOB caused by invalid memory access
+ - CS00012198644(By Choi Junsu) Fixed OOB caused by strlen
+
+
+DHD 101.18.42.1 - 2021.07.13
+Others
+ - CS00012193996(By Kim Beom Jip) Fixed to return nan capability error value properly
+
+
+DHD 101.18.42 - 2021.05.21
+Kernel Panic
+ - CS00012185904(By Jeong MinCheol) Fixed kernel panic caused by scheduling
+
+Others
+ - CS00011787606(By Lee SoonHo) Added NAN availability log when schedule changed
+ - CS00012039926(By Yun YeJi) Changed beacon rx interval during LCD off
+ - CS00012124462(By Lee SoonHo) Fixed to represent committed slot explicitly
+ - CS00012185627(By Kim TaeYoung) Fixed watchdog reset by calling request_firmware after wakelock
+ - CS00012186941(By Min Hyun-Kee) Removed to disable FCC Power Limit at set country
+ - CS00012187832(By Bang Haejung) Disabled broadcast packet filter in case of running as P2P GO
+ - CS00012188368(By Lee Sunghee) Enabled HE CAP report for 4389 Samsung project
+ - Added log to print out NAN private operation configuration
+ - Fixed to not enabling back the 6GHz band while setting the country code private command
+
+
+DHD 101.18.39 - 2021.04.02
+Kernel Panic
+ - CS00012054523(By Jeong Min Cheol) Fixed kernel panic from incorrect ring index
+
+Others
+ - CS00011882187(By Choi Hyeonu) Changed TWT return code
+ - CS00012012838(By Kim MoonSoo) Added more tx status
+ - CS00012038967(By Lee Sunghee) Fixed for Full EAP exchange at roaming with OKC AP after Wi-Fi off/on
+ - CS00012072862(By Kim Seong Hwan) Added condition to check early suspend mode at BEACON_RECV start
+ - CS00012073142(By Park Jun-young) Added dump PM duration to debug power consumption issue
+ - Fixed the scanning 80Mhz + 80MHz AP
+
+
+DHD 101.18.36 - 2021.03.05
+Others
+ - CS00011959879(By Kim Tae-Yong) Fixed usr_sync deadlock issue while p2p discovery during remain on channel
+
+
+DHD 101.18.35 - 2021.02.19
+Kernel Panic
+ - CS00011933130(By Kim Tae-Yong) Fixed kernel panic from NULL pointer de-reference
+
+Others
+ - CS00011788095(By Choi Hyeonu) Sending TWT INFO with TWT suspend during suspend
+
+
+DHD 101.18.33 - 2021.02.17
+Kernel Panic
+ - CS00011920482(By Choi Junsu) Fixed a kernel panic issue running monitor mode
+
+Others
+ - CS00011483554(By Hyeonu Choi) Fixed Hang recovery from TWT commands EBUSY return
+ - CS00011696062(By Min SungBin) Printed additional GPIO status to check GPIO mismatch case
+ - CS00011788095(By Choi Hyeonu) TWT event control during suspend
+ - CS00011833097(By Jang WonJun) Fixed to trigger hang for recovery in case of successive p2p disc error
+ - CS00011880875(By Choi Hyeonu) Support DHD_CLEANUP_KEEP_ALIVE feature
+ - CS00011881246(By Lee Sunghee) Fixed abnormal link status issue after roaming failure due to assoc IEs
+
+
+DHD 101.18.30 - 2021.02.05
+Kernel Panic
+ - CS00011842554(By LEE EONJI) Fixed NOC kernel panic by disabling FIS dump
+
+Others
+ - CS00011789256(By LEE EONJI) Fixed big hammer flag getting set after pktid audit failure
+ - CS00011818292(By Kim Tae-Yong) Fixed watchdog bark if Tx scheduled in DHD suspended state
+ - Added to print for current roaming mode in DHD
+ - Fixed the disconnection issue while running the long UDP RX TPUT aging test
+ - Supported dynamic pm2_sleep_ret for power saving at idle state
+   (This patch should be sync up with DHD 101.18.30/FW 20.80.42 or higher version)
+
+
+DHD 101.18.27.1 - 2021.01.22
+Kernel Panic
+ - CS00011647166(By Kim Tae-Yong) Fixed kernel panic issue for WIFI off after RTT starting
+ - CS00011730022(By Kim Tae-Yong) Fixed kernel panic due to DHD holding rtnl_lock by doing memdump continuously
+ - CS00011743291(By LEE EONJI) Fixed kernel panic due to null pointer dereference during suspend
+
+Security Patch
+ - CS00011698137(By Choi Junsu) SI-17361: Fixed out of bound
+
+Others
+ - CS00011539292(By Junyeop Jung) Fixed to update rx beacon counter properly on BCM4389
+ - CS00011571258(By Kim Tae-Yong) Fixed to assign CPU core 0 for DHD scheduling(napi_cpu, tx_cpu) if assigned CPU core is unavailable
+ - CS00011581257(By Park Jun-young) Added a log to check whether dhdpcie_host_wake is due to event log
+ - CS00011677831(By Park Jun-young) Added CUSTOM_SUSPEND_BCN_LI_DTIM=1 in Makefile
+ - CS00011685845(By Tae-Yong Kim) Fixed not to wait scheduled scan work handler completed on connection
+ - CS00011688166(By LEE EONJI) Cleared PNO scan handler explicit during wlan0 interface off
+ - CS00011703376(By Park Jun-young) Added to set bcn_li_dtim at disable MAX_DTIM_IN_SUSPEND
+ - CS00011711074(By Choi Hyeonu) Changed the log considered to be a failure even though it is normal
+ - CS00011723871(By Choi Jongmin) Explicitly enabled 11ax during turning off Softap to prevent a Softap turn-on failure with 6G Band
+ - CS00011731908(By Hyeonu Choi) Changed GET_TWT_STATUS functionality following Requirements
+ - Changed WTC MAX band value in order to support 6G Chipset
+   (This feature needs DHD 101.18.27.1 / FW 20.80.37.1 or higher)
+ - Fixed dongle trap caused when CtrlCPl ring was full
+ - Fixed ranging failure for concurrency scenarios of DP initiator and ranging responder
+
+
+DHD 101.18.22.2 - 2021.01.12
+Others
+ - CS00011723871 (By Choi Jongmin) Explicitly enabled 11ax during turning off Softap to prevent a Softap turn-on failure with 6G Band
+
+
+DHD 101.18.22.1 - 2020.12.24
+Others
+ - CS00011685845(By Tae-Yong Kim) Fixed not to wait scheduled scan work handler completed on connection
+
+
+DHD 101.18.22 - 2020.12.21
+Others
+ - CS00011667603(By Min Cheol Jeong) Fixed to cancel schedule scan handler when it stopped
+
+
+DHD 101.18.21 - 2020.12.18
+Others
+ - CS00011539292(By Junyeop Jung) Fixed to add tx failure counter properly
+ - CS00011617787(By EONJI LEE) Fixed hang recovery error caused by interface down
+ - CS00011617787(By Min Cheol Jeong) Fixed Bluetooth reset happening by Big Hammer when MFG firmware is loaded
+
+
+DHD 101.18.18 - 2020.12.14
+Others
+ - CS00011589604(By Kim MinSoo) Fixed build error from __init macro (removed)
+ - CS00011611318(By SungBin Min) Fixed iovar buffer corruption for the 6G band control command
+
+
+DHD 101.18.17 - 2020.12.09
+Kernel Panic
+ - CS00011597954(By LEE EONJI) Fixed a kernel panic after pcie link down via avoiding ep access
+
+Others
+ - CS00011596980(By LEE EONJI) Fixed to permanent scan block after scan timeout
+ - Fixed for failure to create 6GHz SoftAP SCC when STA connected to 6Ghz PSC channel
+
+
+DHD 101.18.15.4 - 2020.12.09
+Others
+ - Fixed for failure to create 6GHz SoftAP SCC when STA connected to 6Ghz PSC channel
+
+
+DHD 101.18.15.3 - 2020.12.09
+Kernel Panic
+ - CS00011597954(By LEE EONJI) Fixed a kernel panic after pcie link down via avoiding ep access
+
+Others
+ - CS00011596980(By LEE EONJI) Fixed to permanent scan block after scan timeout
+
+
+DHD 101.18.15.1 - 2020.12.09
+Others
+ - Remove fixes temporary for GKI Build error
+
+
+DHD 101.18.15 - 2020.12.09
+Others
+ - CS00011517889(By Kim Tae-Yong) Added ctrl message snapshot for pktid audit failure issue
+
+
+DHD 101.18.14 - 2020.12.08
+Others
+ - CS00011557074(By Lim Junhak) Added to check RF test mode when set wsec_info private command
+ - CS00011571651(By Lee Jung-Hun) Added 6G band control function when airplane mode and RF test mode
+
+
+DHD 101.18.13 - 2020.12.05
+Kernel Panic
+ - CS00011575801 (By Kim Tae-Yong) Avoided a deadlock condition between connect path and pno scan event handling path
+
+Others
+ - CS00011517889(By Kim Tae-Yong) Added PKTID MAP logging dump
+ - CS00011563916 (By Lee Eon Ji) Fixed to run TCM test once during init process
+ - CS00011576210(By Jung Kuk Seo) Fixed to not update the non-PSC channel information when SoftAP requested 6GHz ACS channel
+
+
+DHD 101.18.10 - 2020.12.04
+Others
+ - CS00011506256(By Min SungBin) Added s2mpu notifier callback to collect dongle memdump when s2mpu fault issue detected
+ - CS00011553554(By Min Cheol Jeong) Fixed to scan timeout caused by PNO stop
+ - CS00011557074(By Lim Junhak) Added Android Private command to set wsec_info
+ - Added to sync states when reports link down in IDLE state
+
+
+DHD 101.18.9 - 2020.12.02
+Others
+ - CS00011497824(By Jung Junyeop) Fixed to initialize listen timer properly
+ - CS00011503894(By Lee Gibum) Added avoid to remove Low RSSI 6G BSS scan list when SCAN no buffer
+ - CS00011504660(By Gupta Ashish) Reduced RAW Data size for Big Data 3.0
+ - CS00011517889(By Tae-Yong Kim) Ignoring pktid audit error temporarily
+ - CS00011519784(By Min SungBin) Added the RTC timestamp in suspend/resume function
+ - CS00011524697(By Lim Junhak) Added 6G No VLP filter-out info during scan
+ - CS00011524697(By Lim Junhak) Added auth/assoc extension for NO VPL prune reason
+ - CS00011538311(By Lee Sunghee) Added to skip 6G channel when update RCC list
+ - CS00011546294(By Tae-Yong Kim) Added memory barrier to avoid out of order execution
+ - CS00011546898(By Hwang MinSik) Fixed to disable LPC for RF test mode
+ - Fixed SSSR dump wrongly getting fired for DEBUG_DUMP
+
+
+DHD 101.10.438.6 - 2020.11.30
+Kernel Panic
+ - CS00011537417(By Kim Tae-Yong) Fixed Kernel Panic by added code to avoid invalid address access during CTO recovery
+ - CS00011543983(By Min SungBin) Fixed kernel panic when scheduled scan triggered
+
+Others
+ - CS00011544702(By Jung-Young Myung) Fixed "pkt_filter_enable" IOVar failure when set APF
+
+
+DHD 101.10.438.5 - 2020.11.26
+Kernel Panic
+ - CS00011525674(By Kim Tae-Yong) Fixed ITMON Kernel Panic by added code to avoid register access during PCIe linkdown recovery
+
+
+DHD 101.10.438.4 - 2020.11.20
+Kernel Panic
+ - CS00011482402(By Jeong Min Cheol) Fixed kernel panic due to accessing a common ring before the ring is initialized
+
+Security Patch
+ - CS00011488886(By Jeong Min Cheol) SI-19286: Fixed stack buffer overflow issue in wbrc driver
+
+Others
+ - CS00011195375(By Lee sanguk) Added throughput debug ability
+   (It should be sync up with HAL 1.60.18 or higher)
+ - CS00011364717(By Manh Nguyen) Fixed to use proper softap interface name on BCM4361
+ - CS00011403538(By Yoon YeJi) Added logging information for set roam_off in DHD
+ - CS00011421633(By Park Jun-young) Added to Disable/Enable MAX dtim in suspend via wl_cfg80211_set_power_mgmt
+ - CS00011427384(By Park Jun-young) Fixed prevent issue (CID:105205, 105206, 105208, 105214)
+ - CS00011447658(By Lee Sunghee) Changed Channel util unit to legacy value
+ - CS00011476796(By Min SungBin) Fixed to prevent scan busy hang caused by successive p2p scan
+ - CS00011481171(By Min SungBin) Fixed the clm memory allocation function failure by changed the memory allocation function from kmalloc to vmalloc
+ - CS00011491595(By Min SungBin) Fixed Wi-Fi turn on failure due to dma alloc fail
+ - CS00011509950(By Min SungBin) Fixed to permanent scan failure caused by wrong return value after legacy scan failure
+ - Added UWBCX prepare time private command
+ - Fixed the HAL crash due to invalid bandwidth sent from the driver
+ - Fixed to send up NAN MatchExpiredInd event to upper layer
+ - Handled the association Prune event due to the 6GHz AP country code mismatch
+ - Updated established NDP channel information on DP confirm event
+   (This patch should be sync up with FW 20.25.365 or higher version)
+ - Updated sta_info_v6_t structure
+
+Vendor HAL Library
+ - HAL_REL_1_60_18
+  - CS00011195375(By Lee sanguk) Support throughput debug ability- HAL part
+    (It should be sync up with DHD 101.16.41 or higher, DHD 101.10.438 or higher)
+  - Fixed wrong RTT result length calculation in event handler
+  - Updated established NDP channel information on DP confirm event
+    (It should be sync up with DHD 101.10.438 or higher)
+
+
+DHD 101.10.430.9 - 2020.11.14
+Others
+ - CS00011480587(By Jung Junyeop) Disabled collect debug info for the case of dongle init failure case(until PVR TEMPORARILY)
+
+
+DHD 101.10.430.8 - 2020.11.13
+Others
+ - CS00011239101(By Jung Kuk Seo) Support to get the 6GHz VLP PSC channel list on the SoftAP interface
+
+
+DHD 101.10.430.7 - 2020.11.13
+Security Patch
+ - CS00011440377(by SungBin Min) SI-19447: Fixed 3bytes overflow in store_adps_bam_list()
+
+Others
+ - CS00011427384(By Park Jun-young) Fixed prevent issue (CID:83955)
+
+
+DHD 101.10.430.6 - 2020.11.12
+Others
+ - Improved debuggability of wifi turn on failure case
+
+
+DHD 101.10.430.5 - 2020.11.11
+Others
+ - CS00011399402(By Kim Tae-Yong) Removed SETDFSSCANMODE private command
+ - CS00011444809(By Min SungBin) Skipped socram dump in case of the no memory at dhd_net_bus_devreset context
+ - Printed a necessary fw log for debugging
+
+
+DHD 101.10.430.1 - 2020.11.06
+Kernel Panic
+ - Fixed kernel panic in dhd_update_sta_chanspec_info
+ - Fixed kernel panic while accessing si_scan_core_present
+
+Others
+ - CS00010883295(By Choi Hyeonu) Renumbered TWT teardown event reason code following SS requirements
+ - CS00011239101(By Seo Jung Kuk) Added Android private command to query 6G SoftAP supported frequencies
+ - CS00011247019(By Kim Tae-Yong) Printed iovar name before checking fw trap in the case of iovar ROT
+ - CS00011314912(By Choi Junsu) Fixed GKI build error
+ - CS00011346988(By Kim Tae-Yong) Handled the return value of exynos_pcie_pm_resume for pcie link up failure case
+ - CS00011377081(By Choi Hyeonu) Fixed Prevent issue
+   (CID 29123, 31696, 31931, 32137, 32685, 36624, 49466, 49502, 49573, 49586, 49648, 49653, 83818, 83943)
+ - Added UWBCX private command to enable/Disable UWBCX
+ - Collected socram dump even if TRAP/ASSERT not set in the pcie shared flags
+ - Fixed NAN Tput drop
+ - Fixed for data type of TWT interface event info
+ - Fixed potential stack size build error issue according to compiler option
+ - Fixed to allocate the packet(skb) for Rx buffer when pktget fails
+ - Fixed to collect SSSR dump properly even though Wi-Fi on failure
+ - Fixed to force reset reason code to prevent autoreconnect in bcnloss case
+ - Fixed to print important logs to dmesg for debugging purpose
+ - Fixed to restrict one passphrase for a given interface
+ - Fixed to return the error value properly at the dhd_preinit_ioctls/dhd_net_bus_devreset context
+ - Fixed to validate pcie link state by checking different registers
+
+APPS 1.484
+- wl UTIL (wlarm64_android)
+   (Added VLP get list command)
+
+
+DHD 101.10.413 - 2020.10.23
+New Feature
+ - Changed to run Periodic LP Scan under LATENCY_CRT_DATA_MODE 1 or above
+    (it should be sync up with FW 20.25.324.3)
+ - Remapped scan type to low power scan under associated state and LATENCY_CRT_DATA_MODE 1 or above
+ - TWT Extension - update command and events 
+    (It should be sync up with FW 20.25.324.3)
+
+Kernel Panic
+ - CS00011275251(By Kim Tae-Yong) Fixed kernel panic from snprintf during handling wifiver info
+ - Fixed to handle malformed chanspec during auto channel selection for Softap
+
+Others
+ - CS00011142206(By Choi Jongmin) Added android private command to control Runtime PM
+ - CS00011149055(By Kim MinSoo) Enabled LB_TXP by default
+ - CS00011155837(By Park Jun-young) Fixed Android AUTO and ADPS compatibility issue
+ - CS00011202737(By Choi Hyeonu) Fixed build error at the dhd_mem_dump
+ - CS00011231782(By Min SungBin) Added debugging info for AXI slave error
+ - CS00011234441(By Kim Tae-Yong) Canceled a timeout handler to prevent false ap link failure timeout
+ - CS00011240471(By Choi Hyeonu) Fixed Prevent issue (CID 30726, 31501, 32810, 36244, 49769, 68624, 69773, 83955)
+ - CS00011247019(By Kim Tae-Yong) Added debugging info for wifi turn failure debugging
+ - CS00011247019(By Kim Tae-Yong) Added debugging info for wifi turn-on failure debugging
+ - CS00011247019(By Kim Tae-Yong) Collected debug info for the case of dongle init failure case(until PVR TEMPORARILY)
+ - CS00011264707(By Lee SoonHo) Changed log to print channel info instead of chanspec
+ - CS00011265668(By Choi Hyeonu) Fixed Legacy scan fail due to P2P wildcard SSID
+ - CS00011268243(By Yoon YeJi) Fixed missing SSID on RCL event update
+ - CS00011276036(By Lee Gibum) Filled the HE capabilities for 6GHz SoftAP properly
+ - CS00011314551(By Lim Junhak) Fixed for SAE password min length issue
+ - CS00011345325(By Lim Junhak) Enabled SAE-FT in Makefile
+ - Added delay during sysmem calculation to avoid invalid ramsize
+ - Added rx_icmp count of the wake-up reason to the debug dump
+ - Fixed buffer overrun if passphrase length is 255
+ - Fixed for EAPOL packet drop in supplicant with SAE-FT
+ - Fixed host IRQ disable/enable mismatches during suspend/resume
+ - Fixed internal MBO issue caused by uninitialized variable
+ - Fixed missing scan status bit clear when scan abort by PNO stop
+ - Fixed NAN ranging due to after canceling subscribe
+ - Fixed P2P connection failure due to mac randomization after Android framework reset
+ - Fixed PNO scan enable failure due to invalid channel band for 6Ghz channels
+ - Fixed SoftAP interface creation failure while aging test
+ - Fixed SoftAP interface removal failure during interface role change operation
+ - Fixed the compile error with kernel 5.9.x
+ - Fixed to sync up wake stat HAL command variable type
+   (This patch should be sync up with HAL 1.60.14 or higher version)
+ - Fixed UDP low TPUT issue on Exynos platform
+ - Fixed wrong print of ifidx/bssidx in the event path
+
+Vendor HAL Library
+ - HAL_REL_1_60_14
+  - CS00011240471(By Choi Hyeonu) Fixed Prevent issue (CID 28844)
+  - CS00011276917(By Jeong Min Cheol) Fixed to sync filesystem by force after dump file writing
+  - CS00011338727 CS00011334384(by Park Sinwoo) Fixed for RTT result parsing failure in HAL with kernel 5.x
+  - Fixed to sync up wake stat HAL command variable type
+   (This patch should be sync up with DHD 101.10.413 or higher version)
+
+APPS 1.482
+- wl UTIL (wlarm64_android)
+   (Added UWB Coex commands)
+
+
+DHD 101.10.394.1 - 2020.10.08
+New Feature
+ - Support LATENCY_CRT_DATA_MODE 3 for Periodic LowPower Scan feature
+    (This feature should be sync up with FW 20.25.309.1 or higher version)
+ - Support TWT Extension
+    (This feature should be sync up with FW 20.25.309.1 or higher version)
+
+Others
+ - CS00005550621(By Park HeeBae) Added missing patch to trigger hang in case of KSO failure
+ - CS00010501500(By Hwang MinSik) Fixed battery drain caused by PM suspend callback
+ - CS00010711114(By Hwang MinSik) Adding pkt dump log in case of system wakeup caused by wifi
+ - CS00011075367(By Lim Junhak) Added to disable 6G Open Security checking for RF test mode
+ - CS00011095953(By Kim Tae-Yong) Enabled async suspend feature on Exynos Platform
+ - CS00011113715(By Bang Haejung) Fixed 4-way h/s failure caused by mismatch counting
+ - CS00011115066(By Choi Hyeonu) Triggered regon deasserted in the case of wifi off with force_regon
+ - CS00011134595(By LEE EONJI) Fixed missing nvram/blob information in wifiver info
+ - CS00011154605(By Jeong Min Cheol) Fixed to replace Linux random APIs for GKI policy
+ - CS00011166366(By Lee Sunghee) Fixed connection failure issue due to the failure of legacy roam_trigger setting
+ - CS00011166497(By Jeong Min Cheol) Fixed fw trap due to race condition for Inband device wake during suspend
+ - CS00011167124(By Kim Tae-Yong) Fixed to send hang event for scantimeout and invalid pktid cases
+ - CS00011173622(By Min SungBin) Fixed memory overflow issue(KASAN issue)
+ - CS00011174028(By Jeong Min Cheol) Added a retry logic for the failing case of interface creation
+ - CS00011197216(By Choi Hyeonu) Fixed rtnl deadlock issue when stopping scheduled scan
+ - Added NULL reference check while accessing freed memory after wifi off
+ - Added debug prints during Wi-Fi ON
+ - Added to cleanup virtual interface explicitly when framework crash occurs
+ - Added to print debugging info when it is failed to read dongle shared memory
+ - Fixed NAN geo-fence abnormal suspend/reschedule issue if target count is greater than max session
+ - Fixed invalid ranging measurement result due to wrong data type
+ - Fixed sign-conversion properly
+ - Fixed to notify mac address change to the upper layer
+ - Provided test command for 80/160MHz config
+ - Refactoring tx functionality from dhd_linux.c to dhd_linux_tx.c
+
+APPS 1.477
+- dhd UTIL (dhdarm64_android)
+
+
+DHD 101.10.384 - 2020.09.18
+# Initial Release for 4389 Android R OS Project
+
+Vendor HAL Library
+ - HAL_REL_1_60_10
+
+APPS 1.472
+- wl UTIL (wlarm64_android)
+
+

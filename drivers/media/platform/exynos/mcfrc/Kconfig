@@ -1,0 +1,10 @@
+#
+# Exynos multimedia device drivers
+#
+config VIDEO_EXYNOS_MC_FRC
+        tristate "Exynos MC FRC driver"
+        depends on VIDEO_EXYNOS
+        depends on m
+        default m
+        help
+          This is a representative exynos MC FRC device

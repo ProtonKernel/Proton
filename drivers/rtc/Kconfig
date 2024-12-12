@@ -702,6 +702,24 @@ config RTC_DRV_SD3078
       This driver can also be built as a module. If so, the module
       will be called rtc-sd3078
 
+config RTC_DRV_S2MPS19
+	tristate "Samsung PMIC S2MPS19 RTC"
+	depends on MFD_S2MPS19
+	help
+	  If you say yes here you will get support for the
+	  RTC of Samsung PMIC series.
+	  This driver can also be built as a module. If so, the module
+	  will be called rtc-s2mps18.
+
+config RTC_DRV_S2MPS23
+	tristate "Samsung PMIC S2MPS23 RTC"
+	depends on MFD_S2MPS23
+	help
+	  If you say yes here you will get support for the
+	  RTC of Samsung PMIC series.
+	  This driver can also be built as a module. If so, the module
+	  will be called rtc-s2mps23.
+
 endif # I2C
 
 comment "SPI RTC drivers"

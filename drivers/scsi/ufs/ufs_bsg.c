@@ -48,6 +48,9 @@ static int ufs_bsg_alloc_desc_buffer(struct ufs_hba *hba, struct bsg_job *job,
 	struct utp_upiu_query *qr;
 	u8 *descp;
 
+	if (desc_op == UPIU_QUERY_OPCODE_WRITE_ATTR)
+		return -EINVAL;
+
 	if (desc_op != UPIU_QUERY_OPCODE_WRITE_DESC &&
 	    desc_op != UPIU_QUERY_OPCODE_READ_DESC)
 		goto out;

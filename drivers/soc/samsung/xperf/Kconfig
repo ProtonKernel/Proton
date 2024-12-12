@@ -1,0 +1,8 @@
+#
+# Exynos CPU Performance Profiling
+#
+config EXYNOS_PERF
+	tristate "Exynos Performance Drivers"
+	default m
+	help
+	  Enable Exynos Performance Drivers

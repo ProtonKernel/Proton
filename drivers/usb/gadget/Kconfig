@@ -97,9 +97,9 @@ config USB_GADGET_DEBUG_FS
 	   to conserve kernel memory, say "N".
 
 config USB_GADGET_VBUS_DRAW
-	int "Maximum VBUS Power usage (2-500 mA)"
-	range 2 500
-	default 2
+	int "Maximum VBUS Power usage (0-900 mA)"
+	range 0 900
+	default 0
 	help
 	   Some devices need to draw power from USB when they are
 	   configured, perhaps to operate circuitry or to recharge
@@ -107,8 +107,10 @@ config USB_GADGET_VBUS_DRAW
 	   such as an AC adapter or batteries.
 
 	   Enter the maximum power your device draws through USB, in
-	   milliAmperes.  The permitted range of values is 2 - 500 mA;
+	   milliAmperes.  The permitted range of values is 0 - 900 mA;
 	   0 mA would be legal, but can make some hosts misbehave.
+	   Exceptionally, when connecting to a USB port capable of
+	   PD charging, it should be specified as 0mA.
 
 	   This value will be used except for system-specific gadget
 	   drivers that have more specific information.
@@ -216,10 +218,25 @@ config USB_F_PRINTER
 config USB_F_TCM
 	tristate
 
+config USB_F_MTP
+	tristate
+
+config USB_F_PTP
+	tristate
+
+config USB_F_AUDIO_SRC
+	tristate
+
 config USB_F_ACC
 	tristate
 
 config USB_F_AUDIO_SRC
+	tristate
+
+config USB_F_CONN_GADGET
+	tristate
+
+config USB_F_SS_MON_GADGET
 	tristate
 
 # this first set of drivers all depend on bulk-capable hardware.
@@ -254,7 +271,7 @@ config USB_CONFIGFS_SERIAL
 	  The function talks to the Linux-USB generic serial driver.
 
 config USB_CONFIGFS_ACM
-	bool "Abstract Control Model (CDC ACM)"
+	tristate "Abstract Control Model (CDC ACM)"
 	depends on USB_CONFIGFS
 	depends on TTY
 	select USB_U_SERIAL
@@ -308,7 +325,7 @@ config USB_CONFIGFS_ECM_SUBSET
 	  a simple CDC subset is used, placing fewer demands on USB.
 
 config USB_CONFIGFS_RNDIS
-	bool "RNDIS"
+	tristate "RNDIS"
 	depends on USB_CONFIGFS
 	depends on NET
 	select USB_U_ETHER
@@ -358,7 +375,7 @@ config USB_CONFIGFS_MASS_STORAGE
 	  The Mass Storage Gadget acts as a USB Mass Storage disk drive.
 	  As its storage repository it can use a regular file or a block
 	  device (in much the same way as the "loop" device driver),
-	  specified as a module parameter or sysfs option.
+	  specified as a module pstatearameter or sysfs option.
 
 config USB_CONFIGFS_F_LB_SS
 	bool "Loopback and sourcesink function (for testing)"
@@ -385,6 +402,50 @@ config USB_CONFIGFS_F_FS
 	  implemented in kernel space (for instance Ethernet, serial or
 	  mass storage) and other are implemented in user space.
 
+config USB_CONFIGFS_F_DM
+	tristate "DM gadget"
+	depends on USB_CONFIGFS
+	select USB_F_DM
+	select USB_U_SERIAL
+	help
+	  USB gadget DM(Diagnosis Monitor) support
+
+config USB_CONFIGFS_F_MTP
+	tristate "MTP gadget"
+	depends on USB_CONFIGFS
+	select USB_F_MTP
+	help
+	  USB gadget MTP support
+
+config USB_CONFIGFS_F_PTP
+	tristate "PTP gadget"
+	depends on USB_CONFIGFS && USB_CONFIGFS_F_MTP
+	select USB_F_PTP
+	help
+	  USB gadget PTP support
+
+config USB_CONFIGFS_F_CONN_GADGET
+	tristate "F_CONN gadget"
+	depends on USB_CONFIGFS
+	select USB_F_CONN_GADGET
+	help
+	  USB Sidesync function support
+
+config USB_CONFIGFS_F_SS_MON_GADGET
+	tristate "F_SAMSUNG gadget"
+	depends on USB_CONFIGFS
+	select USB_F_SS_MON_GADGET
+	help
+	 Driver for control to Samsung Usb device layer
+	 For Samung working scenario and saving debug log, etc
+
+config F_CONN_GADGET_DEBUGFS
+      bool "Conn gadget debugfs"
+      depends on USB_CONFIGFS_F_CONN_GADGET
+      default n
+      help
+        SydeSync Debugging
+
 config USB_CONFIGFS_F_ACC
 	bool "Accessory gadget"
 	depends on USB_CONFIGFS
@@ -401,6 +462,12 @@ config USB_CONFIGFS_F_AUDIO_SRC
 	select USB_F_AUDIO_SRC
 	help
 	  USB gadget Audio Source support
+
+config USB_RNDIS_MULTIPACKET
+	bool "Samsung Rndis Multi Packet support"
+	depends on USB_CONFIGFS_UEVENT
+	help
+	  Rndis Multipacket Support.
 
 config USB_CONFIGFS_F_UAC1
 	bool "Audio Class 1.0"

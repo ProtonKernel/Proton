@@ -25,6 +25,7 @@
 #include <linux/reboot.h>
 #include <linux/types.h>
 #include <linux/watchdog.h>
+#include <linux/sec_debug.h>
 
 #define TIMER_MARGIN	60		/* Default is 60 seconds */
 static unsigned int soft_margin = TIMER_MARGIN;	/* in seconds */
@@ -52,6 +53,8 @@ MODULE_PARM_DESC(soft_panic,
 static struct hrtimer softdog_ticktock;
 static struct hrtimer softdog_preticktock;
 
+static struct watchdog_device softdog_dev;
+
 static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 {
 	module_put(THIS_MODULE);
@@ -59,7 +62,12 @@ static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 		pr_crit("Triggered - Reboot ignored\n");
 	} else if (soft_panic) {
 		pr_crit("Initiating panic\n");
+		secdbg_softdog_show_info();
+#if IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT)
+		panic("Software Watchdog Timer expired %ds", softdog_dev.timeout);
+#else
 		panic("Software Watchdog Timer expired");
+#endif
 	} else {
 		pr_crit("Initiating system reboot\n");
 		emergency_restart();
@@ -68,8 +76,6 @@ static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 
 	return HRTIMER_NORESTART;
 }
-
-static struct watchdog_device softdog_dev;
 
 static enum hrtimer_restart softdog_pretimeout(struct hrtimer *timer)
 {
@@ -84,6 +90,9 @@ static int softdog_ping(struct watchdog_device *w)
 		__module_get(THIS_MODULE);
 	hrtimer_start(&softdog_ticktock, ktime_set(w->timeout, 0),
 		      HRTIMER_MODE_REL);
+
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT))
+		pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
 
 	if (IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT)) {
 		if (w->pretimeout)
@@ -101,6 +110,9 @@ static int softdog_stop(struct watchdog_device *w)
 {
 	if (hrtimer_cancel(&softdog_ticktock))
 		module_put(THIS_MODULE);
+
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT))
+		pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
 
 	if (IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT))
 		hrtimer_cancel(&softdog_preticktock);
@@ -161,6 +173,13 @@ static void __exit softdog_exit(void)
 	watchdog_unregister_device(&softdog_dev);
 }
 module_exit(softdog_exit);
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT)
+/*
+ * Softdog has to be /dev/watchdog1, but not /dev/watchdog0
+ */
+MODULE_SOFTDEP("pre: s3c2410_wdt");
+#endif
 
 MODULE_AUTHOR("Alan Cox");
 MODULE_DESCRIPTION("Software Watchdog Device Driver");

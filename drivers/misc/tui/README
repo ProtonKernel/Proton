@@ -1,0 +1,10 @@
+1. Location
+move file in include/linux to linux/include/linux
+move all the rest to linux/drivers/misc/tui
+
+2. Add TUI driver to linux kernel build like below
+linux/drivers/misc/Kconfig
++source "drivers/misc/tui/Kconfig"
+
+linux/drivers/misc/Makefile
++obj-$(CONFIG_SAMSUNG_TUI)	+= tui/

@@ -37,6 +37,9 @@ extern void usb_authorize_interface(struct usb_interface *);
 extern void usb_detect_quirks(struct usb_device *udev);
 extern void usb_detect_interface_quirks(struct usb_device *udev);
 extern void usb_release_quirk_list(void);
+#ifdef CONFIG_USB_INTERFACE_LPM_LIST
+extern int usb_detect_interface_lpm(struct usb_device *udev);
+#endif
 extern bool usb_endpoint_is_blacklisted(struct usb_device *udev,
 		struct usb_host_interface *intf,
 		struct usb_endpoint_descriptor *epd);

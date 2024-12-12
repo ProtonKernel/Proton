@@ -1,0 +1,56 @@
+menuconfig VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	tristate "EXYNOS CAMERA POSTPROCESS GDC Driver"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS
+	default y
+	help
+		This is a representative exynos CAMERA-PP GDC device.
+
+config CAMERA_PP_GDC_V1_0_0_OBJ
+	tristate "use GDC v1.0"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v1.0 driver
+
+config CAMERA_PP_GDC_V2_0_0_OBJ
+	tristate "use GDC v2.0"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v2.0 driver
+
+config CAMERA_PP_GDC_V2_1_0_OBJ
+	tristate "use GDC v2.1"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v2.1 driver
+
+config CAMERA_PP_GDC_V3_0_0_OBJ
+	tristate "use GDC v3.0"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v3.0 driver
+
+
+config CAMERA_PP_GDC_V3_1_0_OBJ
+	tristate "use GDC v3.1"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v3.1 driver
+
+config CAMERA_PP_GDC_V3_10_0_OBJ
+	tristate "use GDC v3.10"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v3.10 driver
+
+config CAMERA_PP_GDC_V4_1_0_OBJ
+	tristate "use GDC v4.1"
+	depends on VIDEO_EXYNOS_CAMERA_POSTPROCESS_GDC
+	default n
+	help
+		Use to build GDC v4.1 driver

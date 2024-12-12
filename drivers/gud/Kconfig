@@ -1,0 +1,9 @@
+#
+# Mobicore Configuration
+#
+if SOC_EXYNOS2100
+source "drivers/gud/gud-exynos2100/Kconfig"
+endif
+if SOC_EXYNOS991
+source "drivers/gud/gud-exynos991/Kconfig"
+endif

@@ -162,6 +162,9 @@ scmd_eh_abort_handler(struct work_struct *work)
 					scmd_printk(KERN_WARNING, scmd,
 						    "finish aborted command\n"));
 				scsi_finish_command(scmd);
+#ifdef CONFIG_SEC_FACTORY
+				pr_info("%s finish command\n", __func__);
+#endif
 				return;
 			}
 		} else {

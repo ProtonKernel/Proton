@@ -1,0 +1,213 @@
+config MCD_PANEL
+	tristate "Samsung MCD Panel Driver"
+	select BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+		Enable MCD Panel Driver.
+
+config EXYNOS_DECON_MDNIE_LITE
+	bool "Support MDNIE LITE"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_AFC
+	bool "Support AFC"
+	depends on MCD_PANEL && EXYNOS_DECON_MDNIE_LITE
+	default n
+
+config SUPPORT_ISC_TUNE_TEST
+	bool "Support ISC TUNE TEST"
+	depends on MCD_PANEL
+	default n
+
+config EXYNOS_DECON_LCD_SYSFS
+	bool "Support LCD SYSFS"
+	depends on MCD_PANEL
+	default y
+
+config EXYNOS_DECON_LCD_SPI
+	bool "Support LCD SPI"
+	depends on MCD_PANEL
+	default n
+
+config EXYNOS_DECON_LCD_COPR
+	bool "Support COPR"
+	depends on MCD_PANEL
+	default n
+
+config EXYNOS_DECON_LCD_TUNING
+	bool "Support LCD TUNING"
+	depends on MCD_PANEL
+	default n
+
+config PANEL_AID_DIMMING
+	bool "Support AID Dimming"
+	depends on MCD_PANEL
+	default y
+
+config SUPPORT_DSU
+	bool "Support DSU(Multi Resolution)"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_HMD
+	bool "Support HMD(Head Mount Display - VR)"
+	depends on MCD_PANEL
+	default n
+
+config EXTEND_LIVE_CLOCK
+	bool "Support Extend Live Clock Functions(For Always On Display)"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_AOD_BL
+	bool "Support AOD(Active On Display) BL(BackLight) Driver"
+	depends on MCD_PANEL && EXYNOS_DOZE
+	default n
+
+config SUPPORT_DISPLAY_PROFILER
+	bool "Support Display Profiler"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_DDI_FLASH
+	bool "Support display ddi flash"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_POC_FLASH
+	bool "Support display poc flash"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_MAFPC
+	bool "SUPPORT MAFPC function"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_MAFPC_CRC
+	bool "SUPPORT MAFPC CRC function"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_DIM_FLASH
+	bool "Support display dimming flash"
+	depends on MCD_PANEL && SUPPORT_DDI_FLASH
+	default n
+
+config SUPPORT_GRAM_CHECKSUM
+	bool "Support GRAM Checksum"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_CCD_TEST
+	bool "Support CCD TEST"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_DYNAMIC_HLPM
+	bool "Support Dynamic HLPM TEST"
+	depends on MCD_PANEL && EXYNOS_DOZE
+	default n
+
+config SUPPORT_TDMB_TUNE
+	bool "Support TDMB Tuning"
+	depends on MCD_PANEL && TDMB_NOTIFIER
+	default n
+
+config PANEL_BACKLIGHT_PAC_3_0
+	bool "Support baclight PAC 3.0"
+	depends on MCD_PANEL
+	default n
+
+config DISPLAY_USE_INFO
+	bool "Support display use info logging"
+	depends on MCD_PANEL
+	default n
+
+config SELF_MOVE_3PX
+	bool "self move 3 pixel"
+	depends on MCD_PANEL
+	default n
+
+config PANEL_NOTIFY
+	bool "Support panel notifier"
+	depends on MCD_PANEL
+	default y
+
+config SUPPORT_POC_SPI
+	bool "Support poc SPI connection"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_GM2_FLASH
+	bool "Support to get Gamma-mode2 panel info from flash"
+	depends on MCD_PANEL
+	default n
+
+config DYNAMIC_MIPI
+	bool "Support Dynamic Mipi"
+	depends on MCD_PANEL
+	default n
+
+config PANEL_DISPLAY_MODE
+	bool "Support panel display mode"
+	depends on MCD_PANEL
+	default n
+
+config PANEL_VRR_BRIDGE
+	bool "Support panel vrr bridge"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_FAST_DISCHARGE
+	bool "Support fast discharge function"
+	depends on MCD_PANEL && SEC_FACTORY
+	default n
+
+config EXYNOS_LCD_ENG
+	bool "Support LCD featue on ENG binary"
+	depends on MCD_PANEL
+	default y
+
+config PANEL_DEBUG
+	bool "Support panel debug"
+	depends on MCD_PANEL
+	default y
+
+config SUPPORT_MASK_LAYER
+	bool "Support FP mask layer function"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_ERRFG_RECOVERY
+	bool "Support ERRFG recovery"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_BRIGHTDOT_TEST
+	bool "Support Brightdot Test"
+	depends on MCD_PANEL
+	default n
+
+config EVASION_DISP_DET
+    bool "Support avoid disp_det interrupt"
+    depends on MCD_PANEL
+    default n
+
+config SUPPORT_DDI_CMDLOG
+	bool "Support DDI Command Log"
+	depends on MCD_PANEL
+	default n
+
+config SUPPORT_TIG
+    bool "Support tig enable/disable(black screen)"
+    depends on MCD_PANEL && EXYNOS_DOZE
+    default n
+
+source "drivers/video/fbdev/exynos/panel/s6e3fab/Kconfig"
+source "drivers/video/fbdev/exynos/panel/s6e3hab/Kconfig"
+source "drivers/video/fbdev/exynos/panel/s6e3had/Kconfig"
+source "drivers/video/fbdev/exynos/panel/ea8082/Kconfig"
+source "drivers/video/fbdev/exynos/panel/s6e3fc3/Kconfig"
+

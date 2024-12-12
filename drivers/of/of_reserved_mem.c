@@ -26,13 +26,81 @@
 static struct reserved_mem reserved_mem[MAX_RESERVED_REGIONS];
 static int reserved_mem_count;
 
+#if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_ABOX_CHANGE_RMEM_SIZE)
+#define MAGIC_ABOX_RMEM_SIZE	0xab0cab0c
+#define DEBUG_LEVEL_LOW		0x4f4c
+#define FORCE_UPLOAD_DISABLED	0x0
+
+enum cmdline_check_mode {
+	DEBUG_LEVEL,
+	FORCE_UPLOAD,
+	CHK_MODE_MAX,
+};
+
+static const char *cmdline_mode_str[CHK_MODE_MAX] = {
+	[DEBUG_LEVEL] = "androidboot.debug_level=",
+	[FORCE_UPLOAD] = "androidboot.force_upload=",
+};
+
+int debug_level;
+int force_upload;
+
+static int check_cmdline(enum cmdline_check_mode mode, int *val)
+{
+	int len, i;
+	const char *bootargs;
+	char *p_val;
+	char buff_val[16];
+	int ret = 0;
+	unsigned long root, chosen;
+
+	root = of_get_flat_dt_root();
+	chosen = of_get_flat_dt_subnode_by_name(root, "chosen");
+	if (!chosen) {
+		pr_err("%s: no chosen\n", __func__);
+		return -EINVAL;
+	}
+
+	bootargs = of_get_flat_dt_prop(chosen, "bootargs", &len);
+	if (!bootargs) {
+		pr_err("%s: no bootargs\n", __func__);
+		return -EINVAL;
+	}
+
+	p_val = strstr(bootargs, cmdline_mode_str[mode]);
+	if (!p_val) {
+		pr_err("%s: invalid cmdline_mode %d\n", __func__, mode);
+		return -EINVAL;
+	}
+
+	p_val += strlen(cmdline_mode_str[mode]);
+
+	for (i = 0; i < (int) sizeof(buff_val) - 1; i++) {
+		if (p_val[i] == ' ' || p_val[i] == 0) {
+			buff_val[i] = 0;
+			break;
+		}
+		buff_val[i] = p_val[i];
+	}
+	buff_val[i] = 0;
+
+	ret = kstrtoint(buff_val, 0, val);
+	if (ret < 0)
+		pr_err("%s: str2int err (%s) %d\n", __func__, buff_val, ret);
+
+	pr_debug("%s: %s = 0x%x\n", __func__, cmdline_mode_str[mode], *val);
+
+	return ret;
+}
+#endif
+
 static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
 	phys_addr_t align, phys_addr_t start, phys_addr_t end, bool nomap,
 	phys_addr_t *res_base)
 {
 	phys_addr_t base;
 
-	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
+	end = !end ? MEMBLOCK_ALLOC_ACCESSIBLE : end;
 	align = !align ? SMP_CACHE_BYTES : align;
 	base = memblock_find_in_range(start, end, size, align);
 	if (!base)
@@ -81,6 +149,10 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 	const __be32 *prop;
 	int nomap;
 	int ret;
+#if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_ABOX_CHANGE_RMEM_SIZE)
+	int change_size = 0;
+	phys_addr_t size_min = MAGIC_ABOX_RMEM_SIZE;
+#endif
 
 	prop = of_get_flat_dt_prop(node, "size", &len);
 	if (!prop)
@@ -91,6 +163,37 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 		return -EINVAL;
 	}
 	size = dt_mem_next_cell(dt_root_size_cells, &prop);
+
+#if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_ABOX_CHANGE_RMEM_SIZE)
+	if (!strcmp(uname, "abox-dbg")) {
+		check_cmdline(FORCE_UPLOAD, &force_upload);
+		if (force_upload == FORCE_UPLOAD_DISABLED)
+			change_size = 1;
+	}
+
+	if (!strcmp(uname, "abox-slog")) {
+		check_cmdline(DEBUG_LEVEL, &debug_level);
+		pr_err("%s: debug_level 0x%x\n", __func__, debug_level);
+		if (debug_level == DEBUG_LEVEL_LOW)
+			change_size = 1;
+	}
+
+	if (change_size) {
+		pr_info("change size for %s\n", uname);
+		prop = of_get_flat_dt_prop(node, "size_min", &len);
+		if (!prop)
+			pr_err("no size_min prop in '%s' node.\n", uname);
+		else if (len != dt_root_size_cells * sizeof(__be32))
+			pr_err("invalid size_min prop in '%s' node.\n", uname);
+		else
+			size_min = dt_mem_next_cell(dt_root_size_cells, &prop);
+
+		pr_info("%s: %s size 0x%x, size_min 0x%x\n", __func__, uname, size, size_min);
+
+		if (size_min != MAGIC_ABOX_RMEM_SIZE && (size > size_min))
+			size = size_min;
+	}
+#endif
 
 	nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
 
@@ -256,9 +359,10 @@ void __init fdt_init_reserved_mem(void)
 		int len;
 		const __be32 *prop;
 		int err = 0;
-		int nomap;
+		int nomap, reusable;
 
 		nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
+		reusable = of_get_flat_dt_prop(node, "reusable", NULL) != NULL;
 		prop = of_get_flat_dt_prop(node, "phandle", &len);
 		if (!prop)
 			prop = of_get_flat_dt_prop(node, "linux,phandle", &len);
@@ -276,6 +380,14 @@ void __init fdt_init_reserved_mem(void)
 				memblock_free(rmem->base, rmem->size);
 				if (nomap)
 					memblock_add(rmem->base, rmem->size);
+			} else {
+#ifdef CONFIG_ION_RBIN_HEAP
+				if (of_get_flat_dt_prop(node, "ion,recyclable", NULL))
+					reusable = true;
+#endif
+				memblock_memsize_record(rmem->name, rmem->base,
+							rmem->size, nomap,
+							reusable);
 			}
 		}
 	}

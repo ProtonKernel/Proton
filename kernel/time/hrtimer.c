@@ -45,6 +45,7 @@
 #include <linux/uaccess.h>
 
 #include <trace/events/timer.h>
+#include <soc/samsung/debug-snapshot.h>
 
 #include "tick-internal.h"
 
@@ -1580,7 +1581,9 @@ static void __run_hrtimer(struct hrtimer_cpu_base *cpu_base,
 	 */
 	raw_spin_unlock_irqrestore(&cpu_base->lock, flags);
 	trace_hrtimer_expire_entry(timer, now);
+	dbg_snapshot_hrtimer(timer, now, fn, DSS_FLAG_IN);
 	restart = fn(timer);
+	dbg_snapshot_hrtimer(timer, now, fn, DSS_FLAG_OUT);
 	trace_hrtimer_expire_exit(timer);
 	raw_spin_lock_irq(&cpu_base->lock);
 
@@ -2080,6 +2083,7 @@ int hrtimers_cpu_starting(unsigned int cpu)
 	cpu_base->softirq_next_timer = NULL;
 	cpu_base->expires_next = KTIME_MAX;
 	cpu_base->softirq_expires_next = KTIME_MAX;
+	restore_pcpu_tick(cpu);
 	return 0;
 }
 
@@ -2121,6 +2125,7 @@ int hrtimers_dead_cpu(unsigned int scpu)
 	int i;
 
 	BUG_ON(cpu_online(scpu));
+	save_pcpu_tick(scpu);
 	tick_cancel_sched_timer(scpu);
 
 	/*

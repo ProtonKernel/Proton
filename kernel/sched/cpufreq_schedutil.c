@@ -304,6 +304,9 @@ static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 	sg_cpu->max = max;
 	sg_cpu->bw_dl = cpu_bw_dl(rq);
 
+#ifdef CONFIG_EMS
+	util = emstune_freq_boost(sg_cpu->cpu, util);
+#endif
 	return schedutil_cpu_util(sg_cpu->cpu, util, max, FREQUENCY_UTIL, NULL);
 }
 

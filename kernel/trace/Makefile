@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0
 
+# If instrumentation of this dir is enabled, the function tracer gets really
+# slow. Probably could be more selective here, but note that files related
+# to tracing.shouldn't be traced anyway.
+KCOV_INSTRUMENT		:= n
+
 # Do not instrument the tracer itself:
 
 ifdef CONFIG_FUNCTION_TRACER

@@ -1385,6 +1385,8 @@ enqueue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 {
 	struct sched_rt_entity *rt_se = &p->rt;
 
+	freqboost_enqueue_task(p, cpu_of(rq), flags);
+
 	if (flags & ENQUEUE_WAKEUP)
 		rt_se->timeout = 0;
 
@@ -1397,6 +1399,8 @@ enqueue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 static void dequeue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 {
 	struct sched_rt_entity *rt_se = &p->rt;
+
+	freqboost_dequeue_task(p, cpu_of(rq), flags);
 
 	update_curr_rt(rq);
 	dequeue_rt_entity(rt_se, flags);
@@ -1463,6 +1467,27 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags)
 	rcu_read_lock();
 	curr = READ_ONCE(rq->curr); /* unlocked access */
 
+#ifdef CONFIG_SCHED_USE_FLUID_RT
+	if (curr) {
+		/*
+		 * Even though the destination CPU is running
+		 * a higher priority task, FluidRT can bother moving it
+		 * when its utilization is very small, and the other CPU is too busy
+		 * to accomodate the p in the point of priority and utilization.
+		 *
+		 * BTW, if the curr has higher priority than p, FluidRT tries to find
+		 * the other CPUs first. In the worst case, curr can be victim, if it
+		 * has very small utilization.
+		 */
+		int target = find_lowest_rq(p);
+
+		if (likely(target != -1))
+			cpu = target;
+
+		rcu_read_unlock();
+		return cpu;
+	}
+#endif
 	/*
 	 * If the current task on @p's runqueue is an RT task, then
 	 * try to see if we can wake this RT task up on another
@@ -1709,7 +1734,7 @@ static struct task_struct *pick_highest_pushable_task(struct rq *rq, int cpu)
 	return NULL;
 }
 
-static DEFINE_PER_CPU(cpumask_var_t, local_cpu_mask);
+DEFINE_PER_CPU(cpumask_var_t, local_cpu_mask);
 
 static int find_lowest_rq(struct task_struct *task)
 {
@@ -1723,6 +1748,10 @@ static int find_lowest_rq(struct task_struct *task)
 	trace_android_rvh_find_lowest_rq(task, lowest_mask, &lowest_cpu);
 	if (lowest_cpu >= 0)
 		return lowest_cpu;
+
+#ifdef CONFIG_SCHED_USE_FLUID_RT
+	return frt_find_lowest_rq(task);
+#endif
 
 	/* Make sure the mask is initialized first */
 	if (unlikely(!lowest_mask))

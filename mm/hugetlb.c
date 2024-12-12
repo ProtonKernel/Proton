@@ -4025,6 +4025,10 @@ retry:
 				.vma = vma,
 				.address = haddr,
 				.flags = flags,
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+				.vma_flags = vma->vm_flags,
+				.vma_page_prot = vma->vm_page_prot,
+#endif
 				/*
 				 * Hard to debug if it ends up being
 				 * used by a callee that assumes

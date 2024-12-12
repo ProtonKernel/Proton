@@ -213,6 +213,7 @@ sec_debug_logbuf_interface.ko
 sec_debug_stacktrace.ko
 sec_debug_hardlockup_info.ko
 sec_debug_sched_report.ko
+sec_debug_sched_info.ko
 dev_ril_bridge.ko
 sec_vibrator.ko
 max77705-charger.ko
@@ -269,3 +270,4 @@ snd-soc-samsung-vts.ko
 unbound_prince.ko
 tcp_westwood.ko
 tcp_htcp.ko
+input_booster_lkm.ko

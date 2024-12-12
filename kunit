@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import subprocess
+import os
+
+root = os.path.abspath(os.path.dirname(__file__))
+kunit_py = os.path.join(root, 'tools/testing/kunit/kunit.py')
+
+
+def run(option):
+    return subprocess.check_call([kunit_py, 'run'])
+
+
+def new(option):
+    print(option)
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(prog='kunit')
+    subparsers = parser.add_subparsers(dest='subcommand', required=True, help='sub-command help')
+    parser_new = subparsers.add_parser('new', help='Add new template')
+    parser_new.set_defaults(func=new)
+    parser_run = subparsers.add_parser('run', help='run kunit with UML')
+    parser_run.set_defaults(func=run)
+
+    option = parser.parse_args()
+    return option.func(option)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

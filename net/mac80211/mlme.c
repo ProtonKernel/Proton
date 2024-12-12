@@ -2838,7 +2838,7 @@ static void ieee80211_auth_challenge(struct ieee80211_sub_if_data *sdata,
 
 	pos = mgmt->u.auth.variable;
 	challenge = cfg80211_find_elem(WLAN_EID_CHALLENGE, pos,
-				       len - (pos - (u8 *)mgmt));
+					   len - (pos - (u8 *)mgmt));
 	if (!challenge)
 		return;
 	auth_data->expected_transaction = 4;

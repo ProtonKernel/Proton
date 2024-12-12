@@ -337,13 +337,26 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_MPTCP
+int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
+			       bool reinit, bool cap_net_admin)
+{
+	return tcp_sk(sk)->ops->set_cong_ctrl(sk, name, load, reinit, cap_net_admin);
+}
+#endif
+
 /* Change congestion control for socket. If load is false, then it is the
  * responsibility of the caller to call tcp_init_congestion_control or
  * tcp_reinit_congestion_control (if the current congestion control was
  * already initialized.
  */
+#ifdef CONFIG_MPTCP
+int __tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
+				 bool reinit, bool cap_net_admin)
+#else
 int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
 			       bool reinit, bool cap_net_admin)
+#endif
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	const struct tcp_congestion_ops *ca;

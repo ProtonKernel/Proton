@@ -69,6 +69,9 @@ static void free_inode(struct inode *inode);
 static void evict_inode(struct inode *inode);
 
 static int incfs_setattr(struct dentry *dentry, struct iattr *ia);
+static int incfs_getattr(const struct path *path,
+			 struct kstat *stat, u32 request_mask,
+			 unsigned int query_flags);
 static ssize_t incfs_getxattr(struct dentry *d, const char *name,
 			void *value, size_t size);
 static ssize_t incfs_setxattr(struct dentry *d, const char *name,
@@ -161,7 +164,7 @@ static const struct file_operations incfs_log_file_ops = {
 
 static const struct inode_operations incfs_file_inode_ops = {
 	.setattr = incfs_setattr,
-	.getattr = simple_getattr,
+	.getattr = incfs_getattr,
 	.listxattr = incfs_listxattr
 };
 
@@ -2086,6 +2089,35 @@ static int incfs_setattr(struct dentry *dentry, struct iattr *ia)
 		ia->ia_mode &= ~0222;
 
 	return simple_setattr(dentry, ia);
+}
+
+static int incfs_getattr(const struct path *path,
+			 struct kstat *stat, u32 request_mask,
+			 unsigned int query_flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	generic_fillattr(inode, stat);
+	if (inode->i_ino < INCFS_START_INO_RANGE)
+		return 0;
+	stat->attributes &= ~STATX_ATTR_VERITY;
+	if (IS_VERITY(inode))
+		stat->attributes |= STATX_ATTR_VERITY;
+	stat->attributes_mask |= STATX_ATTR_VERITY;
+	if (request_mask & STATX_BLOCKS) {
+		struct kstat backing_kstat;
+		struct dentry_info *di = get_incfs_dentry(path->dentry);
+		int error = 0;
+		struct path *backing_path;
+		if (!di)
+			return -EFSCORRUPTED;
+		backing_path = &di->backing_path;
+		error = vfs_getattr(backing_path, &backing_kstat, STATX_BLOCKS,
+				    AT_STATX_SYNC_AS_STAT);
+		if (error)
+			return error;
+		stat->blocks = backing_kstat.blocks;
+	}
+	return 0;
 }
 
 static ssize_t incfs_getxattr(struct dentry *d, const char *name,

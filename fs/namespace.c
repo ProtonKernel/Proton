@@ -1938,6 +1938,10 @@ static inline bool may_mandlock(void)
 }
 #endif
 
+#ifdef CONFIG_PAGE_BOOST_RECORDING
+#include <linux/io_record.h>
+#endif
+
 static int can_umount(const struct path *path, int flags)
 {
 	struct mount *mnt = real_mount(path->mnt);
@@ -1960,12 +1964,12 @@ static int can_umount(const struct path *path, int flags)
 	if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
 #endif
 		return -EINVAL;
-	retval = -EPERM;
 	if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
 		return -EPERM;
 	return 0;
 }
 
+// caller is responsible for flags being sane
 int path_umount(struct path *path, int flags)
 {
 	struct mount *mnt = real_mount(path->mnt);
@@ -1978,7 +1982,7 @@ int path_umount(struct path *path, int flags)
 	/* we mustn't call path_put() as that would clear mnt_expiry_mark */
 	dput(path->dentry);
 	mntput_no_expire(mnt);
-	if (!retval)
+	if (!ret)
 		sys_umount_trace_print(mnt, flags);
 	return ret;
 }

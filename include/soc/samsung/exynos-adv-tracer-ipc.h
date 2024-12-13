@@ -136,10 +136,10 @@ static inline int adv_tracer_ipc_send_data(unsigned int id,
 			struct adv_tracer_ipc_cmd *cmd) { return 0; }
 static int adv_tracer_ipc_send_data_polling(unsigned int id,
 			struct adv_tracer_ipc_cmd *cmd) { return 0; }
-static int adv_tracer_ipc_send_data_polling_timeout(unsigned int id,
+static int __maybe_unused adv_tracer_ipc_send_data_polling_timeout(unsigned int id,
 			struct adv_tracer_ipc_cmd *cmd,
 			unsigned long timeout_ns) { return 0; }
-static int adv_tracer_ipc_send_data_async(unsigned int id,
+static int __maybe_unused adv_tracer_ipc_send_data_async(unsigned int id,
 			struct adv_tracer_ipc_cmd *cmd) { return 0; }
 #define adv_tracer_ipc_release_channel_by_name(a)	do { } while (0)
 #endif

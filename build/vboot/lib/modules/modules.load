@@ -1,16 +1,12 @@
 dss.ko
 exynos-chipid_v2.ko
 exynos-reboot.ko
-exynos2100-itmon.ko
 exynos-pmu-if.ko
 s3c2410_wdt.ko
 exynos-ecc-handler.ko
 exynos-coresight.ko
 debug-snapshot-qd.ko
-eat.ko
-exynos-adv-tracer-s2d.ko
 ehld.ko
-exynos-debug-test.ko
 hardlockup-debug.ko
 exynos_acpm.ko
 exynos_pm_qos.ko

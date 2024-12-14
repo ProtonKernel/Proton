@@ -538,6 +538,8 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 		if (margin)
 			cal_dfs_set_volt_margin(i | ACPM_VCLK_TYPE, margin);
 
+		volt_offset_percent = -5;
+
 		if (volt_offset_percent) {
 			if ((volt_offset_percent < 100) && (volt_offset_percent > -100)) {
 				percent_margin_table[i] = volt_offset_percent;

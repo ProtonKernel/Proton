@@ -5,7 +5,6 @@ exynos-pmu-if.ko
 s3c2410_wdt.ko
 exynos-ecc-handler.ko
 exynos-coresight.ko
-debug-snapshot-qd.ko
 ehld.ko
 hardlockup-debug.ko
 exynos_acpm.ko
@@ -49,7 +48,6 @@ dpu.ko
 dp_ext_func.ko
 pl330.ko
 samsung-dma.ko
-debug-snapshot-sfrdump.ko
 hardlockup-watchdog.ko
 exynos-ssld.ko
 exynos-seh.ko

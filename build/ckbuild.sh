@@ -11,6 +11,7 @@ AOSP_REPO="https://android.googlesource.com/platform/prebuilts/clang/host/linux-
 AOSP_ARCHIVE="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master"
 PC_REPO="https://github.com/kdrag0n/proton-clang"
 LZ_REPO="https://gitlab.com/Jprimero15/lolz_clang.git"
+SL_REPO="http://ftp.twaren.net/Unix/Kernel/tools/llvm/files/"
 
 # Other
 DEFAULT_DEFCONFIG="fpkernel_exynos2100-r9sxxx_defconfig"
@@ -48,6 +49,7 @@ export PATH="$(pwd)/build/bin:$PATH"
 AC_DIR="$WP/aospclang"
 PC_DIR="$WP/protonclang"
 LZ_DIR="$WP/lolzclang"
+SL_DIR="$WP/slimllvm"
 AK3_DIR="$WP/AK3-r9s"
 AK3_BRANCH="r9s"
 KDIR="$(readlink -f .)"
@@ -90,7 +92,7 @@ DO_ZIP="1"
 # Upload build log
 BUILD_LOG=1
 
-# Pick aosp, proton or lolz
+# Pick aosp, proton, lolz or slim
 CLANG_TYPE=aosp
 
 ## Info message
@@ -206,6 +208,47 @@ get_toolchain() {
             fi
         fi
     fi
+
+    # Slim LLVM
+    if [[ $1 = "slim" ]]; then
+        if ! [ -d "$SL_DIR" ]; then
+            echo -e "\nINFO: Slim LLVM not found! Cloning to $SL_DIR..."
+
+            # Ensure URL has a trailing slash
+            SL_REPO="http://ftp.twaren.net/Unix/Kernel/tools/llvm/files/"
+
+            # Fetch the directory listing and extract the tar.xz filenames
+            FILENAMES=$(curl -s "$SL_REPO" | grep -oP 'llvm-[\d.]+-x86_64\.tar\.xz')
+
+            # Find the latest filename by sorting and picking the last one
+            LATEST_FILE=$(echo "$FILENAMES" | sort -V | tail -n 1)
+
+            # Download the latest file
+            wget -q --show-progress -O "$WP/${LATEST_FILE}" "${SL_REPO}${LATEST_FILE}"
+            if [ $? -eq 0 ]; then
+                echo "Downloaded: ${LATEST_FILE}"
+                mkdir -p "$SL_DIR"
+
+                # Determine the name of the extracted folder
+                EXTRACTED_FOLDER=$(basename "$LATEST_FILE" .tar.xz)
+
+                # Extract directly and move contents out of the subdirectory
+                tar -xf "$WP/${LATEST_FILE}" -C "$SL_DIR"
+                mv "$SL_DIR/$EXTRACTED_FOLDER"/* "$SL_DIR"
+
+                # Remove the now-empty extracted directory
+                rmdir "$SL_DIR/$EXTRACTED_FOLDER"
+
+                # Delete the downloaded file
+                rm "$WP/${LATEST_FILE}"
+
+                echo "Extraction complete."
+            else
+                echo -e "\nERROR: Cloning failed! Aborting..."
+                exit 1
+            fi
+        fi
+    fi
 }
 
 prep_toolchain() {
@@ -221,6 +264,10 @@ prep_toolchain() {
         CLANG_DIR="$LZ_DIR"
         CCARM64_PREFIX=aarch64-linux-gnu-
         echo -e "\nINFO: Using Lolz Clang..."
+    elif [[ $1 = "slim" ]]; then
+        CLANG_DIR="$SL_DIR"
+        CCARM64_PREFIX=aarch64-linux-gnu-
+        echo -e "\nINFO: Using Slim LLVM Clang..."
     fi
 
     ## Set PATH

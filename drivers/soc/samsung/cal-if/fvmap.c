@@ -485,6 +485,13 @@ int fvmap_get_raw_voltage_table(unsigned int id)
 	return 0;
 }
 
+// Undervolting settings
+#define CPU_UV 6 	// Percentage to undervolt.
+// Define domain IDs for CPU clusters
+#define DOMAIN_ID_CPUCL0 0 	// Set domain_id for CPUCL0 here.
+#define DOMAIN_ID_CPUCL1 1 	// Set domain_id for CPUCL1 here.
+#define DOMAIN_ID_CPUCL2 2 	// Set domain_id for CPUCL2 here.
+
 static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base)
 {
 	volatile struct fvmap_header *fvmap_header, *header;
@@ -543,6 +550,21 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 				percent_margin_table[i] = volt_offset_percent;
 				cal_dfs_set_volt_margin(i | ACPM_VCLK_TYPE, volt_offset_percent);
 			}
+		}
+
+		/* Apply undervolt if the domain is CPUCL0, CPUCL1 or CPUCL2 */
+		if (fvmap_header[i].domain_id == DOMAIN_ID_CPUCL0 || fvmap_header[i].domain_id == DOMAIN_ID_CPUCL1 || fvmap_header[i].domain_id == DOMAIN_ID_CPUCL2) {
+			for (j = 0; j < fvmap_header[i].num_of_lv; j++) {
+				old->table[j].volt = (old->table[j].volt * (100 - CPU_UV)) / 100;
+			}
+		}
+
+		for (j = 0; j < fvmap_header[i].num_of_lv; j++) {
+			new->table[j].rate = old->table[j].rate;
+			new->table[j].volt = old->table[j].volt;
+#ifdef CONFIG_EXYNOS_DEBUG_INFO
+			pr_info("  lv : [%7d], volt = %d uV (%d %%) \n", new->table[j].rate, new->table[j].volt * STEP_UV, volt_offset_percent);
+#endif
 		}
 
 		for (j = 0; j < fvmap_header[i].num_of_members; j++) {

@@ -1,56 +1,49 @@
-[English](README.md) | [Español](README_ES.md) | [简体中文](README_CN.md) | **繁體中文** | [日本語](README_JP.md) | [한국어](README_KR.md) | [Polski](README_PL.md) | [Português (Brasil)](README_PT-BR.md) | [Türkçe](README_TR.md) | [Русский](README_RU.md) | [Tiếng Việt](README_VI.md) | [Indonesia](README_ID.md) | [עברית](README_IW.md) | [हिंदी](README_IN.md) | [Italiano](README_IT.md)
+[English](README.md) | [简体中文](README_CN.md) | **繁體中文** | [Türkçe](README_TR.md) | [Português (Brasil)](README_PT-BR.md) | [한국어](README_KO.md)
 
-# KernelSU
+# KernelSU Next
 
-<img src="https://kernelsu.org/logo.png" style="width: 96px;" alt="logo">
+<img src="/assets/kernelsu_next.png" style="width: 96px;" alt="logo">
 
-一個基於核心的 Android 裝置 Root 解決方案
+基於內核的 Android 設備 root 解決方案
 
-[![Latest release](https://img.shields.io/github/v/release/tiann/KernelSU?label=Release&logo=github)](https://github.com/tiann/KernelSU/releases/latest)
-[![Weblate](https://img.shields.io/badge/Localization-Weblate-teal?logo=weblate)](https://hosted.weblate.org/engage/kernelsu)
-[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/KernelSU)
+[![Latest Release](https://img.shields.io/github/v/release/rifsxd/KernelSU-Next?label=Release&logo=github)](https://github.com/rifsxd/KernelSU-Next/releases/latest)
+[![Nightly Release](https://img.shields.io/badge/Nightly%20Release-gray?logo=hackthebox&logoColor=fff)](https://nightly.link/rifsxd/KernelSU-Next/workflows/build-manager/next/manager)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-orange.svg?logo=gnu)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-[![GitHub License](https://img.shields.io/github/license/tiann/KernelSU?logo=gnu)](/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/rifsxd/KernelSU-Next?logo=gnu)](/LICENSE)
 
-## 功能
+## 特性
 
-- 基於核心的 `su` 和 Root 存取權管理。
-- 基於 [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS) 的模組系統。
-- [App Profile](https://kernelsu.org/zh_TW/guide/app-profile.html): 將 Root 的權限鎖在牢籠中.
+1. 基於內核的 `su` 和 root 權限管理
+2. 基於動態掛載系統 [Magic Mount](https://topjohnwu.github.io/Magisk/details.html#magic-mount) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS) 的模塊系統。
+3. [App Profile](https://kernelsu.org/zh_CN/guide/app-profile.html)：把 Root 權限關進籠子裡
 
-## 相容性狀態
+## 兼容狀態
 
-KernelSU 官方支援 Android GKI 2.0 的裝置 (核心版本 5.10+ )；舊版核心同樣相容 (最低 4.14+ )，但需要自行編譯核心。
+KernelSU Next 正式支持大多數從 4.4 到 6.6 的 Android 內核。
+ - GKI 2.0 (5.10+) 內核可以運行預構建的映像和 LKM/KMI。
+ - GKI 1.0 (4.19 - 5.4) 內核需要重新編譯 KernelSU 驅動程序。
+ - EOL (<4.14) 內核也需要重新編譯 KernelSU 驅動程序（3.18+ 是實驗性的，可能需要一些功能回移）。
 
-WSA和ChromeOS和執行在容器中的 Android 也可以與 KernelSU 一同運作。
+目前僅支持 `arm64-v8a`
 
-目前支援架構：`arm64-v8a` 和 `x86_64`。
+## 用法
 
-## 使用方法
+- [安裝說明](https://rifsxd.github.io/KernelSU-Next/)
 
-- [安裝教學](https://kernelsu.org/zh_TW/guide/installation.html)
-- [如何建置？](https://kernelsu.org/zh_TW/guide/how-to-build.html)
-- [官方網站](https://kernelsu.org/zh_TW/)
+## 安全性
 
-## 翻譯
+有關報告 KernelSU Next 漏洞的信息，請參閱 [SECURITY.md](/SECURITY.md).
 
-若要協助翻譯 KernelSU 或改進現有翻譯，請使用 [Weblate](https://hosted.weblate.org/engage/kernelsu/)。 翻譯管理器的PR不再被接受，因為它會與Weblate衝突。
+## 許可證
 
-## 討論
+- 目錄 `kernel` 下所有文件為 [GPL-2.0-only](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+- `kernel` 目錄以外的其他部分均為 [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html)
 
-- Telegram：[@KernelSU](https://t.me/KernelSU)
+## 鳴謝
 
-## 安全
-有關報告 KernelSU 中的安全漏洞的資訊，請參閱 [SECURITY.md](/SECURITY.md)。
-
-## 授權
-
-- 目錄 `kernel` 下所有檔案為 [GPL-2-only](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)。
-- 除 `kernel` 目錄的其他部分均為 [GPL-3-or-later](https://www.gnu.org/licenses/gpl-3.0.html)。
-
-## 致謝
-
-- [kernel-assisted-superuser](https://git.zx2c4.com/kernel-assisted-superuser/about/)：KernelSU 的靈感。
-- [Magisk](https://github.com/topjohnwu/Magisk)：sepolicy 實作。
-- [genuine](https://github.com/brevent/genuine/)：apk v2 簽章驗證。
-- [Diamorphine](https://github.com/m0nad/Diamorphine)：一些 rootkit 技巧。
+- [kernel-assisted-superuser](https://git.zx2c4.com/kernel-assisted-superuser/about/): KernelSU 的靈感.
+- [Magisk](https://github.com/topjohnwu/Magisk): 強大的 Root 工具.
+- [genuine](https://github.com/brevent/genuine/): apk v2 簽名驗證。
+- [Diamorphine](https://github.com/m0nad/Diamorphine): 一些 Rootkit 技巧。
+- [KernelSU](https://github.com/tiann/KernelSU): 感謝 tiann，否則 KernelSU Next 根本不會存在。
+- [Magic Mount Port](https://github.com/5ec1cff/KernelSU/blob/main/userspace/ksud/src/magic_mount.rs): 💜 5ec1cff 為了拯救 KernelSU！

@@ -18,7 +18,7 @@ cmaker {
                 "-DANDROID_STL=none",
             )
         )
-        abiFilters("arm64-v8a", "x86_64", "riscv64")
+        abiFilters("arm64-v8a")
     }
     buildTypes {
         if (it.name == "release") {
@@ -30,8 +30,7 @@ cmaker {
 val androidMinSdkVersion = 26
 val androidTargetSdkVersion = 35
 val androidCompileSdkVersion = 35
-val androidBuildToolsVersion = "35.0.0"
-val androidCompileNdkVersion = "27.0.12077973"
+val androidCompileNdkVersion = "27.2.12479018"
 val androidSourceCompatibility = JavaVersion.VERSION_21
 val androidTargetCompatibility = JavaVersion.VERSION_21
 val managerVersionCode by extra(getVersionCode())
@@ -70,7 +69,6 @@ subprojects {
         extensions.configure(CommonExtension::class.java) {
             compileSdk = androidCompileSdkVersion
             ndkVersion = androidCompileNdkVersion
-            buildToolsVersion = androidBuildToolsVersion
 
             defaultConfig {
                 minSdk = androidMinSdkVersion
@@ -80,7 +78,7 @@ subprojects {
                     versionName = managerVersionName
                 }
                 ndk {
-                    abiFilters += listOf("arm64-v8a", "x86_64", "riscv64")
+                    abiFilters += listOf("arm64-v8a")
                 }
             }
 

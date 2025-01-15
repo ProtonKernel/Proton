@@ -33,10 +33,6 @@
 #include <linux/vmalloc.h>
 #endif
 
-#include "linux/module.h"
-#include "linux/proc_fs.h"
-#include "linux/seq_file.h"
-
 #include "allowlist.h"
 #include "arch.h"
 #include "core_hook.h"
@@ -52,9 +48,6 @@
 static bool ksu_module_mounted = false;
 
 extern int handle_sepolicy(unsigned long arg3, void __user *arg4);
-int vmin_ksu = KERNEL_SU_VERSION;
-int __read_mostly ksu_version = 0;
-module_param(ksu_version, int, 0644);
 
 static inline bool is_allow_su()
 {
@@ -157,6 +150,10 @@ void escape_to_root(void)
 	       sizeof(cred->cap_bset));
 	memcpy(&cred->cap_ambient, &profile->capabilities.effective,
 	       sizeof(cred->cap_ambient));
+	// set ambient caps to all-zero
+	// fixes "operation not permitted" on dbus cap dropping
+	memset(&cred->cap_ambient, 0,
+			sizeof(cred->cap_ambient));
 
 	// disable seccomp
 #if defined(CONFIG_GENERIC_ENTRY) &&                                           \
@@ -270,11 +267,9 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 
 	// Both root manager and root processes should be allowed to get version
 	if (arg2 == CMD_GET_VERSION) {
-			if (ksu_version < vmin_ksu)
-				ksu_version = vmin_ksu;
-			u32 version = (u32) ksu_version;
+		u32 version = KERNEL_SU_VERSION;
 		if (copy_to_user(arg3, &version, sizeof(version))) {
-			pr_debug("prctl reply error, cmd: %lu\n", arg2);
+			pr_err("prctl reply error, cmd: %lu\n", arg2);
 		}
 #ifdef MODULE
 		u32 is_lkm = 0x1;
@@ -355,11 +350,11 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 					  sizeof(u32) * array_length)) {
 				if (copy_to_user(result, &reply_ok,
 						 sizeof(reply_ok))) {
-					pr_debug("prctl reply error, cmd: %lu\n",
+					pr_err("prctl reply error, cmd: %lu\n",
 					       arg2);
 				}
 			} else {
-				pr_debug("prctl copy allowlist error\n");
+				pr_err("prctl copy allowlist error\n");
 			}
 		}
 		return 0;
@@ -377,7 +372,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		}
 		if (!copy_to_user(arg4, &allow, sizeof(allow))) {
 			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
-				pr_debug("prctl reply error, cmd: %lu\n", arg2);
+				pr_err("prctl reply error, cmd: %lu\n", arg2);
 			}
 		} else {
 			pr_err("prctl copy err, cmd: %lu\n", arg2);
@@ -405,7 +400,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 				return 0;
 			}
 			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
-				pr_debug("prctl reply error, cmd: %lu\n", arg2);
+				pr_err("prctl reply error, cmd: %lu\n", arg2);
 			}
 		}
 		return 0;
@@ -421,7 +416,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		// todo: validate the params
 		if (ksu_set_app_profile(&profile, true)) {
 			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
-				pr_debug("prctl reply error, cmd: %lu\n", arg2);
+				pr_err("prctl reply error, cmd: %lu\n", arg2);
 			}
 		}
 		return 0;
@@ -447,7 +442,7 @@ static bool should_umount(struct path *path)
 	}
 
 	if (current->nsproxy->mnt_ns == init_nsproxy.mnt_ns) {
-		pr_debug("ignore global mnt namespace process: %d\n",
+		pr_info("ignore global mnt namespace process: %d\n",
 			current_uid().val);
 		return false;
 	}
@@ -461,7 +456,12 @@ static bool should_umount(struct path *path)
 
 static int ksu_umount_mnt(struct path *path, int flags)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0) || defined(KSU_UMOUNT)
 	return path_umount(path, flags);
+#else
+	// TODO: umount for non GKI kernel
+	return -ENOSYS;
+#endif
 }
 
 static void try_umount(const char *mnt, bool check_mnt, int flags)
@@ -536,13 +536,14 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 	}
 #ifdef CONFIG_KSU_DEBUG
 	// umount the target mnt
-	pr_debug("handle umount for uid: %d, pid: %d\n", new_uid.val,
+	pr_info("handle umount for uid: %d, pid: %d\n", new_uid.val,
 		current->pid);
 #endif
 
 	// fixme: use `collect_mounts` and `iterate_mount` to iterate all mountpoint and
 	// filter the mountpoint whose target is `/data/adb`
 	try_umount("/system", true, 0);
+	try_umount("/system_ext", true, 0);
 	try_umount("/vendor", true, 0);
 	try_umount("/product", true, 0);
 	try_umount("/data/adb/modules", false, MNT_DETACH);
@@ -550,6 +551,9 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 	// try umount ksu temp path
 	try_umount("/debug_ramdisk", false, MNT_DETACH);
 	try_umount("/sbin", false, MNT_DETACH);
+	
+	// try umount hosts file
+	try_umount("/system/etc/hosts", false, MNT_DETACH);
 
 	return 0;
 }
@@ -630,7 +634,7 @@ static int ksu_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 	return -ENOSYS;
 }
 // kernel 4.4 and 4.9
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) || defined(CONFIG_IS_HW_HISI)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) || defined(CONFIG_IS_HW_HISI) || defined(CONFIG_KSU_ALLOWLIST_WORKAROUND)
 static int ksu_key_permission(key_ref_t key_ref, const struct cred *cred,
 			      unsigned perm)
 {
@@ -663,7 +667,7 @@ static struct security_hook_list ksu_hooks[] = {
 	LSM_HOOK_INIT(task_prctl, ksu_task_prctl),
 	LSM_HOOK_INIT(inode_rename, ksu_inode_rename),
 	LSM_HOOK_INIT(task_fix_setuid, ksu_task_fix_setuid),
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) || defined(CONFIG_IS_HW_HISI)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) || defined(CONFIG_IS_HW_HISI) || defined(CONFIG_KSU_ALLOWLIST_WORKAROUND)
 	LSM_HOOK_INIT(key_permission, ksu_key_permission)
 #endif
 };

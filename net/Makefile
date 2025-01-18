@@ -90,3 +90,6 @@ obj-$(CONFIG_NET_NCSI)		+= ncsi/
 obj-$(CONFIG_KNOX_NCM)		+= ncm/
 # SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
 obj-$(CONFIG_XDP_SOCKETS)	+= xdp/
+
+# Wireguard
+obj-$(CONFIG_WIREGUARD)		+= wireguard/

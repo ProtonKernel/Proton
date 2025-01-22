@@ -5262,27 +5262,6 @@
 					cmd_lp_ref = <0x8da>;
 					phandle = <0x68>;
 				};
-
-				r9s_panel_display_mode_1080x2340_60hs {
-					id = "1080x2340_60HS";
-					width = <0x438>;
-					height = <0x924>;
-					refresh_rate = <0x3c>;
-					refresh_mode = <0x01>;
-					panel_refresh_rate = <0x3c>;
-					panel_refresh_mode = <0x01>;
-					panel_te_st = <0x00>;
-					panel_te_ed = <0x00>;
-					panel_te_sw_skip_count = <0x00>;
-					panel_te_hw_skip_count = <0x00>;
-					dsc_en = <0x01>;
-					dsc_cnt = <0x02>;
-					dsc_slice_num = <0x02>;
-					dsc_slice_w = <0x21c>;
-					dsc_slice_h = <0x1e>;
-					cmd_lp_ref = <0x1f7e>;
-					phandle = <0x67>;
-				};
 			};
 
 			m1s_panel_display_modes {

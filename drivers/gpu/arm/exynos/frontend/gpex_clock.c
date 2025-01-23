@@ -32,6 +32,7 @@
 #include <gpexbe_debug.h>
 
 #include "gpex_clock_internal.h"
+#include <linux/exynos/exynos2100_clk_gpu.h>
 
 #define CPU_MAX INT_MAX
 
@@ -83,10 +84,10 @@ static int gpex_clock_update_config_data_from_dt(void)
 	int asv_lv_num;
 	int i, j;
 
-	clk_info.gpu_max_clock = gpexbe_devicetree_get_int(gpu_max_clock);
-	clk_info.gpu_min_clock = gpexbe_devicetree_get_int(gpu_min_clock);
+	clk_info.gpu_max_clock = GPU_FREQ_KHZ_MAX;
+	clk_info.gpu_min_clock = GPU_FREQ_KHZ_MIN;
 	clk_info.boot_clock = gpexbe_clock_get_boot_freq();
-	clk_info.gpu_max_clock_limit = gpexbe_clock_get_max_freq();
+	clk_info.gpu_max_clock_limit = GPU_FREQ_KHZ_MAX;
 
 	/* TODO: rename the table_size variable to something more sensible like  row_cnt */
 	clk_info.table_size = gpexbe_devicetree_get_int(gpu_dvfs_table_size.row);

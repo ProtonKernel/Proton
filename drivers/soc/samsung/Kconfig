@@ -468,6 +468,13 @@ config EXYNOS_PM_DVS
 	tristate "Enable Exynos dynamic voltage setting"
 	default m
 
+config SOC_EXYNOS2100_GPU_OC
+    bool "Enable overclocked frequencies for the Exynos 2100 Mali GPU."
+    depends on SOC_EXYNOS2100 && MALI_MIDGARD
+    default n
+    help
+      Choose this option enable preconfigured overclocked frequencies for the Exynos 2100 Mali GPU.
+
 source "drivers/soc/samsung/acpm/Kconfig"
 
 source "drivers/soc/samsung/debug/Kconfig"

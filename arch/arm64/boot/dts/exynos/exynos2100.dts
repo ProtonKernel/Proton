@@ -14037,8 +14037,8 @@
 			sibling-cpus = "0-3";
 			cal-id = <0xb040002>;
 			dm-type = <0x00>;
-			max-freq = <0x21b8d0>;
-			min-freq = <0x61a80>;
+			max-freq = <0x247fc0>;
+			min-freq = <0x2b368>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x02>;
 			tz-cooling-name = "LITTLE";
@@ -14054,8 +14054,8 @@
 			sibling-cpus = "4-6";
 			cal-id = <0xb040003>;
 			dm-type = <0x01>;
-			max-freq = <0x2ad8c0>;
-			min-freq = <0x82208>;
+			max-freq = <0x2d9fb0>;
+			min-freq = <0x40f10>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x01>;
 			tz-cooling-name = "MID";
@@ -14071,8 +14071,8 @@
 			sibling-cpus = [37 00];
 			cal-id = <0xb040004>;
 			dm-type = <0x02>;
-			max-freq = <0x2c6f00>;
-			min-freq = <0x82208>;
+			max-freq = <0x2d9fb0>;
+			min-freq = <0x61a80>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x00>;
 			tz-cooling-name = "BIG";

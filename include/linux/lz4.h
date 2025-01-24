@@ -79,6 +79,8 @@
 #define LZ4HC_HASHTABLESIZE (1 << LZ4HC_HASH_LOG)
 #define LZ4HC_HASH_MASK (LZ4HC_HASHTABLESIZE - 1)
 
+#define LZ4FAST_DEFAULT_CLEVEL                   32
+
 /*-************************************************************************
  *	STREAMING CONSTANTS AND STRUCTURES
  **************************************************************************/

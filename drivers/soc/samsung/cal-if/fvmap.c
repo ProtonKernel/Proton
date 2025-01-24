@@ -486,7 +486,7 @@ int fvmap_get_raw_voltage_table(unsigned int id)
 }
 
 // Undervolting settings
-#define CPU_UV 4 // Percentage to undervolt for CPU.
+#define CPU_UV 6 // Percentage to undervolt for CPU.
 #define GPU_UV 1 // Percentage to undervolt for GPU.
 // Define domain IDs for undervolting
 #define DOMAIN_ID_CPUCL0 0 	// Set domain_id for CPUCL0 here.

@@ -12,9 +12,6 @@
 #include <linux/fs.h>
 
 #include <linux/proc_fs.h>
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-#include <linux/susfs_def.h>
-#endif
 
 #include "../mount.h"
 #include "internal.h"
@@ -26,9 +23,6 @@ static int seq_show(struct seq_file *m, void *v)
 	int f_flags = 0, ret = -ENOENT;
 	struct file *file = NULL;
 	struct task_struct *task;
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	struct mount *mnt = NULL;
-#endif
 
 	task = get_proc_task(m->private);
 	if (!task)

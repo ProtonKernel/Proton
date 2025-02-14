@@ -1,4 +1,4 @@
-[English](README.md) | [简体中文](README_CN.md) | [Türkçe](README_TR.md) | [Português (Brasil)](README_PT-BR.md) | **한국어**
+[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md) | [Türkçe](README_TR.md) | [Português (Brasil)](README_PT-BR.md) | **한국어** | [Français](README_FR.md) | [Bahasa Indonesia](README_ID.md) | [Русский](README_RU.md) | [ภาษาไทย](README_TH.md)
 
 # KernelSU Next
 
@@ -14,7 +14,7 @@
 ## 기능
 
 1. 커널 기반 `su` 및 루트 권한 관리
-2. 동적 마운트 시스템 기반 모듈 시스템 [Magic Mount](https://github.com/topjohnwu/Magisk/blob/c512496847d182526f2043295ecfd275398eccac/docs/releases/26100.md#new-magic-mount-implementation) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
+2. 동적 마운트 시스템 기반 모듈 시스템 [Magic Mount](https://topjohnwu.github.io/Magisk/details.html#magic-mount) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
 3. [App Profile](https://kernelsu.org/guide/app-profile.html): 루트 권한 제한
 
 ## 호환 상태

@@ -1,4 +1,4 @@
-[English](README.md) | [简体中文](README_CN.md) | **Türkçe** | [Português (Brasil)](README_PT-BR.md) | [한국어](README_KO.md)
+[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md) | **Türkçe** | [Português (Brasil)](README_PT-BR.md) | [한국어](README_KO.md) | [Français](README_FR.md) | [Bahasa Indonesia](README_ID.md) | [Русский](README_RU.md) | [ภาษาไทย](README_TH.md)
 
 # KernelSU Next
 
@@ -14,7 +14,7 @@ Android cihazlar için Kernel tabanlı bir root çözümü.
 ## Özellikler
 
 1. Çekirdek tabanlı `su` ve kök erişim yönetimi.
-2. Dinamik montaj sistemine dayalı modül sistemi [Magic Mount](https://github.com/topjohnwu/Magisk/blob/c512496847d182526f2043295ecfd275398eccac/docs/releases/26100.md#new-magic-mount-implementation) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
+2. Dinamik montaj sistemine dayalı modül sistemi [Magic Mount](https://topjohnwu.github.io/Magisk/details.html#magic-mount) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
 3. [App Profile](https://kernelsu.org/guide/app-profile.html): Kök gücünü bir kafese kilitleyin.
 
 ## Uyumluluk Durumu

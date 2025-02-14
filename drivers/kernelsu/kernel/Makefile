@@ -26,7 +26,7 @@ $(info -- KernelSU-Next version: $(KSU_VERSION))
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 else # If there is no .git file, the default version will be passed.
 $(warning "KSU_GIT_VERSION not defined! It is better to make KernelSU-Next a git submodule!")
-ccflags-y += -DKSU_VERSION=12264
+ccflags-y += -DKSU_VERSION=16
 endif
 
 ifeq ($(shell grep -q " current_sid(void)" $(srctree)/security/selinux/include/objsec.h; echo $$?),0)
@@ -35,6 +35,18 @@ endif
 
 ifeq ($(shell grep -q "struct selinux_state " $(srctree)/security/selinux/include/security.h; echo $$?),0)
 ccflags-y += -DKSU_COMPAT_HAS_SELINUX_STATE
+endif
+
+ifeq ($(shell grep -q "strncpy_from_user_nofault" $(srctree)/include/linux/uaccess.h; echo $$?),0)
+ccflags-y += -DKSU_STRNCPY_FROM_USER_NOFAULT
+endif
+
+ifeq ($(shell grep -q "ssize_t kernel_read" $(srctree)/fs/read_write.c; echo $$?),0)
+ccflags-y += -DKSU_KERNEL_READ
+endif
+
+ifeq ($(shell grep "ssize_t kernel_write" $(srctree)/fs/read_write.c | grep -q "const void" ; echo $$?),0)
+ccflags-y += -DKSU_KERNEL_WRITE
 endif
 
 ifndef KSU_NEXT_EXPECTED_SIZE
@@ -56,7 +68,41 @@ $(info -- KernelSU-Next Manager signature hash: $(KSU_NEXT_EXPECTED_HASH))
 ccflags-y += -DEXPECTED_NEXT_SIZE=$(KSU_NEXT_EXPECTED_SIZE)
 ccflags-y += -DEXPECTED_NEXT_HASH=\"$(KSU_NEXT_EXPECTED_HASH)\"
 
+ccflags-y += -DKSU_COMPAT_GET_CRED_RCU
+
 ccflags-y += -DKSU_UMOUNT
+
+# Determine the appropriate atomic function and apply patch accordingly
+ifeq ($(shell grep -q "atomic_inc_not_zero" $(srctree)/kernel/cred.c; echo $$?),0)
+ATOMIC_INC_FUNC = atomic_inc_not_zero
+else ifeq ($(shell grep -q "atomic_long_inc_not_zero" $(srctree)/kernel/cred.c; echo $$?),0)
+ATOMIC_INC_FUNC = atomic_long_inc_not_zero
+else
+$(info -- KSU_NEXT: Neither atomic_inc_not_zero nor atomic_long_inc_not_zero found in kernel/cred.c)
+endif
+
+# Inform which function is being patched
+$(info -- KSU_NEXT: Using $(ATOMIC_INC_FUNC) in get_cred_rcu patch.)
+
+# Add the get_cred_rcu function to cred.h if not already present
+ifneq ($(shell grep -Eq "^static inline const struct cred \*get_cred_rcu" $(srctree)/include/linux/cred.h; echo $$?),0)
+$(info -- KSU_NEXT: adding function 'static inline const struct cred *get_cred_rcu(const struct cred *cred);' to $(srctree)/include/linux/cred.h)
+GET_CRED_RCU = static inline const struct cred *get_cred_rcu(const struct cred *cred)\n\
+{\n\t\
+        struct cred *nonconst_cred = (struct cred *) cred;\n\t\
+        if (!cred)\n\t\t\
+                return NULL;\n\t\
+        if (!$(ATOMIC_INC_FUNC)(&nonconst_cred->usage))\n\t\t\
+                return NULL;\n\t\
+        validate_creds(cred);\n\t\
+        return cred;\n\
+}\n
+$(shell grep -qF "$(GET_CRED_RCU)" $(srctree)/include/linux/cred.h || sed -i '/^static inline void put_cred/i $(GET_CRED_RCU)' $(srctree)/include/linux/cred.h)
+
+# Modify get_task_cred in cred.c
+$(info -- KSU_NEXT: modifying 'get_task_cred' function in $(srctree)/kernel/cred.c)
+$(shell sed -i "s/!$(ATOMIC_INC_FUNC)(&((struct cred \*)cred)->usage)/!get_cred_rcu(cred)/g" $(srctree)/kernel/cred.c)
+endif
 
 ifneq ($(shell grep -Eq "^static int can_umount" $(srctree)/fs/namespace.c; echo $$?),0)
 $(info -- KSU_NEXT: adding function 'static int can_umount(const struct path *path, int flags);' to $(srctree)/fs/namespace.c)

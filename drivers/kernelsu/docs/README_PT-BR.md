@@ -1,4 +1,4 @@
-[English](README.md) | [简体中文](README_CN.md) | [Türkçe](README_TR.md) | **Português (Brasil)** | [한국어](README_KO.md)
+[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md) | [Türkçe](README_TR.md) | **Português (Brasil)** | [한국어](README_KO.md) | [Français](README_FR.md) | [Bahasa Indonesia](README_ID.md) | [Русский](README_RU.md) | [ภาษาไทย](README_TH.md)
 
 # KernelSU Next
 
@@ -14,7 +14,7 @@ Uma solução root baseada em kernel para dispositivos Android.
 ## Características
 
 1. `su` e gerenciamento de acesso root baseado em kernel.
-2. Sistema de módulos baseado em sistema de montagem dinâmica [Magic Mount](https://github.com/topjohnwu/Magisk/blob/c512496847d182526f2043295ecfd275398eccac/docs/releases/26100.md#new-magic-mount-implementation) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
+2. Sistema de módulos baseado em sistema de montagem dinâmica [Magic Mount](https://topjohnwu.github.io/Magisk/details.html#magic-mount) / [OverlayFS](https://en.wikipedia.org/wiki/OverlayFS).
 3. [Perfil do Aplicativo](https://kernelsu.org/pt_BR/guide/app-profile.html): Tranque o poder root em uma gaiola.
 
 ## Estado de compatibilidade
@@ -38,6 +38,20 @@ Para obter informações sobre como relatar vulnerabilidades de segurança do Ke
 
 - Os arquivos no diretório `kernel` são [GPL-2.0-only](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 - Todas as outras partes, exceto o diretório `kernel` são [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html).
+
+## Doações
+
+- 0x12b5224b7aca0121c2f003240a901e1d064371c1 [ USDT BEP20 ]
+
+- TYUVMWGTcnR5svnDoX85DWHyqUAeyQcdjh [ USDT TRC20 ]
+
+- 0x12b5224b7aca0121c2f003240a901e1d064371c1 [ USDT ERC20 ]
+
+- 0x12b5224b7aca0121c2f003240a901e1d064371c1 [ ETH ERC20 ]
+
+- Ld238uYBuRQdZB5YwdbkuU6ektBAAUByoL [ LTC ]
+
+- 19QgifcjMjSr1wB2DJcea5cxitvWVcXMT6 [ BTC ]
 
 ## Créditos
 

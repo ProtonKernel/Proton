@@ -19,6 +19,9 @@
     <string name="home_failure">KernelSU Next v2 signature not found in kernel! [ !KSU_NEXT || != size/hash ]</string>
     <string name="home_failure_tip">Ask your kernel developer to integrate KernelSU Next!</string>
     <string name="home_kernel">Kernel version</string>
+    <string name="home_susfs">SuSFS: %s</string>
+    <string name="home_susfs_version">SuSFS version</string>
+    <string name="home_susfs_sus_su">SuS SU</string>
     <string name="home_android">Android version</string>
     <string name="home_manager_version">Manager version</string>
     <string name="home_selinux_status">SELinux status</string>
@@ -58,7 +61,7 @@
     <string name="refresh">Refresh</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="hide_system_apps">Hide system apps</string>
-    <string name="send_log">Send logs</string>
+    <string name="export_log">Export logs</string>
     <string name="safe_mode">Safe mode</string>
     <string name="reboot_to_apply">Reboot to take effect</string>
     <string name="module_magisk_conflict">Modules are unavailable due to a conflict with Magisk!</string>
@@ -68,14 +71,14 @@
     <string name="unavailable">Unavailable</string>
     <string name="use_overlay_fs">Use OverlayFS (Beta)</string>
     <string name="use_overlay_fs_summary">Toggle between using OverlayFS over Magic Mount for KernelSU Next\'s mount system.</string>
-    <string name="reboot_required">Reboot Required</string>
-    <string name="reboot_message">Changes will take effect after rebooting the system. Would you like to reboot now?</string>
+    <string name="reboot_required">Reboot required</string>
+    <string name="reboot_message">The changes will take effect after the system restart. Do you want to reboot now?</string>
     <string name="module_restore">Restore module</string>
     <string name="module_restore_message">Restore modules from recent backup.</string>
     <string name="module_backup">Backup module</string>
     <string name="module_backup_message">Backup currently installed modules.</string>
     <string name="warning">Warning</string>
-    <string name="warning_message">This feature is still in beta and under development. Please ensure you backup your modules before proceeding. Use this feature only if you understand the potential risks. Proceed with caution.</string>
+    <string name="warning_message">This feature is still in beta and under development. Please ensure you backup your modules before proceeding. Only use this feature if you understand the potential risks. Proceed with caution.</string>
     <string name="proceed">Proceed</string>
     <string name="cancel">Cancel</string>
     <string name="later">Later</string>
@@ -103,9 +106,11 @@
     <string name="profile_selinux_context">SELinux context</string>
     <string name="profile_umount_modules">Umount modules</string>
     <string name="failed_to_update_app_profile">Failed to update App Profile for %s</string>
-    <string name="require_kernel_version">The current KernelSU Next version %d is too low for the manager to work properly. Please upgrade to version %d or higher!</string>
+    <string name="require_kernel_version">The current KernelSU Next version %1$d is too low for the manager to work properly. Please upgrade to version %2$d or higher!</string>
     <string name="settings_umount_modules_default">Umount modules by default</string>
     <string name="settings_umount_modules_default_summary">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
+    <string name="settings_susfs_toggle">Hide kprobe hooks</string>
+    <string name="settings_susfs_toggle_summary">This option disables the kprobe hooks created by ksu and, instead, activates the embedded non-kprobe hooks, implementing the same functionality that would be applied to a non-GKI kernel, which doesn\'t support kprobe.</string>
     <string name="profile_umount_modules_summary">Enabling this option will allow KernelSU Next to restore any modified files by the modules for this app.</string>
     <string name="profile_selinux_domain">Domain</string>
     <string name="profile_selinux_rules">Rules</string>
@@ -147,7 +152,7 @@
     <string name="action">Action</string>
     <string name="open">Open</string>
     <string name="enable_web_debugging">Enable WebView debugging</string>
-    <string name="enable_web_debugging_summary">Can be used to debug WebUI, please enable only when needed.</string>
+    <string name="enable_web_debugging_summary">Can be used to debug WebUI. Please enable only when needed.</string>
     <string name="direct_install">Direct install (Recommended)</string>
     <string name="select_file">Select a file</string>
     <string name="install_inactive_slot">Install to inactive slot (After OTA)</string>
@@ -170,4 +175,5 @@
     <string name="selected_lkm">Selected LKM: %s</string>
     <string name="save_log">Save logs</string>
     <string name="log_saved">Logs saved</string>
+    <string name="send_log">Share logs</string>
 </resources>

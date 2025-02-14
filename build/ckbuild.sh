@@ -342,6 +342,7 @@ build() {
     fi
 
     ## Start the build
+    
     echo -e "\nINFO: Starting compilation...\n"
 
     make -j$(nproc --all) O=out CC="clang" CROSS_COMPILE="$CCARM64_PREFIX" dtbs 2>&1 | tee log.txt

@@ -58,7 +58,7 @@
     <string name="refresh">Muat ulang</string>
     <string name="show_system_apps">Tampilkan aplikasi sistem</string>
     <string name="hide_system_apps">Sembunyikan aplikasi sistem</string>
-    <string name="send_log">Kirim Log</string>
+    <string name="export_log">Ekspor Log</string>
     <string name="safe_mode">Mode aman</string>
     <string name="reboot_to_apply">Reboot agar berfungsi</string>
     <string name="module_magisk_conflict">Konflik dengan Magisk, fungsi modul ditiadakan!</string>
@@ -89,9 +89,11 @@
     <string name="profile_selinux_context">SELinux</string>
     <string name="profile_umount_modules">Umount Modul</string>
     <string name="failed_to_update_app_profile">Gagal membarui Profil pada %s</string>
-    <string name="require_kernel_version">Versi KernelSU-Next %d terlalu rendah agar manajer berfungsi normal. Harap membarui ke versi %d atau di atasnya!</string>
+    <string name="require_kernel_version">Versi KernelSU-Next %1$d terlalu rendah agar manajer berfungsi normal. Harap membarui ke versi %2$d atau di atasnya!</string>
     <string name="settings_umount_modules_default">Melepas Modul secara bawaan</string>
     <string name="settings_umount_modules_default_summary">Menggunakan \"Umount Modul\" secara universal pada Profil Aplikasi. Jika diaktifkan, akan menghapus semua modifikasi sistem untuk aplikasi yang tidak memiliki set profil.</string>
+    <string name="settings_susfs_toggle">Sembunyikan hook kprobe</string>
+    <string name="settings_susfs_toggle_summary">Ini menonaktifkan hook kprobe yang dibuat oleh ksu, dan sebagai gantinya, hook inline non-kprobe akan diaktifkan, sama seperti implementasi untuk kernel non-gki yang tidak mendukung kprobe.</string>
     <string name="profile_umount_modules_summary">Aktifkan opsi ini agar KernelSU dapat memulihkan kembali berkas termodifikasi oleh modul pada aplikasi ini.</string>
     <string name="profile_selinux_domain">Domain</string>
     <string name="profile_selinux_rules">Aturan</string>
@@ -156,4 +158,5 @@
     <string name="selected_lkm">LKM dipilih: %s</string>
     <string name="save_log">Simpan Log</string>
     <string name="log_saved">Log disimpan</string>
+    <string name="send_log">Kirim Log</string>
 </resources>

@@ -3,10 +3,14 @@
 # The filesystem that contains the filesystem checker binary (typically /system) cannot
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-system	/system	ext4	ro	wait,avb=vbmeta,logical,first_stage_mount,avb_keys=/avb/q-gsi.avbpubkey:/avb/r-gsi.avbpubkey:/avb/s-gsi.avbpubkey
-vendor	/vendor	ext4	ro	wait,avb,logical,first_stage_mount
-product	/product	ext4	ro	wait,avb,logical,first_stage_mount
-odm	/odm	ext4	ro	wait,avb,logical,first_stage_mount
+system /system ext4 ro wait,avb=vbmeta,logical,first_stage_mount,avb_keys=/avb/q-gsi.avbpubkey:/avb/r-gsi.avbpubkey:/avb/s-gsi.avbpubkey
+system /system f2fs ro wait,avb=vbmeta,logical,first_stage_mount,avb_keys=/avb/q-gsi.avbpubkey:/avb/r-gsi.avbpubkey:/avb/s-gsi.avbpubkey
+product /product ext4 ro wait,logical,first_stage_mount
+product /product f2fs ro wait,logical,first_stage_mount
+vendor /vendor ext4 ro wait,logical,first_stage_mount
+vendor /vendor f2fs ro wait,logical,first_stage_mount
+odm /odm ext4 ro wait,logical,first_stage_mount
+odm /odm f2fs ro wait,logical,first_stage_mount
 
 /dev/block/by-name/boot         /boot               emmc      defaults                                              default
 /dev/block/by-name/prism        /prism              ext4      ro,barrier=1                                          nofail,avb,first_stage_mount
@@ -28,7 +32,7 @@ odm	/odm	ext4	ro	wait,avb,logical,first_stage_mount
 
 # SWAP
 #/dev/block/zram0                                   none                swap      defaults                                              wait,zramsize=2684354560
-/dev/block/zram0                                   none                swap      defaults                                              wait,zramsize=3221225472
+/dev/block/zram0                                   none                swap      defaults                                              wait,zramsize=4221225472
 
 # Samsung ODE
 /dev/block/by-name/keyrefuge	/keyrefuge	f2fs	rw,noatime,nosuid,nodev,discard,fsync_mode=strict,inlinecrypt	wait,check,fileencryption=aes-256-xts:aes-256-cts:v2,nofail

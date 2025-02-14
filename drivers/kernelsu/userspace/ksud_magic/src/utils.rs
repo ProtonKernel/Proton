@@ -20,7 +20,7 @@ use std::path::PathBuf;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 use rustix::{
     process,
-    thread::{move_into_link_name_space, unshare, LinkNameSpaceType, UnshareFlags},
+    thread::{move_into_link_name_space, LinkNameSpaceType},
 };
 
 pub fn ensure_clean_dir(dir: impl AsRef<Path>) -> Result<()> {
@@ -134,12 +134,6 @@ pub fn switch_mnt_ns(pid: i32) -> Result<()> {
     if let std::result::Result::Ok(current_dir) = current_dir {
         let _ = std::env::set_current_dir(current_dir);
     }
-    Ok(())
-}
-
-#[cfg(any(target_os = "linux", target_os = "android"))]
-pub fn unshare_mnt_ns() -> Result<()> {
-    unshare(UnshareFlags::NEWNS)?;
     Ok(())
 }
 

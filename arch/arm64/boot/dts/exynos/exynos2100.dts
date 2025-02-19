@@ -3481,12 +3481,12 @@
 		gpu_mo_min_clock = <0x62638>;
 		gpu_boost_gpu_min_lock = <0x00>;
 		gpu_boost_egl_min_lock = <0x00>;
-		gpu_vk_boost_max_lock = <0x4c2c0>;
+		gpu_vk_boost_max_lock = <0xd1790>;
 		gpu_vk_boost_mif_min_lock = <0xf78f0>;
-		gpu_neg_boost_clock = <0x4c2c0>;
+		gpu_neg_boost_clock = <0xd1790>;
 		gpu_sustainable_clock = <0xbb418>;
 		gpu_bts_support = <0x01>;
-		gpu_heavy_compute_cpu0_min_clock = <0x21b8d0>;
+		gpu_heavy_compute_cpu0_min_clock = <0x1e8c50>;
 		gpu_heavy_compute_vk_cpu0_min_clock = <0x1e8c50>;
 		phandle = <0x198>;
 	};
@@ -14038,7 +14038,7 @@
 			cal-id = <0xb040002>;
 			dm-type = <0x00>;
 			max-freq = <0x247fc0>;
-			min-freq = <0x2b368>;
+			min-freq = <0x137090>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x02>;
 			tz-cooling-name = "LITTLE";
@@ -14055,7 +14055,7 @@
 			cal-id = <0xb040003>;
 			dm-type = <0x01>;
 			max-freq = <0x2d9fb0>;
-			min-freq = <0x40f10>;
+			min-freq = <0xfde80>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x01>;
 			tz-cooling-name = "MID";
@@ -14072,7 +14072,7 @@
 			cal-id = <0xb040004>;
 			dm-type = <0x02>;
 			max-freq = <0x2d9fb0>;
-			min-freq = <0x61a80>;
+			min-freq = <0xfde80>;
 			#cooling-cells = <0x02>;
 			ect-coeff-index = <0x00>;
 			tz-cooling-name = "BIG";

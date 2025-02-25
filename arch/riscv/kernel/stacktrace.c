@@ -12,8 +12,6 @@
 #include <linux/stacktrace.h>
 #include <linux/ftrace.h>
 
-register unsigned long sp_in_global __asm__("sp");
-
 #ifdef CONFIG_FRAME_POINTER
 
 struct stackframe {
@@ -31,7 +29,7 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
 		sp = user_stack_pointer(regs);
 		pc = instruction_pointer(regs);
 	} else if (task == NULL || task == current) {
-		const register unsigned long current_sp = sp_in_global;
+		const register unsigned long current_sp __asm__ ("sp");
 		fp = (unsigned long)__builtin_frame_address(0);
 		sp = current_sp;
 		pc = (unsigned long)walk_stackframe;
@@ -75,7 +73,8 @@ void notrace walk_stackframe(struct task_struct *task,
 		sp = user_stack_pointer(regs);
 		pc = instruction_pointer(regs);
 	} else if (task == NULL || task == current) {
-		sp = sp_in_global;
+		const register unsigned long current_sp __asm__ ("sp");
+		sp = current_sp;
 		pc = (unsigned long)walk_stackframe;
 	} else {
 		/* task blocked in __switch_to */

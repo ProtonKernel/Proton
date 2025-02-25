@@ -1,0 +1,6 @@
+[abi_symbol_list]
+# required by cdc_mbim.ko
+  in6_dev_finish_destroy
+# required by qmi_wwan.ko
+  netdev_stats_to_stats64
+  netdev_upper_get_next_dev_rcu

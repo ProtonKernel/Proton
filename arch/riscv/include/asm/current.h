@@ -17,8 +17,6 @@
 
 struct task_struct;
 
-register struct task_struct *riscv_current_is_tp __asm__("tp");
-
 /*
  * This only works because "struct thread_info" is at offset 0 from "struct
  * task_struct".  This constraint seems to be necessary on other architectures
@@ -28,7 +26,8 @@ register struct task_struct *riscv_current_is_tp __asm__("tp");
  */
 static __always_inline struct task_struct *get_current(void)
 {
-	return riscv_current_is_tp;
+	register struct task_struct *tp __asm__("tp");
+	return tp;
 }
 
 #define current get_current()

@@ -22,8 +22,6 @@
 #include <asm/switch_to.h>
 #include <asm/thread_info.h>
 
-unsigned long gp_in_global __asm__("gp");
-
 extern asmlinkage void ret_from_fork(void);
 extern asmlinkage void ret_from_kernel_thread(void);
 
@@ -111,8 +109,9 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
 	/* p->thread holds context to be restored by __switch_to() */
 	if (unlikely(p->flags & PF_KTHREAD)) {
 		/* Kernel thread */
+		const register unsigned long gp __asm__ ("gp");
 		memset(childregs, 0, sizeof(struct pt_regs));
-		childregs->gp = gp_in_global;
+		childregs->gp = gp;
 		childregs->sstatus = SR_SPP | SR_SPIE; /* Supervisor, irqs on */
 
 		p->thread.ra = (unsigned long)ret_from_kernel_thread;

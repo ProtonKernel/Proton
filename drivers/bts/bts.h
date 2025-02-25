@@ -22,6 +22,7 @@
 #include <dt-bindings/soc/samsung/exynos-bts.h>
 #include <soc/samsung/exynos-pd.h>
 #include <soc/samsung/bts.h>
+#include <linux/rtmutex.h>
 
 #define NUM_CHANNEL	4
 #define MIF_BUS_WIDTH	16
@@ -66,7 +67,7 @@ struct bts_device {
 	struct device		*dev;
 
 	spinlock_t		lock;
-	struct mutex		mutex_lock;
+	struct rt_mutex mutex_lock;
 
 	unsigned int		num_bts;
 	unsigned int		num_scen;

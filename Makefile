@@ -790,6 +790,9 @@ ifdef CONFIG_CC_IS_CLANG
 KBUILD_CPPFLAGS += -Qunused-arguments
 KBUILD_CFLAGS += -Wno-format-invalid-specifier
 KBUILD_CFLAGS += -Wno-gnu
+ifeq ($(CONFIG_ARCH_EXYNOS), y)
+KBUILD_CFLAGS += -mcpu=cortex-a78+crypto -mtune=cortex-a78
+endif
 # Quiet clang warning: comparison of unsigned expression < 0 is always false
 KBUILD_CFLAGS += -Wno-tautological-compare
 # CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the

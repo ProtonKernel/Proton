@@ -45,7 +45,7 @@ static void bts_calc_bw(void)
 	unsigned int mif_freq, int_freq;
 	unsigned int mif_util = 65;
 
-	mutex_lock(&btsdev->mutex_lock);
+	rt_mutex_unlock(&btsdev->mutex_lock);
 
 	btsdev->peak_bw = 0;
 	btsdev->total_bw = 0;
@@ -82,7 +82,7 @@ static void bts_calc_bw(void)
 	exynos_pm_qos_update_request(&exynos_int_qos, int_freq);
 #endif
 
-	mutex_unlock(&btsdev->mutex_lock);
+	rt_mutex_unlock(&btsdev->mutex_lock);
 }
 
 static void bts_set(unsigned int scen, unsigned int index)
@@ -1238,7 +1238,7 @@ static int bts_probe(struct platform_device *pdev)
 			devm_kfree(btsdev->dev, btsdev);
 			return ret;
 		}
-		mutex_init(&btsdev->mutex_lock);
+		rt_mutex_init(&btsdev->mutex_lock);
 		INIT_LIST_HEAD(&btsdev->scen_node);
 
 		ret = bts_initialize(btsdev);

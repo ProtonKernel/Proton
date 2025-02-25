@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.4.286 Kernel Configuration
+# Linux/arm64 5.4.290 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="Android (12414805, +pgo, +bolt, +lto, +mlgo, based on r536225) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project b3a530ec6537146650e42be89f1089e9a3588460)"
 CONFIG_GCC_VERSION=0
@@ -23,7 +23,7 @@ CONFIG_THREAD_INFO_IN_TASK=y
 CONFIG_INIT_ENV_ARG_LIMIT=32
 # CONFIG_COMPILE_TEST is not set
 # CONFIG_UAPI_HEADER_TEST is not set
-CONFIG_LOCALVERSION="-Elite-UI-Kernel-1-K-"
+CONFIG_LOCALVERSION="-ProtonPlus-Kernel-v3.0-"
 # CONFIG_LOCALVERSION_AUTO is not set
 CONFIG_BUILD_SALT=""
 CONFIG_DEFAULT_HOSTNAME="(none)"
@@ -968,7 +968,6 @@ CONFIG_TCP_CONG_HTCP=m
 # CONFIG_TCP_CONG_CDG is not set
 CONFIG_TCP_CONG_BBR=y
 # CONFIG_DEFAULT_BIC is not set
-# CONFIG_DEFAULT_CUBIC is not set
 CONFIG_DEFAULT_BBR=y
 # CONFIG_DEFAULT_RENO is not set
 CONFIG_DEFAULT_TCP_CONG="bbr"

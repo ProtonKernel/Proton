@@ -42,7 +42,11 @@ unsigned int dns_resolver_debug;
 module_param_named(debug, dns_resolver_debug, uint, 0644);
 MODULE_PARM_DESC(debug, "DNS Resolver debugging mask");
 
+#ifdef CONFIG_KDP_CRED
+struct cred *dns_resolver_cache;
+#else
 const struct cred *dns_resolver_cache;
+#endif
 
 #define	DNS_ERRORNO_OPTION	"dnserror"
 

@@ -25,12 +25,28 @@
 #include <linux/user_namespace.h>
 #include <linux/memfd.h>
 #include <linux/compat.h>
+#include <linux/task_integrity.h>
+#include <linux/proca.h>
 
 #include <linux/poll.h>
 #include <asm/siginfo.h>
 #include <linux/uaccess.h>
 
 #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
+
+#ifdef CONFIG_FIVE
+#define F_FIVE_SIGN	(F_LINUX_SPECIFIC_BASE + 100)
+#define F_FIVE_VERIFY_ASYNC	(F_LINUX_SPECIFIC_BASE + 101)
+#define F_FIVE_VERIFY_SYNC	(F_LINUX_SPECIFIC_BASE + 102)
+#if defined(CONFIG_FIVE_PA_FEATURE) || defined(CONFIG_PROCA)
+#define F_FIVE_PA_SETXATTR	(F_LINUX_SPECIFIC_BASE + 103)
+#endif
+#define F_FIVE_EDIT		(F_LINUX_SPECIFIC_BASE + 104)
+#define F_FIVE_CLOSE		(F_LINUX_SPECIFIC_BASE + 105)
+#ifdef CONFIG_FIVE_DEBUG
+#define F_FIVE_DEBUG		(F_LINUX_SPECIFIC_BASE + 106)
+#endif
+#endif
 
 static int setfl(int fd, struct file * filp, unsigned long arg)
 {
@@ -416,6 +432,34 @@ static long do_fcntl(int fd, unsigned int cmd, unsigned long arg,
 	case F_GETPIPE_SZ:
 		err = pipe_fcntl(filp, cmd, arg);
 		break;
+#ifdef CONFIG_FIVE
+	case F_FIVE_SIGN:
+		err = five_fcntl_sign(filp,
+				(struct integrity_label __user *)arg);
+		break;
+	case F_FIVE_VERIFY_ASYNC:
+		err = five_fcntl_verify_async(filp);
+		break;
+	case F_FIVE_VERIFY_SYNC:
+		err = five_fcntl_verify_sync(filp);
+		break;
+#if defined(CONFIG_FIVE_PA_FEATURE) || defined(CONFIG_PROCA)
+	case F_FIVE_PA_SETXATTR:
+		err = proca_fcntl_setxattr(filp, (void __user *)arg);
+		break;
+#endif
+	case F_FIVE_EDIT:
+		err = five_fcntl_edit(filp);
+		break;
+	case F_FIVE_CLOSE:
+		err = five_fcntl_close(filp);
+		break;
+#ifdef CONFIG_FIVE_DEBUG
+	case F_FIVE_DEBUG:
+		err = five_fcntl_debug(filp, (void __user *)arg);
+		break;
+#endif
+#endif
 	case F_ADD_SEALS:
 	case F_GET_SEALS:
 		err = memfd_fcntl(filp, cmd, arg);

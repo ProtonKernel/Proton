@@ -115,3 +115,13 @@ config FAT_DEFAULT_UTF8
 	  Say Y if you use UTF-8 encoding for file names, N otherwise.
 
 	  See <file:Documentation/filesystems/vfat.txt> for more information.
+
+config FAT_SUPPORT_STLOG
+	bool "Enable storage log"
+	default y
+	depends on FAT_FS && PROC_STLOG
+
+config FAT_UEVENT
+	bool "enable uevent"
+	depends on FAT_FS
+	default y

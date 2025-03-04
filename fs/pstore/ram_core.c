@@ -18,7 +18,10 @@
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/vmalloc.h>
+#include <linux/ktime.h>
+#include <linux/sched/clock.h>
 #include <asm/page.h>
+#include <soc/samsung/debug-snapshot.h>
 
 /**
  * struct persistent_ram_buffer - persistent circular RAM buffer
@@ -38,6 +41,8 @@ struct persistent_ram_buffer {
 };
 
 #define PERSISTENT_RAM_SIG (0x43474244) /* DBGC */
+
+int pram_hook_pmsg(char *buffer, size_t count);
 
 static inline size_t buffer_size(struct persistent_ram_zone *prz)
 {
@@ -285,6 +290,9 @@ static int notrace persistent_ram_update_user(struct persistent_ram_zone *prz,
 	struct persistent_ram_buffer *buffer = prz->buffer;
 	int ret = unlikely(__copy_from_user(buffer->data + start, s, count)) ?
 		-EFAULT : 0;
+
+	pram_hook_pmsg(buffer->data + start, count);
+
 	persistent_ram_update_ecc(prz, start, count);
 	return ret;
 }
@@ -508,6 +516,7 @@ static int persistent_ram_post_init(struct persistent_ram_zone *prz, u32 sig,
 	if (prz->buffer->sig == sig) {
 		if (buffer_size(prz) == 0) {
 			pr_debug("found existing empty buffer\n");
+			persistent_ram_zap(prz);
 			return 0;
 		}
 
@@ -598,4 +607,175 @@ struct persistent_ram_zone *persistent_ram_new(phys_addr_t start, size_t size,
 err:
 	persistent_ram_free(prz);
 	return ERR_PTR(ret);
+}
+
+/* This defines are for PSTORE */
+#define LOGGER_LEVEL_HEADER	(1)
+#define LOGGER_LEVEL_PREFIX	(2)
+#define LOGGER_LEVEL_TEXT	(3)
+#define LOGGER_LEVEL_MAX	(4)
+#define LOGGER_SKIP_COUNT	(4)
+#define LOGGER_STRING_PAD	(1)
+#define LOGGER_HEADER_SIZE	(68)
+
+#define LOG_ID_MAIN		(0)
+#define LOG_ID_RADIO		(1)
+#define LOG_ID_EVENTS		(2)
+#define LOG_ID_SYSTEM		(3)
+#define LOG_ID_CRASH		(4)
+#define LOG_ID_KERNEL		(5)
+
+typedef struct __attribute__((__packed__)) {
+	uint8_t magic;
+	uint16_t len;
+	uint16_t uid;
+	uint16_t pid;
+} pmsg_log_header_t;
+
+typedef struct __attribute__((__packed__)) {
+	unsigned char id;
+	uint16_t tid;
+	int32_t tv_sec;
+	int32_t tv_nsec;
+} android_log_header_t;
+
+typedef struct logger {
+	uint16_t	len;
+	uint16_t	id;
+	uint16_t	pid;
+	uint16_t	tid;
+	uint16_t	uid;
+	uint16_t	level;
+	int32_t		tv_sec;
+	int32_t		tv_nsec;
+	char		msg;
+	char		*buffer;
+} __attribute__((__packed__)) pmsg_logger;
+
+static hook_func_t hook_func;
+static pmsg_logger logger;
+
+static void pram_combine_pmsg(char *buffer, size_t count, unsigned int level)
+{
+	char *logbuf = logger.buffer;
+
+	if (!logbuf || !hook_func)
+		return;
+
+	switch (level) {
+	case LOGGER_LEVEL_HEADER:
+		{
+			struct tm tmBuf;
+			u64 tv_kernel;
+			unsigned int logbuf_len;
+			unsigned long rem_nsec;
+
+			if (logger.id == LOG_ID_EVENTS)
+				break;
+
+			tv_kernel = local_clock();
+			rem_nsec = do_div(tv_kernel, 1000000000);
+			time64_to_tm(logger.tv_sec, 0, &tmBuf);
+
+			logbuf_len = snprintf(logbuf, LOGGER_HEADER_SIZE,
+					"\n[%5lu.%06lu][%d:%16s] %02d-%02d %02d:%02d:%02d.%03d %5d %5d  ",
+					(unsigned long)tv_kernel, rem_nsec / 1000,
+					raw_smp_processor_id(), current->comm,
+					tmBuf.tm_mon + 1, tmBuf.tm_mday,
+					tmBuf.tm_hour, tmBuf.tm_min, tmBuf.tm_sec,
+					logger.tv_nsec / 1000000, logger.pid, logger.tid);
+
+			hook_func(logbuf, logbuf_len - 1, DSS_ITEM_PLATFORM_ID);
+		}
+		break;
+	case LOGGER_LEVEL_PREFIX:
+		{
+			static const char *kPrioChars = "!.VDIWEFS";
+			unsigned char prio = logger.msg;
+
+			if (logger.id == LOG_ID_EVENTS)
+				break;
+
+			logbuf[0] = prio < strlen(kPrioChars) ? kPrioChars[prio] : '?';
+			logbuf[1] = ' ';
+
+			hook_func(logbuf, LOGGER_LEVEL_PREFIX, DSS_ITEM_PLATFORM_ID);
+		}
+		break;
+	case LOGGER_LEVEL_TEXT:
+		{
+			char *eatnl = buffer + count - LOGGER_STRING_PAD;
+
+			if (logger.id == LOG_ID_EVENTS)
+				break;
+			if (count == LOGGER_SKIP_COUNT && *eatnl != '\0')
+				break;
+
+			hook_func(buffer, count - 1, DSS_ITEM_PLATFORM_ID);
+		}
+		break;
+	default:
+		break;
+	}
+	return;
+}
+
+int pram_hook_pmsg(char *buffer, size_t count)
+{
+	android_log_header_t header;
+	pmsg_log_header_t pmsg_header;
+
+	if (!logger.buffer)
+		return -ENOMEM;
+
+	switch (count) {
+	case sizeof(pmsg_header):
+		memcpy((void *)&pmsg_header, buffer, count);
+		if (pmsg_header.magic != 'l') {
+			pram_combine_pmsg(buffer, count, LOGGER_LEVEL_TEXT);
+		} else {
+			/* save logger data */
+			logger.pid = pmsg_header.pid;
+			logger.uid = pmsg_header.uid;
+			logger.len = pmsg_header.len;
+		}
+		break;
+	case sizeof(header):
+		/* save logger data */
+		memcpy((void *)&header, buffer, count);
+		logger.id = header.id;
+		logger.tid = header.tid;
+		logger.tv_sec = header.tv_sec;
+		logger.tv_nsec  = header.tv_nsec;
+		if (logger.id > 7) {
+			/* write string */
+			pram_combine_pmsg(buffer, count, LOGGER_LEVEL_TEXT);
+		} else {
+			/* write header */
+			pram_combine_pmsg(buffer, count, LOGGER_LEVEL_HEADER);
+		}
+		break;
+	case sizeof(unsigned char):
+		logger.msg = buffer[0];
+		/* write char for prefix */
+		pram_combine_pmsg(buffer, count, LOGGER_LEVEL_PREFIX);
+		break;
+	default:
+		/* write string */
+		pram_combine_pmsg(buffer, count, LOGGER_LEVEL_TEXT);
+		break;
+	}
+
+	return 0;
+}
+
+void register_hook_logger(hook_func_t func)
+{
+	if (!func)
+		return;
+
+	hook_func = func;
+	logger.buffer = vmalloc(PAGE_SIZE * 2);
+	if (logger.buffer)
+		pr_info("debug-snapshot: pmsg logger buffer alloc success\n");
 }

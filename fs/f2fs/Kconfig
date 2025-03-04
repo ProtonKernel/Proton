@@ -70,11 +70,22 @@ config F2FS_FS_SECURITY
 
 config F2FS_CHECK_FS
 	bool "F2FS consistency checking feature"
-	depends on F2FS_FS
+	depends on F2FS_FS && SEC_FACTORY
+	default y
 	help
 	  Enables BUG_ONs which check the filesystem consistency in runtime.
 
 	  If you want to improve the performance, say N.
+
+config F2FS_STRICT_BUG_ON
+	bool "F2FS consistency checking feature"
+	depends on F2FS_FS
+	default y
+	help
+	  Use BUG_ON() instead of WARN_ON(), when there is an error
+	  in the filesystem consistency.
+
+	  Default Y.
 
 config F2FS_IO_TRACE
 	bool "F2FS IO tracer"
@@ -91,6 +102,24 @@ config F2FS_FAULT_INJECTION
 	depends on F2FS_FS
 	help
 	  Test F2FS to inject faults such as ENOMEM, ENOSPC, and so on.
+
+	  If unsure, say N.
+
+config F2FS_SEC_DEBUG_NODE
+	bool "SEC DEBUG NODE"
+	depends on F2FS_FS && DEBUG_FS
+	default y
+	help
+	  Sys nodes for SEC debugging
+
+	  If unsure, say N.
+
+config F2FS_SEC_BLOCK_OPERATIONS_DEBUG
+	bool "SEC Collect logs for debugging block_operations()"
+	depends on F2FS_FS && F2FS_SEC_DEBUG_NODE
+	default y
+	help
+	  Collect block_operations() log for debugging
 
 	  If unsure, say N.
 
@@ -137,3 +166,27 @@ config F2FS_FS_LZORLE
 	default y
 	help
 	  Support LZO-RLE compress algorithm, if unsure, say Y.
+
+config F2FS_SEC_ENC_STRICT_MODE
+	bool "SEC casefold encoding strict mode"
+	depends on F2FS_FS
+	depends on UNICODE
+	default y
+	help
+	  Avoid generating invalid hash for CI directory entries
+
+config F2FS_SUPPORT_STLOG
+	bool "Enable storage log"
+	depends on F2FS_FS 
+	depends on PROC_STLOG
+	default y
+	help
+	  Support STLOG
+
+config F2FS_SEC_SUPPORT_DNODE_RELOCATION
+	bool "DNODE relocation support"
+	depends on F2FS_FS_COMPRESSION
+	default y
+	help
+	  Support DNODE relocation for supporting inline compresseion
+	  on existing files.

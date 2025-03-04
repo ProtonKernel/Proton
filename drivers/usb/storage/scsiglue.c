@@ -447,8 +447,6 @@ static DEF_SCSI_QCMD(queuecommand)
 /* Command timeout and abort */
 static int command_abort_matching(struct us_data *us, struct scsi_cmnd *srb_match)
 {
-	struct us_data *us = host_to_us(srb->device->host);
-
 	usb_stor_dbg(us, "%s called\n", __func__);
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
 	printk(KERN_ERR "usb-storage: %s scsi_lock +\n", __func__);

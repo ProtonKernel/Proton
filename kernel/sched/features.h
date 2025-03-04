@@ -90,3 +90,14 @@ SCHED_FEAT(WA_BIAS, true)
  */
 SCHED_FEAT(UTIL_EST, true)
 SCHED_FEAT(UTIL_EST_FASTUP, true)
+
+/*
+ * Exynos Mobile Scheduler
+ */
+SCHED_FEAT(EMS, true)
+
+#ifdef CONFIG_SCHED_USE_FLUID_RT
+SCHED_FEAT(EXYNOS_FRT, true)
+#else
+SCHED_FEAT(EXYNOS_FRT, false)
+#endif

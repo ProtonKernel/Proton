@@ -1086,6 +1086,11 @@ ktime_t tick_nohz_get_sleep_length(ktime_t *delta_next)
 	return ktime_sub(next_event, now);
 }
 
+ktime_t tick_nohz_get_next_event(int cpu)
+{
+	return per_cpu(tick_cpu_device, cpu).evtdev->next_event;
+}
+
 /**
  * tick_nohz_get_idle_calls_cpu - return the current idle calls counter value
  * for a particular CPU.
@@ -1408,4 +1413,24 @@ int tick_check_oneshot_change(int allow_nohz)
 
 	tick_nohz_switch_to_nohz();
 	return 0;
+}
+
+static struct tick_sched saved_pcpu_ts[NR_CPUS];
+
+void save_pcpu_tick(int cpu)
+{
+	saved_pcpu_ts[cpu] = per_cpu(tick_cpu_sched, cpu);
+	kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE] =
+			ktime_to_ns(saved_pcpu_ts[cpu].idle_sleeptime);
+	kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT] =
+			ktime_to_ns(saved_pcpu_ts[cpu].iowait_sleeptime);
+}
+
+void restore_pcpu_tick(int cpu)
+{
+	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
+
+	ts->idle_sleeptime = saved_pcpu_ts[cpu].idle_sleeptime;
+	ts->iowait_sleeptime = saved_pcpu_ts[cpu].iowait_sleeptime;
+	ts->idle_calls = saved_pcpu_ts[cpu].idle_calls;
 }

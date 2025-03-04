@@ -65,6 +65,7 @@
 #include <linux/syscalls.h>
 #include <linux/task_work.h>
 #include <linux/tsacct_kern.h>
+#include <linux/ems.h>
 
 #include <asm/tlb.h>
 
@@ -1663,6 +1664,7 @@ static inline int task_on_rq_migrating(struct task_struct *p)
 #define WF_SYNC			0x01		/* Waker goes to sleep after wakeup */
 #define WF_FORK			0x02		/* Child wakeup after fork */
 #define WF_MIGRATED		0x4		/* Internal use, task got migrated */
+#define WF_SYNC_CL		0x1000		/* Exynos specific, SYNC but on the same cluster */
 
 /*
  * To aid in avoiding the subversion of "niceness" due to uneven distribution

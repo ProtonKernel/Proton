@@ -10,7 +10,11 @@
 #ifdef CONFIG_DEBUG_FS
 extern void tk_debug_account_sleep_time(const struct timespec64 *t);
 #else
-#define tk_debug_account_sleep_time(x)
+static inline void tk_debug_account_sleep_time(const struct timespec64 *t)
+{
+	pr_info("PM: Timekeeping suspended for %lld.%03lu seconds\n",
+			   (s64)t->tv_sec, t->tv_nsec / NSEC_PER_MSEC);
+}
 #endif
 
 #ifdef CONFIG_CLOCKSOURCE_VALIDATE_LAST_CYCLE

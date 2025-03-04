@@ -31,6 +31,10 @@
 #include <linux/compiler.h>
 #include <linux/moduleparam.h>
 #include <linux/wakeup_reason.h>
+#include <linux/sec_debug.h>
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+#include <linux/regulator/machine.h>
+#endif /* CONFIG_SEC_PM_DEBUG */
 
 #include "power.h"
 
@@ -406,6 +410,11 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 					 suspend_stats.failed_devs[last_dev]);
 		goto Platform_finish;
 	}
+
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+	regulator_show_enabled();
+#endif /* CONFIG_SEC_PM_DEBUG */
+
 	error = platform_suspend_prepare_late(state);
 	if (error)
 		goto Devices_early_resume;
@@ -623,6 +632,7 @@ int pm_suspend(suspend_state_t state)
 		return -EINVAL;
 
 	pr_info("suspend entry (%s)\n", mem_sleep_labels[state]);
+	secdbg_base_built_set_task_in_pm_suspend(current);
 	error = enter_state(state);
 	if (error) {
 		suspend_stats.fail++;
@@ -630,6 +640,7 @@ int pm_suspend(suspend_state_t state)
 	} else {
 		suspend_stats.success++;
 	}
+	secdbg_base_built_set_task_in_pm_suspend(NULL);
 	pr_info("suspend exit\n");
 	return error;
 }

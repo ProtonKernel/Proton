@@ -163,6 +163,12 @@ struct cpuset {
 	int child_ecpus_count;
 };
 
+#define CS_CGROUP_COUNT	20
+static struct cpuset requested_cs[CS_CGROUP_COUNT];
+static int cs_count;
+
+#define req_cs(cs)	(requested_cs[cs->css.id - 1])
+
 /*
  * Partition root states:
  *
@@ -1079,10 +1085,10 @@ static void compute_effective_cpumask(struct cpumask *new_cpus,
 	if (parent->nr_subparts_cpus) {
 		cpumask_or(new_cpus, parent->effective_cpus,
 			   parent->subparts_cpus);
-		cpumask_and(new_cpus, new_cpus, cs->cpus_allowed);
+		cpumask_and(new_cpus, new_cpus, req_cs(cs).cpus_allowed);
 		cpumask_and(new_cpus, new_cpus, cpu_active_mask);
 	} else {
-		cpumask_and(new_cpus, cs->cpus_allowed, parent->effective_cpus);
+		cpumask_and(new_cpus, req_cs(cs).cpus_allowed, parent->effective_cpus);
 	}
 }
 
@@ -1561,6 +1567,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
 
 	spin_lock_irq(&callback_lock);
 	cpumask_copy(cs->cpus_allowed, trialcs->cpus_allowed);
+	cpumask_copy(req_cs(cs).cpus_allowed, trialcs->cpus_allowed);
 
 	/*
 	 * Make sure that subparts_cpus is a subset of cpus_allowed.
@@ -2730,6 +2737,11 @@ cpuset_css_alloc(struct cgroup_subsys_state *parent_css)
 {
 	struct cpuset *cs;
 
+	if (++cs_count > CS_CGROUP_COUNT) {
+		pr_err("%s: too many cpuset groups(%d)\n", __func__, cs_count);
+		return ERR_PTR(-ENOMEM);
+	}
+
 	if (!parent_css)
 		return &top_cpuset.css;
 
@@ -2811,6 +2823,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
 	cs->effective_mems = parent->mems_allowed;
 	cpumask_copy(cs->cpus_allowed, parent->cpus_allowed);
 	cpumask_copy(cs->effective_cpus, parent->cpus_allowed);
+	cpumask_copy(req_cs(cs).cpus_allowed, parent->cpus_allowed);
 	spin_unlock_irq(&callback_lock);
 out_unlock:
 	percpu_up_write(&cpuset_rwsem);
@@ -2921,6 +2934,13 @@ struct cgroup_subsys cpuset_cgrp_subsys = {
 
 int __init cpuset_init(void)
 {
+	int i;
+
+	for (i = 0; i < CS_CGROUP_COUNT; i++) {
+		BUG_ON(!alloc_cpumask_var(&requested_cs[i].cpus_allowed, GFP_KERNEL));
+		cpumask_setall(requested_cs[i].cpus_allowed);
+	}
+
 	BUG_ON(percpu_init_rwsem(&cpuset_rwsem));
 
 	BUG_ON(!alloc_cpumask_var(&top_cpuset.cpus_allowed, GFP_KERNEL));

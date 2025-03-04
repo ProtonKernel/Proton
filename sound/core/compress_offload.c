@@ -686,22 +686,20 @@ static int snd_compr_pause(struct snd_compr_stream *stream)
 	int retval;
 	struct snd_compr_file *scf = container_of(stream, struct snd_compr_file, stream);
 
-	switch (stream->runtime->state) {
-	case SNDRV_PCM_STATE_RUNNING:
-		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
-		if (!retval)
-			stream->runtime->state = SNDRV_PCM_STATE_PAUSED;
-		break;
-	case SNDRV_PCM_STATE_DRAINING:
-		if (!scf->use_pause_in_draining)
-			return -EPERM;
-
-		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
-		if (!retval)
-			scf->pause_in_draining = true;
-		break;
-	default:
+	if (stream->runtime->state != SNDRV_PCM_STATE_RUNNING &&
+		stream->runtime->state != SNDRV_PCM_STATE_DRAINING)
 		return -EPERM;
+
+	if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING &&
+		!scf->use_pause_in_draining)
+		return -EPERM;
+
+	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
+	if (!retval) {
+		if (stream->runtime->state == SNDRV_PCM_STATE_RUNNING)
+			stream->runtime->state = SNDRV_PCM_STATE_PAUSED;
+		else if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING)
+			scf->pause_in_draining = true;
 	}
 	return retval;
 }
@@ -711,21 +709,20 @@ static int snd_compr_resume(struct snd_compr_stream *stream)
 	int retval;
 	struct snd_compr_file *scf = container_of(stream, struct snd_compr_file, stream);
 
-	switch (stream->runtime->state) {
-	case SNDRV_PCM_STATE_PAUSED:
-		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
-		if (!retval)
-			stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
-		break;
-	case SNDRV_PCM_STATE_DRAINING:
-		if (!scf->pause_in_draining)
-			return -EPERM;
-		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
-		if (!retval)
-			scf->pause_in_draining = false;
-		break;
-	default:
+	if (stream->runtime->state != SNDRV_PCM_STATE_PAUSED &&
+		stream->runtime->state != SNDRV_PCM_STATE_DRAINING)
 		return -EPERM;
+
+	if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING &&
+		!scf->pause_in_draining)
+		return -EPERM;
+
+	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
+	if (!retval) {
+		if (stream->runtime->state == SNDRV_PCM_STATE_PAUSED)
+			stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
+		else if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING)
+			scf->pause_in_draining = false;
 	}
 	return retval;
 }

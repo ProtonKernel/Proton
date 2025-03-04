@@ -262,6 +262,11 @@ SOC_ENUM("LHPF2 Mode", madera_lhpf2_mode),
 SOC_ENUM("LHPF3 Mode", madera_lhpf3_mode),
 SOC_ENUM("LHPF4 Mode", madera_lhpf4_mode),
 
+SOC_ENUM("Sample Rate 2", madera_sample_rate[0]),
+SOC_ENUM("Sample Rate 3", madera_sample_rate[1]),
+
+MADERA_RATE_ENUM("FX Rate", madera_fx_rate),
+
 MADERA_RATE_ENUM("ISRC1 FSL", madera_isrc_fsl[0]),
 MADERA_RATE_ENUM("ISRC2 FSL", madera_isrc_fsl[1]),
 MADERA_RATE_ENUM("ISRC1 FSH", madera_isrc_fsh[0]),
@@ -309,14 +314,28 @@ SOC_DOUBLE("SPKDAT1 Switch", MADERA_PDM_SPK1_CTRL_1, MADERA_SPK1L_MUTE_SHIFT,
 SOC_ENUM("Output Ramp Up", madera_out_vi_ramp),
 SOC_ENUM("Output Ramp Down", madera_out_vd_ramp),
 
+MADERA_RATE_ENUM("SPDIF1 Rate", madera_spdif_rate),
+
 SOC_SINGLE("Noise Gate Switch", MADERA_NOISE_GATE_CONTROL,
 	   MADERA_NGATE_ENA_SHIFT, 1, 0),
 SOC_SINGLE_TLV("Noise Gate Threshold Volume", MADERA_NOISE_GATE_CONTROL,
 	       MADERA_NGATE_THR_SHIFT, 7, 1, madera_ng_tlv),
 SOC_ENUM("Noise Gate Hold", madera_ng_hold),
 
+MADERA_RATE_ENUM("Output Rate 1", madera_output_rate),
+
+SOC_ENUM_EXT("IN1L Rate", madera_input_rate[0],
+	     snd_soc_get_enum_double, madera_in_rate_put),
+SOC_ENUM_EXT("IN1R Rate", madera_input_rate[1],
+	     snd_soc_get_enum_double, madera_in_rate_put),
+
 SOC_SINGLE_BOOL_EXT("IN1 LP Mode Switch", 0,
 		    cs47l15_in1_adc_get, cs47l15_in1_adc_put),
+
+SOC_ENUM_EXT("IN2L Rate", madera_input_rate[2],
+	     snd_soc_get_enum_double, madera_in_rate_put),
+SOC_ENUM_EXT("IN2R Rate", madera_input_rate[3],
+	     snd_soc_get_enum_double, madera_in_rate_put),
 
 CS47L15_NG_SRC("HPOUT1L", MADERA_NOISE_GATE_SELECT_1L),
 CS47L15_NG_SRC("HPOUT1R", MADERA_NOISE_GATE_SELECT_1R),
@@ -441,11 +460,13 @@ static const struct snd_kcontrol_new cs47l15_aec_loopback_mux[] = {
 static const struct snd_soc_dapm_widget cs47l15_dapm_widgets[] = {
 SND_SOC_DAPM_SUPPLY("SYSCLK", MADERA_SYSTEM_CLOCK_1, MADERA_SYSCLK_ENA_SHIFT,
 		    0, madera_sysclk_ev,
-		    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
+		    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+		    SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
 SND_SOC_DAPM_SUPPLY("OPCLK", MADERA_OUTPUT_SYSTEM_CLOCK,
 		    MADERA_OPCLK_ENA_SHIFT, 0, NULL, 0),
-SND_SOC_DAPM_SUPPLY("DSPCLK", MADERA_DSP_CLOCK_1,
-		    MADERA_DSP_CLK_ENA_SHIFT, 0, NULL, 0),
+SND_SOC_DAPM_SUPPLY("DSPCLK", MADERA_DSP_CLOCK_1, MADERA_DSP_CLK_ENA_SHIFT,
+		    0, madera_clk_ev,
+		    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 
 SND_SOC_DAPM_REGULATOR_SUPPLY("CPVDD1", 20, 0),
 SND_SOC_DAPM_REGULATOR_SUPPLY("MICVDD", 0, SND_SOC_DAPM_REGULATOR_BYPASS),
@@ -532,6 +553,7 @@ SND_SOC_DAPM_OUTPUT("DRC2 Signal Activity"),
 SND_SOC_DAPM_OUTPUT("DSP Trigger Out"),
 
 SND_SOC_DAPM_DEMUX("HPOUT1 Demux", SND_SOC_NOPM, 0, 0, &cs47l15_outdemux),
+SND_SOC_DAPM_MUX("HPOUT1 Mono Mux", SND_SOC_NOPM, 0, 0, &cs47l15_outdemux),
 
 SND_SOC_DAPM_PGA("PWM1 Driver", MADERA_PWM_DRIVE_1, MADERA_PWM1_ENA_SHIFT,
 		 0, NULL, 0),
@@ -1087,6 +1109,9 @@ static const struct snd_soc_dapm_route cs47l15_dapm_routes[] = {
 	{ "AEC2 Loopback", "HPOUT1R", "OUT1R" },
 	{ "HPOUT1 Demux", NULL, "OUT1L" },
 	{ "HPOUT1 Demux", NULL, "OUT1R" },
+
+	{ "OUT1R", NULL, "HPOUT1 Mono Mux" },
+
 	{ "HPOUTL", "HPOUT", "HPOUT1 Demux" },
 	{ "HPOUTR", "HPOUT", "HPOUT1 Demux" },
 	{ "EPOUTP", "EPOUT", "HPOUT1 Demux" },
@@ -1264,6 +1289,21 @@ static irqreturn_t cs47l15_adsp2_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+static const char * const cs47l15_dmic_refs[] = {
+	"MICVDD",
+	"MICBIAS1",
+};
+
+static const char * const cs47l15_dmic_inputs[] = {
+	"IN1L",
+	"IN1R",
+};
+
+static const struct snd_soc_dapm_route cs47l15_mono_routes[] = {
+	{ "HPOUT1 Mono Mux", "HPOUT", "OUT1L" },
+	{ "HPOUT1 Mono Mux", "EPOUT", "OUT1L" },
+};
+
 static int cs47l15_component_probe(struct snd_soc_component *component)
 {
 	struct cs47l15 *cs47l15 = snd_soc_component_get_drvdata(component);
@@ -1276,11 +1316,17 @@ static int cs47l15_component_probe(struct snd_soc_component *component)
 	madera->dapm = snd_soc_component_get_dapm(component);
 	mutex_unlock(&madera->dapm_ptr_lock);
 
-	ret = madera_init_inputs(component);
+	ret = madera_init_inputs(component,
+				 cs47l15_dmic_inputs,
+				 ARRAY_SIZE(cs47l15_dmic_inputs),
+				 cs47l15_dmic_refs,
+				 ARRAY_SIZE(cs47l15_dmic_refs));
 	if (ret)
 		return ret;
 
-	ret = madera_init_outputs(component, CS47L15_MONO_OUTPUTS);
+	ret = madera_init_outputs(component, cs47l15_mono_routes,
+				  ARRAY_SIZE(cs47l15_mono_routes),
+				  CS47L15_MONO_OUTPUTS);
 	if (ret)
 		return ret;
 

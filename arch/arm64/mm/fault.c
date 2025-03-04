@@ -23,6 +23,7 @@
 #include <linux/perf_event.h>
 #include <linux/preempt.h>
 #include <linux/hugetlb.h>
+#include <linux/sec_debug.h>
 
 #include <asm/acpi.h>
 #include <asm/bug.h>
@@ -288,8 +289,13 @@ static void die_kernel_fault(const char *msg, unsigned long addr,
 {
 	bust_spinlocks(1);
 
-	pr_alert("Unable to handle kernel %s at virtual address %016lx\n", msg,
+	pr_auto(ASL1, "Unable to handle kernel %s at virtual address %016lx\n", msg,
 		 addr);
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_EXTRA_INFO_BUILT_IN)
+	secdbg_exin_set_fault(KERNEL_FAULT, addr, regs);
+	secdbg_exin_set_esr(esr);
+#endif
 
 	mem_abort_decode(esr);
 
@@ -406,11 +412,12 @@ static void do_bad_area(unsigned long addr, unsigned int esr, struct pt_regs *re
 #define VM_FAULT_BADMAP		0x010000
 #define VM_FAULT_BADACCESS	0x020000
 
-static vm_fault_t __do_page_fault(struct mm_struct *mm, unsigned long addr,
+static vm_fault_t __do_page_fault(struct vm_area_struct *vma, unsigned long addr,
 			   unsigned int mm_flags, unsigned long vm_flags)
 {
-	struct vm_area_struct *vma = find_vma(mm, addr);
+	vm_fault_t fault;
 
+	fault = VM_FAULT_BADMAP;
 	if (unlikely(!vma))
 		return VM_FAULT_BADMAP;
 
@@ -456,6 +463,7 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	vm_fault_t fault, major = 0;
 	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+	struct vm_area_struct *vma = NULL;
 
 	if (kprobe_page_fault(regs, esr))
 		return 0;
@@ -496,6 +504,14 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
 
 	/*
+	 * let's try a speculative page fault without grabbing the
+	 * mmap_sem.
+	 */
+	fault = handle_speculative_fault(mm, addr, mm_flags, &vma);
+	if (fault != VM_FAULT_RETRY)
+		goto done;
+
+	/*
 	 * As per x86, we may deadlock here. However, since the kernel only
 	 * validly references user space from well defined areas of the code,
 	 * we can bug out early if this is from code which shouldn't.
@@ -519,7 +535,10 @@ retry:
 #endif
 	}
 
-	fault = __do_page_fault(mm, addr, mm_flags, vm_flags);
+	if (!vma || !can_reuse_spf_vma(vma, addr))
+		vma = find_vma(mm, addr);
+
+	fault = __do_page_fault(vma, addr, mm_flags, vm_flags);
 	major |= fault & VM_FAULT_MAJOR;
 
 	if (fault & VM_FAULT_RETRY) {
@@ -542,10 +561,19 @@ retry:
 		if (mm_flags & FAULT_FLAG_ALLOW_RETRY) {
 			mm_flags &= ~FAULT_FLAG_ALLOW_RETRY;
 			mm_flags |= FAULT_FLAG_TRIED;
+
+			/*
+			 * Do not try to reuse this vma and fetch it
+			 * again since we will release the mmap_sem.
+			 */
+			vma = NULL;
+
 			goto retry;
 		}
 	}
 	up_read(&mm->mmap_sem);
+
+done:
 
 	/*
 	 * Handle the "normal" (no error) case first.
@@ -647,6 +675,24 @@ static int do_bad(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 	return 1; /* "fault" */
 }
 
+#define __is_in_kernel_image(addr)					\
+	((unsigned long)(addr) >= (unsigned long)KERNEL_START &&	\
+	 (unsigned long)(addr) <= (unsigned long)KERNEL_END)
+
+static phys_addr_t show_virt_to_phys(unsigned long addr)
+{
+	if (!is_vmalloc_or_module_addr((void *)addr) ||
+			__is_in_kernel_image(addr))
+		return __pa(addr);
+	else
+		return page_to_phys(vmalloc_to_page((void *)addr)) +
+		       offset_in_page(addr);
+}
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_AVOID_UNNECESSARY_TRAP)
+unsigned long long sea_incorrect_addr;
+#endif
+
 static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 {
 	const struct fault_info *inf;
@@ -661,6 +707,21 @@ static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 		 */
 		return 0;
 	}
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_AVOID_UNNECESSARY_TRAP)
+	sea_incorrect_addr = (unsigned long long)addr;
+#endif
+
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV))
+		pr_auto(ASL1, "%s (0x%08x) at 0x%016lx[0x%09llx]\n",
+			      inf->name, esr, addr, show_virt_to_phys(addr));
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_EXTRA_INFO_BUILT_IN)
+	if (!user_mode(regs)) {
+		secdbg_exin_set_fault(SEABORT_FAULT, addr, regs);
+		secdbg_exin_set_esr(esr);
+	}
+#endif
 
 	if (esr & ESR_ELx_FnV)
 		siaddr = NULL;
@@ -747,7 +808,15 @@ asmlinkage void __exception do_mem_abort(unsigned long addr, unsigned int esr,
 		return;
 
 	if (!user_mode(regs)) {
-		pr_alert("Unhandled fault at 0x%016lx\n", addr);
+		if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV))
+			pr_auto(ASL1, "Unhandled fault: %s (0x%08x) at 0x%016lx\n",
+						inf->name, esr, addr);
+		else
+			pr_alert("Unhandled fault at 0x%016lx\n", addr);
+#if IS_ENABLED(CONFIG_SEC_DEBUG_EXTRA_INFO_BUILT_IN)
+		secdbg_exin_set_fault(MEM_ABORT_FAULT, addr, regs);
+		secdbg_exin_set_esr(esr);
+#endif
 		mem_abort_decode(esr);
 		show_pte(addr);
 	}
@@ -788,6 +857,18 @@ asmlinkage void __exception do_sp_pc_abort(unsigned long addr,
 			arm64_apply_bp_hardening();
 		local_daif_restore(DAIF_PROCCTX);
 	}
+
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV) && !user_mode(regs))
+		pr_auto(ASL1, "%s exception: pc=0x%016llx sp=0x%016llx\n",
+			esr_get_class_string(esr),
+			regs->pc, regs->sp);
+
+#if IS_ENABLED(CONFIG_SEC_DEBUG_EXTRA_INFO_BUILT_IN)
+	if (!user_mode(regs)) {
+		secdbg_exin_set_fault(SP_PC_ABORT_FAULT, addr, regs);
+		secdbg_exin_set_esr(esr);
+	}
+#endif
 
 	arm64_notify_die("SP/PC alignment exception", regs,
 			 SIGBUS, BUS_ADRALN, (void __user *)addr, esr);

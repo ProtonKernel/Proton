@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+# edit here
+# ** all  should be separated by new line **
+
+
+USE_COMMON_BATTERY="""
+CONFIG_CALC_TIME_TO_FULL=y
+# CONFIG_BATTERY_CISD is not set
+CONFIG_ENABLE_FULL_BY_SOC=y
+# CONFIG_PREVENT_USB_CONN_OVERHEAT is not set
+# CONFIG_PD_CHARGER_HV_DISABLE is not set
+"""
+
+USE_CUTTLEFISH=$(cat ${kernel_path}/../cuttlefish-modules/cuttlefish.fragment)
+
+cuttlesec_00="""
+${USE_COMMON_BATTERY}
+${USE_CUTTLEFISH}
+CONFIG_DEBUG_LIST=y
+"""
+

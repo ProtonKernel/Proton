@@ -17,6 +17,15 @@
 #include <crypto/hash.h>
 #include <linux/bio-crypt-ctx.h>
 
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+#include "fscrypt_knox_private.h"
+#endif
+
+#ifdef CONFIG_FSCRYPT_SDP
+#include "sdp/fscrypto_sdp_private.h"
+#include <sdp/fs_request.h>
+#endif
+
 #define CONST_STRLEN(str)	(sizeof(str) - 1)
 
 #define FSCRYPT_FILE_NONCE_SIZE	16
@@ -37,6 +46,9 @@ struct fscrypt_context_v1 {
 	u8 flags;
 	u8 master_key_descriptor[FSCRYPT_KEY_DESCRIPTOR_SIZE];
 	u8 nonce[FSCRYPT_FILE_NONCE_SIZE];
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+	u32 knox_flags;
+#endif
 };
 
 struct fscrypt_context_v2 {
@@ -47,6 +59,9 @@ struct fscrypt_context_v2 {
 	u8 __reserved[4];
 	u8 master_key_identifier[FSCRYPT_KEY_IDENTIFIER_SIZE];
 	u8 nonce[FSCRYPT_FILE_NONCE_SIZE];
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+	u32 knox_flags;
+#endif
 };
 
 /*
@@ -73,10 +88,18 @@ static inline int fscrypt_context_size(const union fscrypt_context *ctx)
 {
 	switch (ctx->version) {
 	case FSCRYPT_CONTEXT_V1:
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+		BUILD_BUG_ON(sizeof(ctx->v1) != 32);
+#else
 		BUILD_BUG_ON(sizeof(ctx->v1) != 28);
+#endif
 		return sizeof(ctx->v1);
 	case FSCRYPT_CONTEXT_V2:
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+		BUILD_BUG_ON(sizeof(ctx->v2) != 44);
+#else
 		BUILD_BUG_ON(sizeof(ctx->v2) != 40);
+#endif
 		return sizeof(ctx->v2);
 	}
 	return 0;
@@ -253,6 +276,13 @@ struct fscrypt_info {
 
 	/* Hashed inode number.  Only set for IV_INO_LBLK_32 */
 	u32 ci_hashed_ino;
+
+#ifdef CONFIG_DDAR
+	struct dd_info *ci_dd_info;
+#endif
+#ifdef CONFIG_FSCRYPT_SDP
+	struct sdp_info *ci_sdp_info;
+#endif
 };
 
 typedef enum {
@@ -617,6 +647,49 @@ int fscrypt_setup_v1_file_key(struct fscrypt_info *ci,
 
 int fscrypt_setup_v1_file_key_via_subscribed_keyrings(struct fscrypt_info *ci);
 
+#ifdef CONFIG_FSCRYPT_SDP
+static inline bool fscrypt_sdp_protected(const union fscrypt_context *ctx_u) {
+	switch (ctx_u->version) {
+		case FSCRYPT_CONTEXT_V1: {
+			const struct fscrypt_context_v1 *ctx = &ctx_u->v1;
+			if (ctx->knox_flags & FSCRYPT_KNOX_FLG_SDP_MASK) {
+				return true;
+			}
+			break;
+		}
+		case FSCRYPT_CONTEXT_V2: {
+			const struct fscrypt_context_v2 *ctx = &ctx_u->v2;
+			if (ctx->knox_flags & FSCRYPT_KNOX_FLG_SDP_MASK) {
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+#endif
+
+#ifdef CONFIG_DDAR
+static inline bool fscrypt_ddar_protected(const union fscrypt_context *ctx_u) {
+	switch (ctx_u->version) {
+		case FSCRYPT_CONTEXT_V1: {
+			const struct fscrypt_context_v1 *ctx = &ctx_u->v1;
+			if (ctx->knox_flags & FSCRYPT_KNOX_FLG_DDAR_ENABLED) {
+				return true;
+			}
+			break;
+		}
+		case FSCRYPT_CONTEXT_V2: {
+			const struct fscrypt_context_v2 *ctx = &ctx_u->v2;
+			if (ctx->knox_flags & FSCRYPT_KNOX_FLG_DDAR_ENABLED) {
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+#endif
 /* policy.c */
 
 bool fscrypt_policies_equal(const union fscrypt_policy *policy1,

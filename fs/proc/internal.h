@@ -205,6 +205,7 @@ struct pde_opener {
 extern const struct inode_operations proc_link_inode_operations;
 extern const struct inode_operations proc_pid_link_inode_operations;
 extern const struct super_operations proc_sops;
+extern const struct file_operations proc_reclaim_operations;
 
 void proc_init_kmemcache(void);
 void set_proc_pid_nlink(void);
@@ -306,3 +307,19 @@ static inline void pde_force_lookup(struct proc_dir_entry *pde)
 	/* /proc/net/ entries can be changed under us by setns(CLONE_NEWNET) */
 	pde->proc_dops = &proc_net_dentry_ops;
 }
+
+#ifdef CONFIG_PAGE_BOOST
+#include <linux/pagevec.h>
+
+#define MAX_PAGE_BOOST_FILEPATH_LEN 256
+
+struct proc_filemap_private {
+	struct proc_maps_private maps_private;
+	struct file *target_file;
+	char target_file_name[MAX_PAGE_BOOST_FILEPATH_LEN + 1];
+	bool show_list; /* true : filemap_list, false : filemap_info */
+};
+
+extern const struct file_operations proc_pid_filemap_list_operations;
+extern const struct file_operations proc_pid_io_record_operations;
+#endif

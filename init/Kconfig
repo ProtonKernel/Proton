@@ -762,6 +762,33 @@ config UCLAMP_BUCKETS_COUNT
 
 endmenu
 
+menu "FAIR Scheuler tunables"
+
+choice
+	prompt "Utilization's PELT half-Life"
+	default PELT_UTIL_HALFLIFE_16
+	help
+	  Allows choosing one of the possible values for the PELT half-life to
+	  be used for the update of the utilization of tasks and CPUs.
+	  The half-life is the amount of [ms] required by the PELT signal to
+	  build up to 50% utilization. The higher the half-life the longer it
+	  takes for a task to be represented as a big one.
+
+	  If not sure, use the deafult of 16 ms.
+
+config PELT_UTIL_HALFLIFE_32
+	bool "32 ms, for server"
+
+config PELT_UTIL_HALFLIFE_16
+	bool "16 ms, suggested for interactive workloads"
+
+config PELT_UTIL_HALFLIFE_8
+	bool "8 ms, very fast"
+
+endchoice
+
+endmenu # FAIR Scheduler tunables"
+
 #
 # For architectures that want to enable the support for NUMA-affine scheduler
 # balancing logic:
@@ -856,6 +883,11 @@ config MEMCG_SWAP_ENABLED
 	  For those who want to have the feature enabled by default should
 	  select this option (if, for some reason, they need to disable it
 	  then swapaccount=0 does the trick).
+
+config MEMCG_FORCE_USE_VM_SWAPPINESS
+	bool "Force to use vm_swappiness instead of memcg->swappiness"
+	depends on MEMCG_SWAP
+	default y
 
 config MEMCG_KMEM
 	bool
@@ -1129,6 +1161,37 @@ config NET_NS
 	  of the network stack.
 
 endif # NAMESPACES
+
+config SCHED_EMS
+	bool "Exynos Mobile Scheduler"
+	depends on SMP
+	help
+	  This option supports Exynos mobile scheduler. It is designed to
+	  secure the limits of energy aware scheduler. This option provides
+	  features such as independent boosting functinos such as on-time migration,
+	  and prefer_perf and enhanced prefer_idle that work in conjunction with
+	  SCHEDTUNE.
+
+	  If unsure, say N.
+
+config SCHED_EMS_TUNE
+	bool "Tuner for Exynos Mobile Scheduler"
+	depends on SCHED_EMS
+	help
+	  This option supports tuner for Exynos mobile scheduler.
+
+	  If unsure, say N.
+
+config SCHED_USE_FLUID_RT
+	bool "Enable Fluid RT scheduler feature"
+	depends on SCHED_EMS
+	default n
+	help
+	  Basically, the Fluid RT selects the core by a task priority as usual.
+	  But beyond the basic behavior, FRT performs the load balancing of
+	  RT task by core selection with reference to utilization of rq.
+	  And in some circumstances, she allows the task of lower priority
+	  to preempt the higher one based on weighted load.
 
 config CHECKPOINT_RESTORE
 	bool "Checkpoint/restore support"
@@ -2226,6 +2289,12 @@ config UNUSED_KSYMS_WHITELIST
 	  set here is the path to a text file containing the list of symbols,
 	  one per line. The path can be absolute, or relative to the kernel
 	  source tree.
+
+config KMI_SYMBOL_LISTS
+	string "KMI symbol lists to keep in ksymtab"
+	help
+	  By default, all unused exported symbols will be un-exported from the
+	  build when TRIM_UNUSED_KSYMS is selected.
 
 endif # MODULES
 

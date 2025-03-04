@@ -1236,6 +1236,8 @@ void fpsimd_save_and_flush_cpu_state(void)
 
 #ifdef CONFIG_KERNEL_MODE_NEON
 
+static DEFINE_PER_CPU(struct fpsimd_partial_state, softirq_fpsimdstate);
+
 /*
  * Kernel-side NEON support functions
  */
@@ -1258,15 +1260,22 @@ void kernel_neon_begin(void)
 	if (WARN_ON(!system_supports_fpsimd()))
 		return;
 
-	BUG_ON(!may_use_simd());
+	if (in_softirq()) {
+		struct fpsimd_partial_state *s = this_cpu_ptr(&softirq_fpsimdstate);
 
-	get_cpu_fpsimd_context();
+		fpsimd_save_partial_state(s, roundup(32, 2));
+	} else {
+		BUG_ON(!may_use_simd());
 
-	/* Save unsaved fpsimd state, if any: */
-	fpsimd_save();
+		get_cpu_fpsimd_context();
 
-	/* Invalidate any task state remaining in the fpsimd regs: */
-	fpsimd_flush_cpu_state();
+		/* Save unsaved fpsimd state, if any: */
+		fpsimd_save();
+
+		/* Invalidate any task state remaining in the fpsimd regs: */
+		fpsimd_flush_cpu_state();
+	}
+
 }
 EXPORT_SYMBOL(kernel_neon_begin);
 
@@ -1284,7 +1293,13 @@ void kernel_neon_end(void)
 	if (!system_supports_fpsimd())
 		return;
 
-	put_cpu_fpsimd_context();
+	if (in_softirq()) {
+		struct fpsimd_partial_state *s = this_cpu_ptr(&softirq_fpsimdstate);
+
+		fpsimd_load_partial_state(s);
+	} else {
+		put_cpu_fpsimd_context();
+	}
 }
 EXPORT_SYMBOL(kernel_neon_end);
 

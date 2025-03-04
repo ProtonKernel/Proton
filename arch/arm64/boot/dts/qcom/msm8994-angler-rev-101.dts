@@ -1,36 +1,262 @@
-// SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2015, Huawei Inc. All rights reserved.
- * Copyright (c) 2016, The Linux Foundation. All rights reserved.
- */
-
 /dts-v1/;
-
-#include "msm8994.dtsi"
 
 / {
 	model = "Huawei Nexus 6P";
-	compatible = "huawei,angler", "qcom,msm8994";
-	/* required for bootloader to select correct board */
-	qcom,board-id = <8026 0>;
-
-	aliases {
-		serial0 = &blsp1_uart2;
-	};
+	compatible = "huawei,angler\0qcom,msm8994";
+	qcom,msm-id = <0xcf 0x20000>;
+	qcom,pmic-id = <0x10009 0x1000a 0x00 0x00>;
+	interrupt-parent = <0x01>;
+	#address-cells = <0x02>;
+	#size-cells = <0x02>;
+	qcom,board-id = <0x1f5a 0x00>;
 
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
 
-	soc {
-		serial@f991e000 {
-			status = "okay";
-			pinctrl-names = "default", "sleep";
-			pinctrl-0 = <&blsp1_uart2_default>;
-			pinctrl-1 = <&blsp1_uart2_sleep>;
+	cpus {
+		#address-cells = <0x01>;
+		#size-cells = <0x00>;
+
+		cpu-map {
+
+			cluster0 {
+
+				core0 {
+					cpu = <0x02>;
+				};
+			};
+		};
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x00>;
+			next-level-cache = <0x03>;
+			phandle = <0x02>;
+
+			l2-cache {
+				compatible = "cache";
+				cache-level = <0x02>;
+				phandle = <0x03>;
+			};
 		};
 	};
-};
 
-&msmgpio {
-	gpio-reserved-ranges = <85 4>;
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <0x01 0x02 0xff08 0x01 0x03 0xff08 0x01 0x04 0xff08 0x01 0x01 0xff08>;
+	};
+
+	soc {
+		#address-cells = <0x01>;
+		#size-cells = <0x01>;
+		ranges = <0x00 0x00 0x00 0xffffffff>;
+		compatible = "simple-bus";
+		phandle = <0x0a>;
+
+		interrupt-controller@f9000000 {
+			compatible = "qcom,msm-qgic2";
+			interrupt-controller;
+			#interrupt-cells = <0x03>;
+			reg = <0xf9000000 0x1000 0xf9002000 0x1000>;
+			phandle = <0x01>;
+		};
+
+		timer@f9020000 {
+			#address-cells = <0x01>;
+			#size-cells = <0x01>;
+			ranges;
+			compatible = "arm,armv7-timer-mem";
+			reg = <0xf9020000 0x1000>;
+
+			frame@f9021000 {
+				frame-number = <0x00>;
+				interrupts = <0x00 0x09 0x04 0x00 0x08 0x04>;
+				reg = <0xf9021000 0x1000 0xf9022000 0x1000>;
+			};
+
+			frame@f9023000 {
+				frame-number = <0x01>;
+				interrupts = <0x00 0x0a 0x04>;
+				reg = <0xf9023000 0x1000>;
+				status = "disabled";
+			};
+
+			frame@f9024000 {
+				frame-number = <0x02>;
+				interrupts = <0x00 0x0b 0x04>;
+				reg = <0xf9024000 0x1000>;
+				status = "disabled";
+			};
+
+			frame@f9025000 {
+				frame-number = <0x03>;
+				interrupts = <0x00 0x0c 0x04>;
+				reg = <0xf9025000 0x1000>;
+				status = "disabled";
+			};
+
+			frame@f9026000 {
+				frame-number = <0x04>;
+				interrupts = <0x00 0x0d 0x04>;
+				reg = <0xf9026000 0x1000>;
+				status = "disabled";
+			};
+
+			frame@f9027000 {
+				frame-number = <0x05>;
+				interrupts = <0x00 0x0e 0x04>;
+				reg = <0xf9027000 0x1000>;
+				status = "disabled";
+			};
+
+			frame@f9028000 {
+				frame-number = <0x06>;
+				interrupts = <0x00 0x0f 0x04>;
+				reg = <0xf9028000 0x1000>;
+				status = "disabled";
+			};
+		};
+
+		restart@fc4ab000 {
+			compatible = "qcom,pshold";
+			reg = <0xfc4ab000 0x04>;
+		};
+
+		pinctrl@fd510000 {
+			compatible = "qcom,msm8994-pinctrl";
+			reg = <0xfd510000 0x4000>;
+			interrupts = <0x00 0xd0 0x04>;
+			gpio-controller;
+			#gpio-cells = <0x02>;
+			interrupt-controller;
+			#interrupt-cells = <0x02>;
+			gpio-reserved-ranges = <0x55 0x04>;
+			phandle = <0x0b>;
+
+			blsp1_uart2_default {
+				phandle = <0x05>;
+
+				pinmux {
+					function = "blsp_uart2";
+					pins = "gpio4\0gpio5";
+				};
+
+				pinconf {
+					pins = "gpio4\0gpio5";
+					drive-strength = <0x10>;
+					bias-disable;
+				};
+			};
+
+			blsp1_uart2_sleep {
+				phandle = <0x06>;
+
+				pinmux {
+					function = "gpio";
+					pins = "gpio4\0gpio5";
+				};
+
+				pinconf {
+					pins = "gpio4\0gpio5";
+					drive-strength = <0x02>;
+					bias-pull-down;
+				};
+			};
+		};
+
+		serial@f991e000 {
+			compatible = "qcom,msm-uartdm-v1.4\0qcom,msm-uartdm";
+			reg = <0xf991e000 0x1000>;
+			interrupts = <0x00 0x6c 0x04>;
+			status = "okay";
+			clock-names = "core\0iface";
+			clocks = <0x04 0x48 0x04 0x3a>;
+			pinctrl-names = "default\0sleep";
+			pinctrl-0 = <0x05>;
+			pinctrl-1 = <0x06>;
+			phandle = <0x0c>;
+		};
+
+		syscon@fd484000 {
+			compatible = "syscon";
+			reg = <0xfd484000 0x2000>;
+			phandle = <0x07>;
+		};
+
+		clock-controller@fc400000 {
+			compatible = "qcom,gcc-msm8994";
+			#clock-cells = <0x01>;
+			#reset-cells = <0x01>;
+			#power-domain-cells = <0x01>;
+			reg = <0xfc400000 0x2000>;
+			phandle = <0x04>;
+		};
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00 0x00 0x00 0x00>;
+	};
+
+	xo_board {
+		compatible = "fixed-clock";
+		#clock-cells = <0x00>;
+		clock-frequency = <0x124f800>;
+		phandle = <0x0d>;
+	};
+
+	sleep_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0x00>;
+		clock-frequency = <0x8000>;
+		phandle = <0x0e>;
+	};
+
+	reserved-memory {
+		#address-cells = <0x02>;
+		#size-cells = <0x02>;
+		ranges;
+
+		smem_region@6a00000 {
+			reg = <0x00 0x6a00000 0x00 0x200000>;
+			no-map;
+			phandle = <0x08>;
+		};
+	};
+
+	hwlock {
+		compatible = "qcom,tcsr-mutex";
+		syscon = <0x07 0x00 0x80>;
+		#hwlock-cells = <0x01>;
+		phandle = <0x09>;
+	};
+
+	qcom,smem@6a00000 {
+		compatible = "qcom,smem";
+		memory-region = <0x08>;
+		hwlocks = <0x09 0x03>;
+	};
+
+	aliases {
+		serial0 = "/soc/serial@f991e000";
+	};
+
+	__symbols__ {
+		CPU0 = "/cpus/cpu@0";
+		L2_0 = "/cpus/cpu@0/l2-cache";
+		soc = "/soc";
+		intc = "/soc/interrupt-controller@f9000000";
+		msmgpio = "/soc/pinctrl@fd510000";
+		blsp1_uart2_default = "/soc/pinctrl@fd510000/blsp1_uart2_default";
+		blsp1_uart2_sleep = "/soc/pinctrl@fd510000/blsp1_uart2_sleep";
+		blsp1_uart2 = "/soc/serial@f991e000";
+		tcsr_mutex_regs = "/soc/syscon@fd484000";
+		clock_gcc = "/soc/clock-controller@fc400000";
+		xo_board = "/xo_board";
+		sleep_clk = "/sleep_clk";
+		smem_mem = "/reserved-memory/smem_region@6a00000";
+		tcsr_mutex = "/hwlock";
+	};
 };

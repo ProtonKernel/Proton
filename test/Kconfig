@@ -1,0 +1,58 @@
+#
+# KUnit base configuration
+#
+
+menu "KUnit support"
+
+config SEC_KUNIT
+	bool "Enable support for unit tests (KUnit)"
+	select HAS_IOMEM
+	help
+	  Enables support for kernel unit tests (KUnit), a lightweight unit
+	  testing and mocking framework for the Linux kernel. These tests are
+	  able to be run locally on a developer's workstation without a VM or
+	  special hardware. For more information, please see Documentation/test/
+
+if SEC_KUNIT
+
+config SEC_KUNIT_TEST
+	bool "KUnit test for KUnit"
+	depends on SEC_KUNIT
+	default n
+	help
+	  Enables KUnit test to test KUnit.
+
+config SEC_KUNIT_DEATH_TEST
+	bool "(Expert) KUnit death test for KUnit"
+	depends on SEC_KUNIT
+	default n
+	help
+	  Enables KUnit test to test KUnit death test feature. This test is not
+	  hermetic and can cause other tests to misbehave.
+
+config EXAMPLE_TEST
+	bool "Example test for KUnit"
+	depends on SEC_KUNIT
+	default n
+	help
+	  Enables example KUnit test to demo features of KUnit.
+
+config KUNIT_TEST_WRAPPER_TEST
+	tristate "KUnit test for mainline 5.10 KUnit"
+	depends on SEC_KUNIT
+	default n
+	help
+	  Enables the unit tests for the 5.10 KUnit test framework. This test helps users understand how to 5.10
+	  Kunit macros. Please refer to the example test, test/mainline_test. Note that, this cannot test
+	  mocking test.
+
+config SEC_KUNIT_MANAGER
+	tristate "Manager for KUnit"
+	depends on SEC_KUNIT && !UML
+	default m
+	help
+	  Enables KUnit Manager.
+
+endif # SEC_KUNIT
+
+endmenu

@@ -20,6 +20,14 @@
 #include "av_permissions.h"
 #include "security.h"
 
+// [ SEC_SELINUX_PORTING_COMMON
+#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+extern int selinux_enforcing;
+#else
+#define selinux_enforcing 1
+#endif
+// ] SEC_SELINUX_PORTING_COMMON
+
 /*
  * An entry in the AVC.
  */

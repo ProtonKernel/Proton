@@ -1392,7 +1392,7 @@ fast_isolate_freepages(struct compact_control *cc)
 			 * not found, be pessemistic for direct compaction
 			 * and use the min mark.
 			 */
-			if (highest) {
+			if (highest && pfn_valid(highest)) {
 				page = pfn_to_page(highest);
 				cc->free_pfn = highest;
 			} else {
@@ -2407,16 +2407,14 @@ enum compact_result try_to_compact_pages(gfp_t gfp_mask, unsigned int order,
 	return rc;
 }
 
-
-/* Compact all zones within a node */
-static void compact_node(int nid)
+static void __compact_node(int nid, bool sync)
 {
 	pg_data_t *pgdat = NODE_DATA(nid);
 	int zoneid;
 	struct zone *zone;
 	struct compact_control cc = {
 		.order = -1,
-		.mode = MIGRATE_SYNC,
+		.mode = sync ? MIGRATE_SYNC : MIGRATE_ASYNC,
 		.ignore_skip_hint = true,
 		.whole_zone = true,
 		.gfp_mask = GFP_KERNEL,
@@ -2438,8 +2436,26 @@ static void compact_node(int nid)
 	}
 }
 
+#ifdef CONFIG_HUGEPAGE_POOL
+void compact_node_async(void)
+{
+	/* hugepage pool and kzerod assumes there is only one node */
+	__compact_node(0, false);
+}
+#endif
+
+/* Compact all zones within a node */
+static void compact_node(int nid)
+{
+	__compact_node(nid, true);
+}
+
 /* Compact all nodes in the system */
+#ifdef CONFIG_HUGEPAGE_POOL
+void compact_nodes(void)
+#else
 static void compact_nodes(void)
+#endif
 {
 	int nid;
 

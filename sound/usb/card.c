@@ -865,6 +865,9 @@ static int usb_audio_probe(struct usb_interface *intf,
 	usb_set_intfdata(intf, chip);
 	atomic_dec(&chip->active);
 	mutex_unlock(&register_mutex);
+
+	pr_info("%s done\n", __func__);
+
 	return 0;
 
  __error:

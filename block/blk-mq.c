@@ -111,13 +111,33 @@ static bool blk_mq_check_inflight(struct blk_mq_hw_ctx *hctx,
 	return true;
 }
 
+static bool blk_mq_check_disk_inflight(struct blk_mq_hw_ctx *hctx,
+					struct request *rq, void *priv,
+					bool reserved)
+{
+	struct mq_inflight *mi = priv;
+
+	/* This function is called only when mi->part is a whole disk. Then
+	 * we can add in_flight count only to index[0] without checking whether
+	 * the rq is for this mi->part or not. We don't care index[1], and
+	 * this behavior is totally consistent with the original behavior
+	 * of part_in_flight function.
+	 */
+	mi->inflight[0]++;
+
+	return true;
+}
+
 unsigned int blk_mq_in_flight(struct request_queue *q, struct hd_struct *part)
 {
 	unsigned inflight[2];
 	struct mq_inflight mi = { .part = part, .inflight = inflight, };
 
 	inflight[0] = inflight[1] = 0;
-	blk_mq_queue_tag_busy_iter(q, blk_mq_check_inflight, &mi);
+	if (mi.part->partno)
+		blk_mq_queue_tag_busy_iter(q, blk_mq_check_inflight, &mi);
+	else
+		blk_mq_queue_tag_busy_iter(q, blk_mq_check_disk_inflight, &mi);
 
 	return inflight[0];
 }
@@ -130,6 +150,17 @@ static bool blk_mq_check_inflight_rw(struct blk_mq_hw_ctx *hctx,
 
 	if (rq->part == mi->part)
 		mi->inflight[rq_data_dir(rq)]++;
+	return true;
+}
+
+static bool blk_mq_check_disk_inflight_rw(struct blk_mq_hw_ctx *hctx,
+					struct request *rq, void *priv,
+					bool reserved)
+{
+	struct mq_inflight *mi = priv;
+
+	/* This function should be called only when mi->part is a whole disk */
+	mi->inflight[rq_data_dir(rq)]++;
 
 	return true;
 }
@@ -140,7 +171,10 @@ void blk_mq_in_flight_rw(struct request_queue *q, struct hd_struct *part,
 	struct mq_inflight mi = { .part = part, .inflight = inflight, };
 
 	inflight[0] = inflight[1] = 0;
-	blk_mq_queue_tag_busy_iter(q, blk_mq_check_inflight_rw, &mi);
+	if (mi.part->partno)
+		blk_mq_queue_tag_busy_iter(q, blk_mq_check_inflight_rw, &mi);
+	else
+		blk_mq_queue_tag_busy_iter(q, blk_mq_check_disk_inflight_rw, &mi);
 }
 
 void blk_freeze_queue_start(struct request_queue *q)

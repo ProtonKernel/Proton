@@ -98,6 +98,9 @@ extern int page_group_by_mobility_disabled;
 	get_pfnblock_flags_mask(page, page_to_pfn(page),		\
 			PB_migrate_end, MIGRATETYPE_MASK)
 
+#define RANK_BIT		(30 - PAGE_SHIFT)
+#define rankid(page)		((page_to_pfn(page) >> RANK_BIT) & 1)
+
 struct free_area {
 	struct list_head	free_list[MIGRATE_TYPES];
 	unsigned long		nr_free;
@@ -136,6 +139,14 @@ static inline void move_to_free_area(struct page *page, struct free_area *area,
 			     int migratetype)
 {
 	list_move(&page->lru, &area->free_list[migratetype]);
+}
+
+/* Used for pages which are on another list */
+static inline void move_to_free_area_tail(struct page *page,
+					  struct free_area *area,
+					  int migratetype)
+{
+	list_move_tail(&page->lru, &area->free_list[migratetype]);
 }
 
 static inline struct page *get_page_from_free_area(struct free_area *area,

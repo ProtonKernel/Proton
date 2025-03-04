@@ -2,6 +2,9 @@
 #ifndef _INET_COMMON_H
 #define _INET_COMMON_H
 
+#ifdef CONFIG_MPTCP
+	#include <net/sock.h>
+#endif
 #include <linux/indirect_call_wrapper.h>
 
 extern const struct proto_ops inet_stream_ops;
@@ -16,6 +19,10 @@ struct sock;
 struct sockaddr;
 struct socket;
 
+#ifdef CONFIG_MPTCP
+	int inet_create(struct net *net, struct socket *sock, int protocol, int kern);
+	int inet6_create(struct net *net, struct socket *sock, int protocol, int kern);
+#endif
 int inet_release(struct socket *sock);
 int inet_stream_connect(struct socket *sock, struct sockaddr *uaddr,
 			int addr_len, int flags);

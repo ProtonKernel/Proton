@@ -41,6 +41,7 @@
 #define GICD_ICFGRnE			0x3000
 #define GICD_IROUTER			0x6000
 #define GICD_IROUTERnE			0x8000
+#define GICD_ICLAR			0xE000
 #define GICD_IDREGS			0xFFD0
 #define GICD_PIDR2			0xFFE8
 
@@ -91,6 +92,11 @@
 
 #define GICD_IROUTER_SPI_MODE_ONE	(0U << 31)
 #define GICD_IROUTER_SPI_MODE_ANY	(1U << 31)
+
+#define GICD_ICLAR_BIT(irqno)		(((irqno) & 0xf) * 2)
+#define GICD_ICLAR_MASK(irqno)		(3U << GICD_ICLAR_BIT(irqno))
+#define GICD_ICLAR_CLA1NOT(irqno)	(2U << GICD_ICLAR_BIT(irqno))
+#define GICD_ICLAR_CLA0NOT(irqno)	(1U << GICD_ICLAR_BIT(irqno))
 
 #define GIC_PIDR2_ARCH_MASK		0xf0
 #define GIC_PIDR2_ARCH_GICv3		0x30

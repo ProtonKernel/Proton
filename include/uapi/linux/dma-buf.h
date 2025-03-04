@@ -47,4 +47,7 @@ struct dma_buf_sync {
 #define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, __u32)
 #define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, __u64)
 
+#define DMA_BUF_IOCTL_TRACK			_IO(DMA_BUF_BASE, 8)
+#define DMA_BUF_IOCTL_UNTRACK			_IO(DMA_BUF_BASE, 9)
+
 #endif

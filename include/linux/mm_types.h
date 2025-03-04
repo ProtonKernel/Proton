@@ -16,6 +16,7 @@
 #include <linux/workqueue.h>
 #include <linux/android_kabi.h>
 #include <linux/android_vendor.h>
+#include <linux/android_vendor_util.h>
 
 #include <asm/mmu.h>
 
@@ -367,7 +368,17 @@ struct vm_area_struct {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
+
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+	seqcount_t vm_sequence;
+	atomic_t vm_ref_count;
+#else
+	ANDROID_VENDOR_USE2(1, seqcount_t vm_sequence, atomic_t vm_ref_count);
+#endif
+#else
 	ANDROID_VENDOR_DATA(1);
+#endif
 } __randomize_layout;
 
 struct core_thread {
@@ -540,7 +551,15 @@ struct mm_struct {
 		atomic_long_t hugetlb_usage;
 #endif
 		struct work_struct async_put_work;
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+		rwlock_t mm_rb_lock;
+#else
+		ANDROID_VENDOR_USE(1, rwlock_t mm_rb_lock);
+#endif
+#else
 		ANDROID_VENDOR_DATA(1);
+#endif
 	} __randomize_layout;
 
 	/*
@@ -688,6 +707,8 @@ typedef __bitwise unsigned int vm_fault_t;
  * @VM_FAULT_NEEDDSYNC:		->fault did not modify page tables and needs
  *				fsync() to complete (for synchronous page faults
  *				in DAX)
+ * @VM_FAULT_PTNOTSAME		Page table entries have changed during a
+ *				speculative page fault handling.
  * @VM_FAULT_HINDEX_MASK:	mask HINDEX value
  *
  */
@@ -705,6 +726,7 @@ enum vm_fault_reason {
 	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
 	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
 	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
+	VM_FAULT_PTNOTSAME	= (__force vm_fault_t)0x004000,
 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
 };
 
@@ -729,7 +751,8 @@ enum vm_fault_reason {
 	{ VM_FAULT_RETRY,               "RETRY" },	\
 	{ VM_FAULT_FALLBACK,            "FALLBACK" },	\
 	{ VM_FAULT_DONE_COW,            "DONE_COW" },	\
-	{ VM_FAULT_NEEDDSYNC,           "NEEDDSYNC" }
+	{ VM_FAULT_NEEDDSYNC,           "NEEDDSYNC" },	\
+	{ VM_FAULT_PTNOTSAME,		"PTNOTSAME" }
 
 struct vm_special_mapping {
 	const char *name;	/* The name, e.g. "[vdso]". */

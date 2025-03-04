@@ -101,4 +101,11 @@ extern int sched_energy_aware_handler(struct ctl_table *table, int write,
 				 loff_t *ppos);
 #endif
 
+#ifdef CONFIG_SCHED_EMS
+extern unsigned int sysctl_sched_util_est_clamp;
+extern int sysctl_sched_util_est_handler(struct ctl_table *table, int write,
+				void __user *buffer, size_t *lenp,
+				loff_t *ppos);
+#endif
+
 #endif /* _LINUX_SCHED_SYSCTL_H */

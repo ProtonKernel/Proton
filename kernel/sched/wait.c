@@ -214,6 +214,24 @@ void __wake_up_pollfree(struct wait_queue_head *wq_head)
 }
 
 /*
+ * __wake_up_sync_cl_key - see __wake_up_sync_key()
+ * Exynos specific, target thread will be woken up on the same cluster
+ */
+void __wake_up_sync_cl_key(struct wait_queue_head *wq_head, unsigned int mode, void *key)
+{
+	int wake_flags = WF_SYNC;
+
+	if (unlikely(!wq_head))
+		return;
+
+	if (sched_feat(EMS))
+		wake_flags = WF_SYNC_CL;
+
+	__wake_up_common_lock(wq_head, mode, 1, wake_flags, key);
+}
+EXPORT_SYMBOL_GPL(__wake_up_sync_cl_key);
+
+/*
  * Note: we use "set_current_state()" _after_ the wait-queue add,
  * because we need a memory barrier there on SMP, so that any
  * wake-function that tests for the wait-queue being active

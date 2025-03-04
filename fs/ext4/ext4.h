@@ -2913,6 +2913,12 @@ static inline int ext4_has_metadata_csum(struct super_block *sb)
 	       (EXT4_SB(sb)->s_chksum_driver != NULL);
 }
 
+extern void print_iloc_info(struct super_block *sb, struct ext4_iloc iloc);
+extern void print_bh(struct super_block *sb,
+		struct buffer_head *bh, int start, int len);
+extern void print_block_data(struct super_block *sb, sector_t blocknr,
+		unsigned char *data_to_dump, int start, int len);
+
 static inline int ext4_has_group_desc_csum(struct super_block *sb)
 {
 	return ext4_has_feature_gdt_csum(sb) || ext4_has_metadata_csum(sb);
@@ -3382,6 +3388,17 @@ extern void ext4_io_submit_init(struct ext4_io_submit *io,
 				struct writeback_control *wbc);
 extern void ext4_end_io_rsv_work(struct work_struct *work);
 extern void ext4_io_submit(struct ext4_io_submit *io);
+#ifdef CONFIG_DDAR
+#define	EXT4_IOC_GET_DD_POLICY		FS_IOC_GET_DD_POLICY
+#define	EXT4_IOC_SET_DD_POLICY		FS_IOC_SET_DD_POLICY
+#endif
+
+#ifdef CONFIG_DDAR
+int ext4_io_submit_to_dd(struct inode *inode, struct ext4_io_submit *io);
+#else
+static inline int ext4_io_submit_to_dd(struct inode *inode, struct ext4_io_submit *io) { return -EOPNOTSUPP; }
+#endif
+
 extern int ext4_bio_write_page(struct ext4_io_submit *io,
 			       struct page *page,
 			       int len,

@@ -196,13 +196,86 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
 
 #else
 
+unsigned long __initdata required_corepages;
+static int __init cmdline_parse_corememsize(char *p)
+{
+	unsigned long long coremem;
+
+	if (!p)
+		return -EINVAL;
+
+	coremem = memparse(p, &p);
+	required_corepages = coremem >> PAGE_SHIFT;
+
+	/* Paranoid check that UL is enough for the coremem value */
+	WARN_ON((coremem >> PAGE_SHIFT) > ULONG_MAX);
+
+	pr_info("required core pages: %#lx\n", required_corepages);
+
+	return 0;
+}
+early_param("corememsize", cmdline_parse_corememsize);
+
 static void __init zone_sizes_init(unsigned long min, unsigned long max)
 {
 	struct memblock_region *reg;
 	unsigned long zone_size[MAX_NR_ZONES], zhole_size[MAX_NR_ZONES];
 	unsigned long max_dma = min;
+	unsigned long required_movablepages = 0;
 
 	memset(zone_size, 0, sizeof(zone_size));
+
+	if (required_corepages) {
+		unsigned long totalpages = 0;
+
+		for_each_memblock(memory, reg) {
+			unsigned long start =
+				memblock_region_memory_base_pfn(reg);
+			unsigned long end = memblock_region_memory_end_pfn(reg);
+
+			totalpages += end - start;
+		}
+
+		if (totalpages > required_corepages)
+			required_movablepages = totalpages - required_corepages;
+	}
+
+	if (required_movablepages) {
+		unsigned long remained = required_movablepages << PAGE_SHIFT;
+		unsigned long movable_base = 0, align_diff = 0;
+		phys_addr_t start, end;
+		u64 i;
+
+		for_each_mem_range_rev(i, &memblock.memory, NULL, 0,
+				       MEMBLOCK_NONE, &start, &end, NULL) {
+			size_t region_size = end - start;
+
+			if (region_size >= remained) {
+				movable_base = end - remained;
+				remained = 0;
+				break;
+			}
+
+			remained -= region_size;
+			movable_base = start;
+		}
+		movable_base >>= PAGE_SHIFT;
+		remained >>= PAGE_SHIFT;
+
+		align_diff = movable_base -
+			ALIGN_DOWN(movable_base, PAGES_PER_SECTION);
+		movable_base -= align_diff;
+		required_movablepages += align_diff;
+
+		/*
+		 * Available case to set the ZONE_MOVABLE size.
+		 * If remained is not zero, ZONE_MOVABLE is not added.
+		 */
+		if (remained == 0) {
+			zone_size[ZONE_MOVABLE] = max - movable_base;
+			max = movable_base;
+		}
+	}
 
 	/* 4GB maximum for 32-bit only capable devices */
 #ifdef CONFIG_ZONE_DMA32
@@ -232,6 +305,8 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
 			zhole_size[ZONE_NORMAL] -= normal_end - normal_start;
 		}
 	}
+
+	zhole_size[ZONE_MOVABLE] -= required_movablepages;
 
 	free_area_init_node(0, zone_size, min, zhole_size);
 }
@@ -326,6 +401,29 @@ void __init arm64_memblock_init(void)
 
 	/* Remove memory above our supported physical address size */
 	memblock_remove(1ULL << PHYS_MASK_SHIFT, ULLONG_MAX);
+
+	if (required_corepages) {
+		struct memblock_region *reg;
+		phys_addr_t limit = memblock_end_of_DRAM();
+		unsigned long remained = required_corepages;
+
+		for_each_memblock(memory, reg) {
+			unsigned long start =
+				memblock_region_memory_base_pfn(reg);
+			unsigned long end = memblock_region_memory_end_pfn(reg);
+			unsigned long region_size = end - start;
+
+			if (region_size >= remained) {
+				limit = ALIGN_DOWN(
+					(start + remained) << PAGE_SHIFT,
+					1 << PA_SECTION_SHIFT);
+				break;
+			}
+			remained -= region_size;
+		}
+
+		memblock_set_current_limit(limit);
+	}
 
 	/*
 	 * Select a suitable value for the base of physical memory.
@@ -442,7 +540,12 @@ void __init arm64_memblock_init(void)
 
 	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
 
-	dma_contiguous_reserve(arm64_dma_phys_limit);
+	if (required_corepages)
+		dma_contiguous_reserve(memblock_get_current_limit());
+	else
+		dma_contiguous_reserve(arm64_dma_phys_limit);
+
+	memblock_allow_resize();
 }
 
 void __init bootmem_init(void)

@@ -126,6 +126,10 @@ config SPARSEMEM_VMEMMAP
 	 pfn_to_page and page_to_pfn operations.  This is the most
 	 efficient option when sufficient kernel resources are available.
 
+config MEMBLOCK_MEMSIZE
+	bool "memblock based reserved memory profiling"
+	default y
+
 config HAVE_MEMBLOCK_NODE_MAP
 	bool
 
@@ -420,7 +424,8 @@ config THP_SWAP
 	  For selection by architectures with reasonable THP sizes.
 
 config	TRANSPARENT_HUGE_PAGECACHE
-	def_bool y
+	default y
+	bool "Huge Pagecache"
 	depends on TRANSPARENT_HUGEPAGE
 
 #
@@ -688,6 +693,102 @@ config PERCPU_STATS
 	  information includes global and per chunk statistics, which can
 	  be used to help understand percpu memory usage.
 
+config INCREASE_MAXIMUM_SWAPPINESS
+	bool "Allow swappiness to be set up to 200"
+	depends on SWAP
+	default y
+
+config DIRECT_RECLAIM_FILE_PAGES_ONLY
+	bool "Reclaim file pages only on direct reclaim path"
+	depends on SWAP
+	default y
+
+config BALANCE_ANON_FILE_RECLAIM
+	bool "During reclaim treat anon and file backed pages equally"
+	depends on SWAP
+	default y
+	help
+	  When performing memory reclaim treat anonymous and file backed pages
+	  equally.
+	  Swapping anonymous pages out to memory can be efficient enough to justify
+	  treating anonymous and file backed pages equally.
+
+config KSWAPD_CPU
+	hex "Set kswapd cpu affinity by default"
+	default 0x7F
+	help
+	  Set kswapd cpu affinity by default. 0x3F means allowing CPU as 0 to 5.
+	  To disable this config, set this to 0.
+
+config MMAP_READAROUND_LIMIT
+	int "Limit mmap readaround upperbound"
+	default 0
+	help
+	  Inappropriate mmap readaround size can hurt device performance
+	  during the sluggish situation. Add the hard upper-limit for
+	  mmap readaround.
+
+config RBIN
+	bool "RBIN memory support"
+	default y
+	select CLEANCACHE
+	help
+	  This provides RBIN functionality in memory management.
+
+config PAGE_BOOST
+	bool "PAGE_BOOST feature"
+	depends on MMU
+	default y
+	help
+	  Enable this for PAGE_BOOST feature
+
+config PAGE_BOOST_RECORDING
+	bool "PAGE_BOOST recording feature"
+	depends on PAGE_BOOST
+	default y
+	help
+	  Record Everything for the chosen process.
+	  As Android executes an app one by one, only allow 1 recording
+	  at a time.
+
+config KZEROD
+	bool "Support kzerod"
+	default n
+	depends on !NEED_MULTIPLE_NODES
+	help
+	  Support kzerod kernel thread which does prezeroing of free pages.
+
+config HUGEPAGE_POOL
+	bool "hugepage pool management"
+	default n
+	depends on KZEROD && !HIGHMEM && !ZONE_DEVICE
+	depends on TRANSPARENT_HUGEPAGE
+	help
+	  Enable this to provide 2MB hugepage to THP anon, ION, and GPU memory
+	  allocation requests efficiently.
+
+config HUGEPAGE_POOL_DEBUG
+	bool "hugepage pool debug"
+	default n
+	depends on HUGEPAGE_POOL
+	help
+	  Show hugepage pool debug logs in kernel log.
+
+config HUGEPAGE_POOL_ALLOW_ALL
+	bool "allow 2MB page for all to debug hugepage pool"
+	default n
+	depends on HUGEPAGE_POOL
+	help
+	  allow 2MB page for all to debug hugepage pool
+
+config MEMCG_HEIMDALL
+	bool "memcg optimization for heimdall"
+	depends on MEMCG
+	default y
+	help
+	  Enable this will change the memcg-related logics in the way Heimdall
+	  prefers.
+
 config GUP_BENCHMARK
 	bool "Enable infrastructure for get_user_pages_fast() benchmarking"
 	help
@@ -723,4 +824,34 @@ config ARCH_HAS_PTE_SPECIAL
 config ARCH_HAS_HUGEPD
 	bool
 
+config HPA
+	bool "High-order Pages Allocator"
+	select CMA
+	help
+	  Turns on High-order Pages Allocator based on page migration.
+
+config ARCH_SUPPORTS_SPECULATIVE_PAGE_FAULT
+	bool "Arch supports speculative page fault"
+	default n
+
+config SPECULATIVE_PAGE_FAULT
+       bool "Speculative page faults"
+       default y
+       depends on ARCH_SUPPORTS_SPECULATIVE_PAGE_FAULT
+       depends on MMU && SMP
+       help
+         Try to handle user space page faults without holding the mmap_sem.
+
+	 This should allow better concurrency for massively threaded process
+	 since the page fault handler will not wait for other threads memory
+	 layout change to be done, assuming that this change is done in another
+	 part of the process's memory space. This type of page fault is named
+	 speculative page fault.
+
+	 If the speculative page fault fails because of a concurrency is
+	 detected or because underlying PMD or PTE tables are not yet
+	 allocating, it is failing its processing and a classic page fault
+	 is then tried.
 endmenu
+
+source "mm/sec_mm/Kconfig"

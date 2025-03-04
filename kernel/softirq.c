@@ -28,7 +28,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/irq.h>
-
+#include <soc/samsung/debug-snapshot.h>
 /*
    - No shared variables, all the data are CPU local.
    - If a softirq needs serialization, let it serialize itself
@@ -280,6 +280,7 @@ restart:
 	while ((softirq_bit = ffs(pending))) {
 		unsigned int vec_nr;
 		int prev_count;
+		unsigned long long start_time;
 
 		h += softirq_bit - 1;
 
@@ -289,7 +290,10 @@ restart:
 		kstat_incr_softirqs_this_cpu(vec_nr);
 
 		trace_softirq_entry(vec_nr);
+                dbg_snapshot_irq_var(start_time);
+                dbg_snapshot_irq(DSS_FLAG_SOFTIRQ, h->action, NULL, 0, DSS_FLAG_IN);
 		h->action(h);
+		dbg_snapshot_irq(DSS_FLAG_SOFTIRQ, h->action, NULL, start_time, DSS_FLAG_OUT);
 		trace_softirq_exit(vec_nr);
 		if (unlikely(prev_count != preempt_count())) {
 			pr_err("huh, entered softirq %u %s %p with preempt_count %08x, exited with %08x?\n",

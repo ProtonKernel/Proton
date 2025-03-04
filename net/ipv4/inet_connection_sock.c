@@ -19,6 +19,9 @@
 #include <net/route.h>
 #include <net/tcp_states.h>
 #include <net/xfrm.h>
+#ifdef CONFIG_MPTCP
+#include <net/mptcp.h>
+#endif
 #include <net/tcp.h>
 #include <net/sock_reuseport.h>
 #include <net/addrconf.h>
@@ -729,9 +732,17 @@ static void reqsk_timer_handler(struct timer_list *t)
 	int qlen, expire = 0, resend = 0;
 	int max_retries, thresh;
 	u8 defer_accept;
-
+#ifdef CONFIG_MPTCP
+	if (!is_meta_sk(sk_listener) && inet_sk_state_load(sk_listener) != TCP_LISTEN)
+#else
 	if (inet_sk_state_load(sk_listener) != TCP_LISTEN)
+#endif
 		goto drop;
+
+#ifdef CONFIG_MPTCP
+	if (is_meta_sk(sk_listener) && !mptcp_can_new_subflow(sk_listener))
+		goto drop;
+#endif
 
 	max_retries = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_synack_retries;
 	thresh = max_retries;
@@ -1034,7 +1045,16 @@ void inet_csk_listen_stop(struct sock *sk)
 	 */
 	while ((req = reqsk_queue_remove(queue, sk)) != NULL) {
 		struct sock *child = req->sk;
+#ifdef CONFIG_MPTCP
+		bool mutex_taken = false;
+		struct mptcp_cb *mpcb = tcp_sk(child)->mpcb;
 
+		if (is_meta_sk(child)) {
+			WARN_ON(refcount_inc_not_zero(&mpcb->mpcb_refcnt) == 0);
+			mutex_lock(&mpcb->mpcb_mutex);
+			mutex_taken = true;
+		}
+#endif
 		local_bh_disable();
 		bh_lock_sock(child);
 		WARN_ON(sock_owned_by_user(child));
@@ -1044,6 +1064,12 @@ void inet_csk_listen_stop(struct sock *sk)
 		reqsk_put(req);
 		bh_unlock_sock(child);
 		local_bh_enable();
+#ifdef CONFIG_MPTCP
+		if (mutex_taken) {
+			mutex_unlock(&mpcb->mpcb_mutex);
+			mptcp_mpcb_put(mpcb);
+		}
+#endif
 		sock_put(child);
 
 		cond_resched();

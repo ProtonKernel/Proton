@@ -1,0 +1,28 @@
+config SND_SOC_SAMSUNG_MAILBOX
+	tristate "Samsung MAILBOX"
+	help
+	  Say Y if you want to use mailbox for voice trigger system.
+
+config SND_SOC_SAMSUNG_VTS
+	tristate "Samsung VTS"
+	depends on SND_SOC_SAMSUNG_MAILBOX
+	help
+	  Say Y if you want to use voice trigger system.
+
+config SND_SOC_SAMSUNG_VTS_S_LIF
+	tristate "Samsung VTS Serial LIF"
+	depends on SND_SOC_SAMSUNG_VTS
+	help
+	  Say Y if you want to use Serial LIF.
+
+config SND_SOC_SAMSUNG_VTS_S_LIF_VERSION
+	hex "VTS Serial LIF IP version"
+	depends on SND_SOC_SAMSUNG_VTS_S_LIF
+	default 0x10000 if SOC_EXYNOS9830_EVT0
+	default 0x10101 if SOC_EXYNOS9830
+	default 0x10102 if SOC_EXYNOS2100_EVT0
+	default 0x10101 if SOC_EXYNOS2100
+	help
+	  Version of VTS Serial LIF IP.
+	  Value = 0x10000 * major + 0x100 * minor + rev.
+	  Ex. 1.00 rev0 => 0x10000, 1.01 rev1 => 0x10101

@@ -1,0 +1,86 @@
+menuconfig EXYNOS_DEBUG
+        bool "Exynos Debug Features"
+        depends on ARCH_EXYNOS
+        default n
+
+if EXYNOS_DEBUG
+menuconfig DEBUG_SNAPSHOT
+	tristate "Debug SnapShot Support"
+	depends on EXYNOS_DEBUG
+	default n
+
+config DEBUG_SNAPSHOT_FREQ_DOMAIN_NUM
+	int "Number of freq logging domain type"
+	range 4 32
+	default 32
+
+config DEBUG_SNAPSHOT_LOG_ITEM_SIZE
+	int "Number of logging item base size"
+	range 128 1024
+	default 1024
+
+config DEBUG_SNAPSHOT_BUILT_IN
+	bool "Debug SnapShot Built-In Support"
+	depends on DEBUG_SNAPSHOT
+	default y
+
+config DEBUG_SNAPSHOT_SFRDUMP
+	tristate "Debug Snapshot SFRDUMP"
+	depends on DEBUG_SNAPSHOT
+	default n
+
+config DEBUG_SNAPSHOT_QUICKDUMP
+	tristate "Debug Snapshot quickdump"
+	depends on DEBUG_SNAPSHOT
+	default n
+
+config EXYNOS_DEBUG_TEST
+        tristate "Exynos debug feature test"
+        depends on DEBUG_SNAPSHOT
+        default n
+
+config EXYNOS_ADV_TRACER
+        tristate "Exynos Advanced Tracer"
+        depends on EXYNOS_DEBUG
+        default n
+
+config EXYNOS_ADV_TRACER_S2D
+        tristate "Exynos Advanced Tracer: Plug-in - S2D"
+        depends on EXYNOS_ADV_TRACER
+        default n
+
+config EXYNOS_ITMON
+        tristate "Exynos IPs Traffic Monitor"
+        depends on EXYNOS_DEBUG
+        default n
+
+config EXYNOS_CORESIGHT
+        tristate "Enable Coresight of exynos"
+        depends on EXYNOS_DEBUG
+        default n
+
+config EXYNOS_ECC_HANDLER
+	tristate "Exynos support ECC handler"
+	depends on EXYNOS_DEBUG
+	default n
+
+config EXYNOS_EHLD
+        tristate "Exynos support Early Hardlockup Detector"
+        depends on EXYNOS_DEBUG
+        default n
+
+config EXYNOS_HARDLOCKUP_WATCHDOG
+	tristate "Exynos Hardlockup Watchdog"
+	depends on DEBUG_SNAPSHOT
+	default n
+
+config EXYNOS_HARDLOCKUP_DEBUG
+	tristate "Exynos Hardlockup Debugger"
+	depends on DEBUG_SNAPSHOT
+	default n
+
+config EXYNOS_SSLD
+        tristate "Exynos support S2R Scenario Lockup Detector"
+        depends on EXYNOS_DEBUG
+        default n
+endif

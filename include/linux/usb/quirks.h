@@ -72,4 +72,7 @@
 /* device has blacklisted endpoints */
 #define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
 
+/* Hub can't support usb suspend */
+#define USB_QUIRK_HUB_NO_SUSPEND		BIT(20)
+
 #endif /* __LINUX_USB_QUIRKS_H */

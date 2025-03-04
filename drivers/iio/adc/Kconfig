@@ -1096,4 +1096,15 @@ config XILINX_XADC
 	  The driver can also be build as a module. If so, the module will be called
 	  xilinx-xadc.
 
+config S2MPS23_ADC
+	tristate "S2MPS23 ADC driver support"
+	depends on MFD_S2MPS23
+	help
+	  Core support for the ADC block found in the Samsung PMIC series
+	  for drivers such as the touchscreen and hwmon to use to share
+	  this resource.
+
+	  To compile this driver as a module, choose M here: the module will be
+	  called exynos_adc.
+
 endmenu

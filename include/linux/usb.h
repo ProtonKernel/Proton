@@ -1863,8 +1863,8 @@ extern int usb_set_configuration(struct usb_device *dev, int configuration);
  * USB identifies 5 second timeouts, maybe more in a few cases, and a few
  * slow devices (like some MGE Ellipse UPSes) actually push that limit.
  */
-#define USB_CTRL_GET_TIMEOUT	5000
-#define USB_CTRL_SET_TIMEOUT	5000
+#define USB_CTRL_GET_TIMEOUT	3000
+#define USB_CTRL_SET_TIMEOUT	3000
 
 
 /**
@@ -2041,6 +2041,19 @@ enum usb_led_event {
 	USB_LED_EVENT_HOST = 0,
 	USB_LED_EVENT_GADGET = 1,
 };
+
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+/* USB certification */
+enum usb_host_certi_type {
+	USB_HOST_CERTI_UNSUPPORT_ACCESSORY,
+	USB_HOST_CERTI_NO_RESPONSE,
+	USB_HOST_CERTI_HUB_DEPTH_EXCEED,
+	USB_HOST_CERTI_HUB_POWER_EXCEED,
+	USB_HOST_CERTI_HOST_RESOURCE_EXCEED,
+	USB_HOST_CERTI_WARM_RESET
+};
+extern void send_usb_host_certi_uevent(struct device *dev, int usb_certi);
+#endif
 
 #ifdef CONFIG_USB_LED_TRIG
 extern void usb_led_activity(enum usb_led_event ev);

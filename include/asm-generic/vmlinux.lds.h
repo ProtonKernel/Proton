@@ -353,6 +353,22 @@
 	__end_ro_after_init = .;
 #endif
 
+#ifdef CONFIG_UH
+#define UH_RO_SECTION						\
+	. = ALIGN(4096);						\
+	.uh_bss       : AT(ADDR(.uh_bss) - LOAD_OFFSET) {	\
+		*(.uh_bss.page_aligned)				\
+		*(.uh_bss)						\
+	} = 0								\
+									\
+	.uh_ro        : AT(ADDR(.uh_ro) - LOAD_OFFSET) {	\
+		*(.rkp_ro)						\
+		*(.kdp_ro)						\
+	}
+#else
+#define UH_RO_SECTION
+#endif
+
 /*
  * Read only Data
  */
@@ -372,6 +388,9 @@
 	.rodata1          : AT(ADDR(.rodata1) - LOAD_OFFSET) {		\
 		*(.rodata1)						\
 	}								\
+									\
+	/* uH */					\
+	UH_RO_SECTION				\
 									\
 	/* PCI quirks */						\
 	.pci_fixup        : AT(ADDR(.pci_fixup) - LOAD_OFFSET) {	\
@@ -484,6 +503,8 @@
         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
 		*(__ksymtab_strings)					\
 	}								\
+									\
+	SECDBG_MEMBERS							\
 									\
 	/* __*init sections */						\
 	__init_rodata : AT(ADDR(__init_rodata) - LOAD_OFFSET) {		\
@@ -820,6 +841,19 @@
 #define ORC_UNWIND_TABLE
 #endif
 
+#ifdef CONFIG_SEC_DEBUG_MEMTAB
+#define SECDBG_MEMBERS							\
+	/* Secdbg member table: offsets */				\
+	. = ALIGN(8);							\
+	__secdbg_member_table : AT(ADDR(__secdbg_member_table) - LOAD_OFFSET) { \
+		__start__secdbg_member_table = .;			\
+		KEEP(*(SORT(.secdbg_mbtab.*)))				\
+		__stop__secdbg_member_table = .;			\
+	}
+#else
+#define SECDBG_MEMBERS
+#endif
+
 #ifdef CONFIG_PM_TRACE
 #define TRACEDATA							\
 	. = ALIGN(4);							\
@@ -873,6 +907,17 @@
 		__con_initcall_start = .;				\
 		KEEP(*(.con_initcall.init))				\
 		__con_initcall_end = .;
+
+#ifdef CONFIG_SEC_KUNIT
+/* Alignment must be consistent with (test_module *) in include/kunit/test.h */
+#define KUNIT_TEST_MODULES						\
+		. = ALIGN(8);						\
+		__test_modules_start = .;				\
+		KEEP(*(.test_modules))					\
+		__test_modules_end = .;
+#else
+#define KUNIT_TEST_MODULES
+#endif
 
 #ifdef CONFIG_BLK_DEV_INITRD
 #define INIT_RAM_FS							\
@@ -1049,6 +1094,7 @@
 		INIT_CALLS						\
 		CON_INITCALL						\
 		INIT_RAM_FS						\
+		KUNIT_TEST_MODULES					\
 	}
 
 #define BSS_SECTION(sbss_align, bss_align, stop_align)			\

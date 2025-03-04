@@ -15,6 +15,10 @@
 #include <linux/kernel.h>
 #include <net/secure_seq.h>
 #include <net/ipv6.h>
+#ifdef CONFIG_MPTCP
+#include <net/mptcp.h>
+#include <net/mptcp_v6.h>
+#endif
 #include <net/tcp.h>
 
 #define COOKIEBITS 24	/* Upper bits store count */
@@ -106,7 +110,12 @@ u32 __cookie_v6_init_sequence(const struct ipv6hdr *iph,
 }
 EXPORT_SYMBOL_GPL(__cookie_v6_init_sequence);
 
-__u32 cookie_v6_init_sequence(const struct sk_buff *skb, __u16 *mssp)
+#ifdef CONFIG_MPTCP
+	__u32 cookie_v6_init_sequence(struct request_sock *req, const struct sock *sk,
+				      const struct sk_buff *skb, __u16 *mssp)
+#else
+	__u32 cookie_v6_init_sequence(const struct sk_buff *skb, __u16 *mssp)
+#endif
 {
 	const struct ipv6hdr *iph = ipv6_hdr(skb);
 	const struct tcphdr *th = tcp_hdr(skb);
@@ -128,6 +137,9 @@ EXPORT_SYMBOL_GPL(__cookie_v6_check);
 struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 {
 	struct tcp_options_received tcp_opt;
+#ifdef CONFIG_MPTCP
+	struct mptcp_options_received mopt;
+#endif
 	struct inet_request_sock *ireq;
 	struct tcp_request_sock *treq;
 	struct ipv6_pinfo *np = inet6_sk(sk);
@@ -158,8 +170,12 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 
 	/* check for timestamp cookie support */
 	memset(&tcp_opt, 0, sizeof(tcp_opt));
+#ifdef CONFIG_MPTCP
+	mptcp_init_mp_opt(&mopt);
+	tcp_parse_options(sock_net(sk), skb, &tcp_opt, &mopt, 0, NULL, NULL);
+#else
 	tcp_parse_options(sock_net(sk), skb, &tcp_opt, 0, NULL);
-
+#endif
 	if (tcp_opt.saw_tstamp && tcp_opt.rcv_tsecr) {
 		tsoff = secure_tcpv6_ts_off(sock_net(sk),
 					    ipv6_hdr(skb)->daddr.s6_addr32,
@@ -171,14 +187,31 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 		goto out;
 
 	ret = NULL;
-	req = inet_reqsk_alloc(&tcp6_request_sock_ops, sk, false);
+#ifdef CONFIG_MPTCP
+	if (mopt.saw_mpc)
+		req = inet_reqsk_alloc(&mptcp6_request_sock_ops, sk, false);
+	else
+#endif
+		req = inet_reqsk_alloc(&tcp6_request_sock_ops, sk, false);
 	if (!req)
 		goto out;
 
 	ireq = inet_rsk(req);
+#ifdef CONFIG_MPTCP
+	ireq->mptcp_rqsk = 0;
+	ireq->saw_mpc = 0;
+#endif
 	treq = tcp_rsk(req);
 	treq->af_specific = &tcp_request_sock_ipv6_ops;
 	treq->tfo_listener = false;
+
+#ifdef CONFIG_MPTCP
+	/* Must be done before anything else, as it initializes
+	 * hash_entry of the MPTCP request-sock.
+	 */
+	if (mopt.saw_mpc)
+		mptcp_cookies_reqsk_init(req, &mopt, skb);
+#endif
 
 	if (security_inet_conn_request(sk, skb, req))
 		goto out_free;
@@ -249,15 +282,27 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
 		req->rsk_window_clamp = full_space;
 
+#ifdef CONFIG_MPTCP
+	tp->ops->select_initial_window(sk, full_space, req->mss,
+				       &req->rsk_rcv_wnd, &req->rsk_window_clamp,
+				       ireq->wscale_ok, &rcv_wscale,
+				       dst_metric(dst, RTAX_INITRWND));
+#else
 	tcp_select_initial_window(sk, full_space, req->mss,
 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
 				  ireq->wscale_ok, &rcv_wscale,
 				  dst_metric(dst, RTAX_INITRWND));
+#endif
 
 	ireq->rcv_wscale = rcv_wscale;
 	ireq->ecn_ok = cookie_ecn_ok(&tcp_opt, sock_net(sk), dst);
-
+	
+#ifdef CONFIG_MPTCP
+	ret = tcp_get_cookie_sock(sk, skb, req, &mopt, dst, tsoff);
+#else
 	ret = tcp_get_cookie_sock(sk, skb, req, dst, tsoff);
+#endif
+
 out:
 	return ret;
 out_free:

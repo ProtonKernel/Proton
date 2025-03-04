@@ -55,16 +55,19 @@ static void spin_dump(raw_spinlock_t *lock, const char *msg)
 
 	if (owner == SPINLOCK_OWNER_INIT)
 		owner = NULL;
-	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
+	pr_auto(ASL8, "BUG: spinlock %s on CPU#%d, %s/%d\n",
 		msg, raw_smp_processor_id(),
 		current->comm, task_pid_nr(current));
-	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
+	pr_auto(ASL8, " lock: %pS, .magic: %08x, .owner: %s/%d, "
 			".owner_cpu: %d\n",
 		lock, READ_ONCE(lock->magic),
 		owner ? owner->comm : "<none>",
 		owner ? task_pid_nr(owner) : -1,
 		READ_ONCE(lock->owner_cpu));
 	dump_stack();
+#ifdef CONFIG_SEC_DEBUG_SPINBUG_PANIC
+	BUG();
+#endif
 }
 
 static void spin_bug(raw_spinlock_t *lock, const char *msg)
@@ -144,10 +147,13 @@ static void rwlock_bug(rwlock_t *lock, const char *msg)
 	if (!debug_locks_off())
 		return;
 
-	printk(KERN_EMERG "BUG: rwlock %s on CPU#%d, %s/%d, %p\n",
+	pr_auto(ASL8, "BUG: rwlock %s on CPU#%d, %s/%d, %p\n",
 		msg, raw_smp_processor_id(), current->comm,
 		task_pid_nr(current), lock);
 	dump_stack();
+#ifdef CONFIG_SEC_DEBUG_SPINBUG_PANIC
+	BUG();
+#endif
 }
 
 #define RWLOCK_BUG_ON(cond, lock, msg) if (unlikely(cond)) rwlock_bug(lock, msg)

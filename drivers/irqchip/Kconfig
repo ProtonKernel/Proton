@@ -389,6 +389,13 @@ config STM32_EXTI
 	select IRQ_DOMAIN
 	select GENERIC_IRQ_CHIP
 
+config EXYNOS_IRQ_COMBINER
+	bool "Samsung Exynos IRQ combiner support"
+	depends on ARCH_EXYNOS
+	help
+	  Say yes here to add support for the IRQ combiner devices embedded
+	  in Samsung Exynos chips.
+
 config QCOM_IRQ_COMBINER
 	bool "QCOM IRQ combiner support"
 	depends on ARCH_QCOM && ACPI

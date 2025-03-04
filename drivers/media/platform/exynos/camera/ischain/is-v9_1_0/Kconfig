@@ -1,0 +1,15 @@
+config PABLO_V9_1_0
+	bool "Use PABLO v9.1.0"
+	depends on SOC_EXYNOS2100
+	select EXYNOS_DEVICE_MIPI_CSIS_VER4
+	select CSIS_V5_4
+	select CAMERA_CIS_SELECT
+	select CAMERA_ACT_SELECT
+	select CAMERA_FLASH_SELECT
+	select CAMERA_PDP
+	select CAMERA_DVFS_V2
+	select MC_SCALER_V9_1
+	select PDP_V3_1
+	select YUVPP_V2_1
+	help
+	  PABLO ISP version 9.1.0

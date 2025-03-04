@@ -19,16 +19,31 @@
 #include <linux/dmi.h>
 #include <linux/dma-mapping.h>
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+#include <linux/usb/exynos_usb_audio.h>
+#endif
+#ifdef CONFIG_USB_DWC3_EXYNOS
+#include <soc/samsung/exynos-cpupm.h>
+#endif
+
 #include "xhci.h"
 #include "xhci-trace.h"
 #include "xhci-mtk.h"
 #include "xhci-debugfs.h"
 #include "xhci-dbgcap.h"
+#include "xhci-plat.h"
 
 #define DRIVER_AUTHOR "Sarah Sharp"
 #define DRIVER_DESC "'eXtensible' Host Controller (xHC) Driver"
 
 #define	PORT_WAKE_BITS	(PORT_WKOC_E | PORT_WKDISC_E | PORT_WKCONN_E)
+
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+struct hcd_hw_info *g_hwinfo;
+EXPORT_SYMBOL_GPL(g_hwinfo);
+int xhci_free_hw_info(struct usb_hcd *hcd, struct usb_device *udev);
+#endif
+extern void __iomem *usb3_portsc;
 
 /* Some 0.95 hardware can't handle the chain bit on a Link TRB being cleared */
 static int link_quirk;
@@ -38,6 +53,36 @@ MODULE_PARM_DESC(link_quirk, "Don't clear the chain bit on a link TRB");
 static unsigned long long quirks;
 module_param(quirks, ullong, S_IRUGO);
 MODULE_PARM_DESC(quirks, "Bit flags for quirks to be enabled as default");
+
+#if defined(CONFIG_USB_DWC3_EXYNOS)
+#define GUSB3PIPECTL_OFFSET	0xC2C0
+#define RX_DETECT_LFPS_CON	(0x1 << 8)
+#define BU31RHBDBG_OFFSET       0xd800
+#define BU31RHBDBG_TOUTCTL      (0x1 << 3)
+
+void xhci_soc_config_after_reset(struct xhci_hcd *xhci)
+{
+	static void __iomem *bu31rhbdbg_reg;
+	static void __iomem *rx_det_lfps_con_reg;
+	u32 reg;
+
+	if (bu31rhbdbg_reg == NULL)
+		bu31rhbdbg_reg = ioremap(xhci->main_hcd->rsrc_start +
+				BU31RHBDBG_OFFSET, SZ_4);
+
+	reg = readl(bu31rhbdbg_reg);
+	reg |= BU31RHBDBG_TOUTCTL;
+	writel(reg, bu31rhbdbg_reg);
+
+	if (rx_det_lfps_con_reg == NULL)
+		rx_det_lfps_con_reg = ioremap(xhci->main_hcd->rsrc_start +
+				GUSB3PIPECTL_OFFSET, SZ_4);
+
+	reg = readl(rx_det_lfps_con_reg);
+	reg &= ~RX_DETECT_LFPS_CON;
+	writel(reg, rx_det_lfps_con_reg);
+}
+#endif
 
 static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
 {
@@ -111,16 +156,34 @@ void xhci_quiesce(struct xhci_hcd *xhci)
  */
 int xhci_halt(struct xhci_hcd *xhci)
 {
-	int ret;
+	int ret, i, retry = 5;
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "// Halt the HC");
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	xhci_info(xhci, "%s\n", __func__);
+#endif
 	xhci_quiesce(xhci);
 
 	ret = xhci_handshake(&xhci->op_regs->status,
 			STS_HALT, STS_HALT, XHCI_MAX_HALT_USEC);
 	if (ret) {
 		xhci_warn(xhci, "Host halt failed, %d\n", ret);
+		xhci_info(xhci, "Resetting HCD\n");
+		/* Reset the internal HC memory state and registers. */
+		for (i = 0; i < retry; i++) {
+			ret = xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+			if (!ret) {
+				xhci_info(xhci, "Reset complete\n");
+				ret = xhci_handshake(&xhci->op_regs->status,
+						STS_HALT, STS_HALT, XHCI_MAX_HALT_USEC);
+				if (!ret)
+					goto out;
+			}
+		}
+		xhci_warn(xhci, "Host halt retry failed, %d\n", ret);
+		usb3_portsc = NULL;
 		return ret;
 	}
+out:
 	xhci->xhc_state |= XHCI_STATE_HALTED;
 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
 	return ret;
@@ -220,6 +283,12 @@ int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
 	xhci->usb3_rhub.bus_state.port_c_suspend = 0;
 	xhci->usb3_rhub.bus_state.suspended_ports = 0;
 	xhci->usb3_rhub.bus_state.resuming_ports = 0;
+
+#if defined(CONFIG_USB_DWC3_EXYNOS)
+	/* Exynos specific configurations for cleared register after reset */
+	xhci_info(xhci, "Set SOC Specific Configuration after RESET.\n");
+	xhci_soc_config_after_reset(xhci);
+#endif
 
 	return ret;
 }
@@ -663,8 +732,13 @@ int xhci_run(struct usb_hcd *hcd)
 	temp_64 = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
 	temp_64 &= ~ERST_PTR_MASK;
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
-			"ERST deq = 64'h%0lx", (long unsigned int) temp_64);
+			"ERST deq = 64'h%0lx", (unsigned long) temp_64);
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	temp_64 = xhci_read_64(xhci, &xhci->ir_set_audio->erst_dequeue);
+	temp_64 &= ~ERST_PTR_MASK;
+	xhci_info(xhci,	"ERST2 deq = 64'h%0lx", (unsigned long) temp_64);
+#endif
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 			"// Set the interrupt modulation register");
 	temp = readl(&xhci->ir_set->irq_control);
@@ -672,6 +746,17 @@ int xhci_run(struct usb_hcd *hcd)
 	temp |= (xhci->imod_interval / 250) & ER_IRQ_INTERVAL_MASK;
 	writel(temp, &xhci->ir_set->irq_control);
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	xhci_info(xhci, "// [USB Audio] Set the interrupt modulation register");
+	temp = readl(&xhci->ir_set_audio->irq_control);
+	temp &= ~ER_IRQ_INTERVAL_MASK;
+	/*
+	 * the increment interval is 8 times as much as that defined
+	 * in xHCI spec on MTK's controller
+	 */
+	temp |= (u32) ((xhci->quirks & XHCI_MTK_HOST) ? 20 : 160);
+	writel(temp, &xhci->ir_set_audio->irq_control);
+#endif
 	/* Set the HCD state before we enable the irqs */
 	temp = readl(&xhci->op_regs->command);
 	temp |= (CMD_EIE);
@@ -685,6 +770,13 @@ int xhci_run(struct usb_hcd *hcd)
 			xhci->ir_set, (unsigned int) ER_IRQ_ENABLE(temp));
 	writel(ER_IRQ_ENABLE(temp), &xhci->ir_set->irq_pending);
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	temp = readl(&xhci->ir_set_audio->irq_pending);
+	xhci_info(xhci, "// [USB Audio] Enabling event ring interrupter %p by writing 0x%x to irq_pending",
+			xhci->ir_set_audio, (unsigned int) ER_IRQ_ENABLE(temp));
+	writel(ER_IRQ_ENABLE(temp), &xhci->ir_set_audio->irq_pending);
+	g_hwinfo = devm_kzalloc(hcd->self.sysdev, sizeof(struct hcd_hw_info), GFP_KERNEL);
+#endif
 	if (xhci->quirks & XHCI_NEC_HOST) {
 		struct xhci_command *command;
 
@@ -2964,6 +3056,11 @@ int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
 		/* Callee should call reset_bandwidth() */
 		goto command_cleanup;
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	xhci_set_deq(xhci, virt_dev->out_ctx,
+		LAST_CTX_TO_EP_NUM(le32_to_cpu(slot_ctx->dev_info)), udev);
+#endif
+
 	/* Free any rings that were dropped, but not changed. */
 	for (i = 1; i < 31; i++) {
 		if ((le32_to_cpu(ctrl_ctx->drop_flags) & (1 << (i + 1))) &&
@@ -3932,6 +4029,10 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	if (ret <= 0 && ret != -ENODEV)
 		return;
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	xhci_free_hw_info(hcd, udev);
+#endif
+
 	virt_dev = xhci->devs[udev->slot_id];
 	slot_ctx = xhci_get_slot_ctx(xhci, virt_dev->out_ctx);
 	trace_xhci_free_dev(slot_ctx);
@@ -4016,6 +4117,84 @@ static int xhci_reserve_host_control_ep_resources(struct xhci_hcd *xhci)
 	return 0;
 }
 
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+int xhci_store_hw_info(struct usb_hcd *hcd, struct usb_device *udev)
+{
+	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+	struct xhci_virt_device *virt_dev;
+	struct xhci_erst_entry *entry = &xhci->erst_audio.entries[0];
+
+	virt_dev = xhci->devs[udev->slot_id];
+
+	g_hwinfo->dcbaa_dma = xhci->dcbaa->dma;
+	g_hwinfo->save_dma = xhci->save_dma;
+	g_hwinfo->cmd_ring = xhci->op_regs->cmd_ring;
+	g_hwinfo->slot_id = udev->slot_id;
+	g_hwinfo->in_dma = xhci->in_dma;
+	g_hwinfo->in_buf = xhci->in_addr;
+	g_hwinfo->out_dma = xhci->out_dma;
+	g_hwinfo->out_buf = xhci->out_addr;
+	g_hwinfo->in_ctx = virt_dev->in_ctx->dma;
+	g_hwinfo->out_ctx = virt_dev->out_ctx->dma;
+	g_hwinfo->erst_addr = entry->seg_addr;
+	g_hwinfo->speed = udev->speed;
+	if (xhci->quirks & XHCI_USE_URAM_FOR_EXYNOS_AUDIO)
+		g_hwinfo->use_uram = true;
+	else
+		g_hwinfo->use_uram = false;
+
+	pr_info("<<< %s\n", __func__);
+	return 0;
+}
+
+int xhci_free_hw_info(struct usb_hcd *hcd, struct usb_device *udev)
+{
+	pr_info("<<< %s\n", __func__);
+	return 0;
+}
+
+int xhci_set_deq(struct xhci_hcd *xhci, struct xhci_container_ctx *ctx,
+		unsigned int last_ep, struct usb_device *udev)
+{
+	int i;
+	int last_ep_ctx = 31;
+
+	/* Use default hwinfo in case
+	 * there are no audio devices occupied
+	 */
+
+	if (last_ep < 31)
+		last_ep_ctx = last_ep + 1;
+	for (i = 0; i < last_ep_ctx; ++i) {
+		unsigned int epaddr = xhci_get_endpoint_address(i);
+		struct xhci_ep_ctx *ep_ctx = xhci_get_ep_ctx(xhci, ctx, i);
+
+		if (epaddr == g_hwinfo->in_ep) {
+			pr_info("[%s] set in deq : %#08llx\n",
+					__func__, ep_ctx->deq);
+			g_hwinfo->old_in_deq = g_hwinfo->in_deq;
+			g_hwinfo->in_deq = ep_ctx->deq;
+		} else if (epaddr == g_hwinfo->out_ep) {
+			pr_info("[%s] set out deq : %#08llx\n",
+					__func__, ep_ctx->deq);
+			g_hwinfo->old_out_deq = g_hwinfo->out_deq;
+			g_hwinfo->out_deq = ep_ctx->deq;
+		} else if (epaddr == g_hwinfo->fb_out_ep) {
+			pr_info("[%s] set fb out deq : %#08llx\n",
+					__func__, ep_ctx->deq);
+			g_hwinfo->fb_old_out_deq = g_hwinfo->fb_out_deq;
+			g_hwinfo->fb_out_deq = ep_ctx->deq;
+		} else if (epaddr == g_hwinfo->fb_in_ep) {
+			pr_info("[%s] set fb in deq : %#08llx\n",
+					__func__, ep_ctx->deq);
+			g_hwinfo->fb_old_in_deq = g_hwinfo->fb_in_deq;
+			g_hwinfo->fb_in_deq = ep_ctx->deq;
+		}
+	}
+
+	return 0;
+}
+#endif
 
 /*
  * Returns 0 if the xHC ran out of device slots, the Enable Slot command
@@ -4284,6 +4463,9 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
 	xhci_dbg_trace(xhci, trace_xhci_dbg_address,
 		       "Internal device address = %d",
 		       le32_to_cpu(slot_ctx->dev_state) & DEV_ADDR_MASK);
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+	xhci_store_hw_info(hcd, udev);
+#endif
 out:
 	mutex_unlock(&xhci->mutex);
 	if (command) {
@@ -5369,6 +5551,120 @@ static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
 	xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_CLEARING_TT;
 	xhci_ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
 	spin_unlock_irqrestore(&xhci->lock, flags);
+}
+
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO
+void xhci_usb_parse_endpoint(struct usb_device *udev, struct usb_endpoint_descriptor *desc, int size)
+{
+	struct usb_endpoint_descriptor *d = desc;
+
+	g_hwinfo->rawdesc_length = size;
+
+	if (( d->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK ) ==
+				USB_ENDPOINT_XFER_ISOC) {
+		if ((d->bmAttributes & USB_ENDPOINT_USAGE_MASK) ==
+					USB_ENDPOINT_USAGE_FEEDBACK) {
+			/* Only Feedback endpoint(Not implict feedback data endpoint) */
+			if (d->bEndpointAddress & USB_ENDPOINT_DIR_MASK) {
+				g_hwinfo->fb_in_ep =
+					d->bEndpointAddress;
+				pr_info("Feedback IN ISO endpoint #0%x 0x%x\n",
+					d->bEndpointAddress, d->bSynchAddress);
+			} else {
+				g_hwinfo->fb_out_ep =
+					d->bEndpointAddress;
+				pr_info("Feedback OUT ISO endpoint #0%x 0x%x\n",
+					d->bEndpointAddress, d->bSynchAddress);
+			}
+		} else {
+			/* Data Stream Endpoint only */
+			if (d->bEndpointAddress & USB_ENDPOINT_DIR_MASK) {
+				if (d->bEndpointAddress != g_hwinfo->fb_in_ep) {
+					g_hwinfo->in_ep =
+						d->bEndpointAddress;
+					pr_info(" This is IN ISO endpoint #0%x 0x%x\n",
+						d->bEndpointAddress, d->bSynchAddress);
+				} else
+					pr_info("IN ISO endpoint is same with FB #0%x\n",
+						d->bEndpointAddress);
+				if ((d->bLength > 7) && (d->bSynchAddress != 0x0)) {
+					g_hwinfo->fb_out_ep =
+						d->bSynchAddress;
+					pr_info("Feedback OUT ISO endpoint #0%x 0x%x\n",
+						d->bEndpointAddress, d->bSynchAddress);
+				}
+			} else {
+				g_hwinfo->out_ep =
+					d->bEndpointAddress;
+				pr_info(" This is OUT ISO endpoint #0%x 0x%x\n",
+					d->bEndpointAddress, d->bSynchAddress);
+				if ((d->bLength > 7) && (d->bSynchAddress != 0x0)) {
+					g_hwinfo->fb_in_ep =
+						d->bSynchAddress;
+					pr_info("Feedback IN ISO endpoint #0%x 0x%x\n",
+						d->bEndpointAddress, d->bSynchAddress);
+				}
+			}
+		}
+	}
+
+}
+EXPORT_SYMBOL_GPL(xhci_usb_parse_endpoint);
+#endif
+#ifdef CONFIG_USB_DWC3_EXYNOS
+extern int get_idle_ip_index(void);
+#endif
+
+int xhci_wake_lock(struct usb_hcd *hcd, int is_lock) {
+	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+#ifdef CONFIG_USB_DWC3_EXYNOS
+	int idle_ip_index;
+#endif
+
+	if (xhci->xhc_state & XHCI_STATE_REMOVING) {
+		xhci_info(xhci, "%s - Host removing return!\n",
+				__func__);
+		return -ESHUTDOWN;
+	}
+
+	if (is_lock) {
+		if (hcd == xhci->main_hcd) {
+			xhci_info(xhci, "%s: Main HCD WAKE LOCK\n", __func__);
+			__pm_stay_awake(xhci->main_wakelock);
+		} else {
+			xhci_info(xhci, "%s: Shared HCD WAKE LOCK\n", __func__);
+			__pm_stay_awake(xhci->shared_wakelock);
+		}
+		/* Add a routine for disable IDLEIP (IP idle) */
+#ifdef CONFIG_USB_DWC3_EXYNOS
+		xhci_info(xhci, "IDLEIP(SICD) disable.\n");
+		idle_ip_index = get_idle_ip_index();
+		pr_info("%s, usb idle ip = %d\n", __func__, idle_ip_index);
+		exynos_update_ip_idle_status(idle_ip_index, 0);
+#endif
+	} else {
+		if (hcd == xhci->main_hcd) {
+			xhci_info(xhci, "%s: Main HCD WAKE UNLOCK\n", __func__);
+			__pm_relax(xhci->main_wakelock);
+		} else {
+			xhci_info(xhci, "%s: Shared HCD WAKE UNLOCK\n", __func__);
+			__pm_relax(xhci->shared_wakelock);
+		}
+#ifdef CONFIG_USB_DWC3_EXYNOS
+		xhci_info(xhci, "Try to IDLEIP Enable - HS: %d, SS:%d\n",
+				xhci->main_wakelock->active, xhci->shared_wakelock->active);
+
+		/* Add a routine for enable IDLEIP (IP idle) */
+		if (!xhci->main_wakelock->active && !xhci->shared_wakelock->active) {
+			xhci_info(xhci, "IDLEIP(SICD) Enable.\n");
+			idle_ip_index = get_idle_ip_index();
+			pr_info("%s, usb idle ip = %d\n", __func__, idle_ip_index);
+			exynos_update_ip_idle_status(idle_ip_index, 1);
+		}
+#endif
+	}
+
+	return 0;
 }
 
 static const struct hc_driver xhci_hc_driver = {

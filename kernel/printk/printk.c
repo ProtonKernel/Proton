@@ -55,6 +55,7 @@
 #include <trace/events/initcall.h>
 #define CREATE_TRACE_POINTS
 #include <trace/events/printk.h>
+#include <soc/samsung/debug-snapshot.h>
 #undef CREATE_TRACE_POINTS
 #include <trace/hooks/debug.h>
 
@@ -380,6 +381,16 @@ struct printk_log {
 #ifdef CONFIG_PRINTK_CALLER
 	u32 caller_id;            /* thread id or processor id */
 #endif
+#ifdef CONFIG_PRINTK_PROCESS
+	char process[16];	/* process name */
+	pid_t pid;		/* process id */
+	u8 cpu;			/* cpu id */
+	u8 in_interrupt;	/* interrupt context */
+#endif
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+	u8 for_auto_comment;
+	u8 type_auto_comment;
+#endif
 }
 #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
 __packed __aligned(4)
@@ -446,7 +457,17 @@ static u64 exclusive_console_stop_seq;
 static u64 clear_seq;
 static u32 clear_idx;
 
-#ifdef CONFIG_PRINTK_CALLER
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+/* the next printk record to read after the last 'clear_knox' command */
+static u64 clear_seq_knox;
+static u32 clear_idx_knox;
+
+#define SYSLOG_ACTION_READ_CLEAR_KNOX 99
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
+
+#if defined(CONFIG_PRINTK_CALLER) && defined(CONFIG_PRINTK_PROCESS)
+#define PREFIX_MAX		64
+#elif defined(CONFIG_PRINTK_CALLER) || defined(CONFIG_PRINTK_PROCESS)
 #define PREFIX_MAX		48
 #else
 #define PREFIX_MAX		32
@@ -571,6 +592,14 @@ static int log_make_free_space(u32 msg_size)
 		clear_idx = log_first_idx;
 	}
 
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	/* messages are gone, move to first available one */
+	if (clear_seq_knox < log_first_seq) {
+		clear_seq_knox = log_first_seq;
+		clear_idx_knox = log_first_idx;
+	}
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
+
 	/* sequence numbers are equal, so the log buffer is empty */
 	if (logbuf_has_space(msg_size, log_first_seq == log_next_seq))
 		return 0;
@@ -588,6 +617,51 @@ static u32 msg_used_size(u16 text_len, u16 dict_len, u32 *pad_len)
 	size += *pad_len;
 
 	return size;
+}
+
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+static void (*func_hook_auto_comm)(int type, const char *buf, size_t size);
+void register_set_auto_comm_buf(void (*func)(int type, const char *buf, size_t size))
+{
+	func_hook_auto_comm = func;
+}
+#endif
+
+static size_t hook_size;
+static char hook_text[LOG_LINE_MAX + PREFIX_MAX];
+static hook_func_t func_hook_logbuf;
+static size_t msg_print_text(const struct printk_log *msg, bool syslog,
+			     bool time, char *buf, size_t size);
+void register_hook_logbuf(hook_func_t func)
+{
+	unsigned long flags;
+
+	if (!func)
+		return;
+
+	raw_spin_lock_irqsave(&logbuf_lock, flags);
+	/*
+	 * In register hooking function,  we should check messages already
+	 * printed on log_buf. If so, they will be copyied to backup
+	 * exynos log buffer
+	 * */
+	if (log_first_seq != log_next_seq) {
+		unsigned int step, step_idx = log_first_idx;
+		struct printk_log *msg;
+
+		for (step = log_first_seq; step < log_next_seq; step++) {
+			msg = (struct printk_log *)(log_buf + step_idx);
+			hook_size = msg_print_text(msg, false, true,
+					hook_text, LOG_LINE_MAX + PREFIX_MAX);
+			func(hook_text, hook_size, DSS_ITEM_KERNEL_ID);
+			func(hook_text, hook_size, DSS_ITEM_FIRST_ID);
+			if (msg->level <= LOGLEVEL_ERR)
+				func(hook_text, hook_size, DSS_ITEM_FATAL_ID);
+			step_idx = log_next(step_idx);
+		}
+	}
+	func_hook_logbuf = func;
+	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
 }
 
 /*
@@ -659,6 +733,13 @@ static int log_store(u32 caller_id, int facility, int level,
 	memcpy(log_dict(msg), dict, dict_len);
 	msg->dict_len = dict_len;
 	msg->facility = facility;
+
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+	msg->for_auto_comment = (level / 10 == 9) ? 1 : 0;
+	msg->type_auto_comment = (level / 10 == 9) ? level - LOGLEVEL_PR_AUTO_BASE : 0;
+	level = (msg->for_auto_comment) ? 0 : level;
+#endif
+
 	msg->level = level & 7;
 	msg->flags = flags & 0x1f;
 	if (ts_nsec > 0)
@@ -670,6 +751,30 @@ static int log_store(u32 caller_id, int facility, int level,
 #endif
 	memset(log_dict(msg) + dict_len, 0, pad_len);
 	msg->len = size;
+#ifdef CONFIG_PRINTK_PROCESS
+	strncpy(msg->process, current->comm, sizeof(msg->process) - 1);
+	msg->process[sizeof(msg->process) - 1] = '\0';
+	msg->pid = task_pid_nr(current);
+	msg->cpu = smp_processor_id();
+	msg->in_interrupt = in_interrupt() ? 1 : 0;
+#endif
+	if (func_hook_logbuf) {
+		hook_size = msg_print_text(msg, false, true,
+				hook_text, LOG_LINE_MAX + PREFIX_MAX);
+		func_hook_logbuf(hook_text, hook_size, DSS_ITEM_KERNEL_ID);
+		func_hook_logbuf(hook_text, hook_size, DSS_ITEM_FIRST_ID);
+		if (msg->facility && task_pid_nr(current) == 1)
+			func_hook_logbuf(hook_text, hook_size,
+					DSS_ITEM_INIT_TASK_ID);
+		if (msg->level <= LOGLEVEL_ERR)
+			func_hook_logbuf(hook_text, hook_size,
+					DSS_ITEM_FATAL_ID);
+
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+		if (msg->for_auto_comment && func_hook_auto_comm)
+			func_hook_auto_comm(msg->type_auto_comment, hook_text, hook_size);
+#endif
+	}
 
 	/* insert message */
 	log_next_idx += msg->len;
@@ -834,13 +939,14 @@ static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 	/* Ignore when user logging is disabled. */
 	if (devkmsg_log & DEVKMSG_LOG_MASK_OFF)
 		return len;
-
+    
 	/* Ratelimit when not explicitly enabled. */
+	/*
 	if (!(devkmsg_log & DEVKMSG_LOG_MASK_ON)) {
 		if (!___ratelimit(&user->rs, current->comm))
 			return ret;
 	}
-
+	*/
 	buf = kmalloc(len+1, GFP_KERNEL);
 	if (buf == NULL)
 		return -ENOMEM;
@@ -1316,6 +1422,22 @@ static size_t print_caller(u32 id, char *buf)
 #else
 #define print_caller(id, buf) 0
 #endif
+#ifdef CONFIG_PRINTK_PROCESS
+static size_t print_process(const struct printk_log *msg, char *buf)
+
+{
+	if (!buf)
+		return snprintf(NULL, 0, "%c[%1d:%15s:%5d] ", ' ', 0, " ", 0);
+
+	return sprintf(buf, "%c[%1d:%15s:%5d]",
+			msg->in_interrupt ? 'I' : ' ',
+			msg->cpu,
+			msg->process,
+			msg->pid);
+}
+#else
+#define print_process(msg, buf) 0
+#endif
 
 static size_t print_prefix(const struct printk_log *msg, bool syslog,
 			   bool time, char *buf)
@@ -1328,6 +1450,7 @@ static size_t print_prefix(const struct printk_log *msg, bool syslog,
 	if (time)
 		len += print_time(msg->ts_nsec, buf + len);
 
+	len += print_process(msg, buf ? buf + len : NULL);
 	len += print_caller(msg->caller_id, buf + len);
 
 	if (IS_ENABLED(CONFIG_PRINTK_CALLER) || time) {
@@ -1448,7 +1571,14 @@ static int syslog_print(char __user *buf, int size)
 	return len;
 }
 
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+/*
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 static int syslog_print_all(char __user *buf, int size, bool clear)
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+*/
+static int syslog_print_all(char __user *buf, int size, bool clear, bool knox)
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 {
 	char *text;
 	int len = 0;
@@ -1467,8 +1597,21 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 	 * Find first record that fits, including all following records,
 	 * into the user-provided buffer for this dump.
 	 */
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	/*
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	seq = clear_seq;
 	idx = clear_idx;
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	*/
+	if (!knox) {
+		seq = clear_seq;
+		idx = clear_idx;
+	} else { //MDM edmaudit
+		seq = clear_seq_knox;
+		idx = clear_idx_knox;
+	}
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	while (seq < log_next_seq) {
 		struct printk_log *msg = log_from_idx(idx);
 
@@ -1478,8 +1621,21 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 	}
 
 	/* move first record forward until length fits into the buffer */
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	/*
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	seq = clear_seq;
 	idx = clear_idx;
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	*/
+	if (!knox) {
+		seq = clear_seq;
+		idx = clear_idx;
+	} else { // MDM edmaudit
+		seq = clear_seq_knox;
+		idx = clear_idx_knox;
+	}
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	while (len > size && seq < log_next_seq) {
 		struct printk_log *msg = log_from_idx(idx);
 
@@ -1515,8 +1671,21 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 	}
 
 	if (clear) {
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	/*
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 		clear_seq = log_next_seq;
 		clear_idx = log_next_idx;
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	*/
+		if (!knox) {
+			clear_seq = log_next_seq;
+			clear_idx = log_next_idx;
+		} else { //MDM edmaudit
+			clear_seq_knox = log_next_seq;
+			clear_idx_knox = log_next_idx;
+		}
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	}
 	logbuf_unlock_irq();
 
@@ -1572,7 +1741,14 @@ int do_syslog(int type, char __user *buf, int len, int source)
 			return 0;
 		if (!access_ok(buf, len))
 			return -EFAULT;
+		// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+		/*
+		// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 		error = syslog_print_all(buf, len, clear);
+		// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+		*/
+		error = syslog_print_all(buf, len, clear, false);
+		// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 		break;
 	/* Clear ring buffer */
 	case SYSLOG_ACTION_CLEAR:
@@ -1639,11 +1815,28 @@ int do_syslog(int type, char __user *buf, int len, int source)
 	case SYSLOG_ACTION_SIZE_BUFFER:
 		error = log_buf_len;
 		break;
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+	case SYSLOG_ACTION_READ_CLEAR_KNOX:
+		error = -EINVAL;
+		if (!buf || len < 0)
+			goto out;
+		error = 0;
+		if (!len)
+			goto out;
+		if (!access_ok(buf, len)) {
+			error = -EFAULT;
+			goto out;
+		}
+		error = syslog_print_all(buf, len, /* clear */ true, /* knox */true);
+		break;
+	// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	default:
 		error = -EINVAL;
 		break;
 	}
-
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM {
+out:
+// SecProductFeature_KNOX.SEC_PRODUCT_FEATURE_KNOX_SUPPORT_MDM }
 	return error;
 }
 
@@ -1964,6 +2157,12 @@ int vprintk_store(int facility, int level,
 				if (level == LOGLEVEL_DEFAULT)
 					level = kern_level - '0';
 				break;
+#ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
+			case 'B' ... 'J':
+				if (level == LOGLEVEL_DEFAULT)
+					level = LOGLEVEL_PR_AUTO_BASE + (kern_level - 'A'); /* 91 ~ 99 */
+				break;
+#endif
 			case 'c':	/* KERN_CONT */
 				lflags |= LOG_CONT;
 			}

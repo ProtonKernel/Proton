@@ -1,0 +1,22 @@
+menuconfig EXYNOS_DSP
+	tristate "EXYNOS dsp common driver"
+
+if EXYNOS_DSP
+
+config EXYNOS_DSP_HW_N1
+	bool "Enable dsp driver for HW_N1"
+	default n
+
+config EXYNOS_DSP_HW_N3
+	bool "Enable dsp driver for HW_N3"
+	default n
+
+config EXYNOS_DSP_HW_O1
+	bool "Enable dsp driver for HW_O1"
+	default n
+
+config EXYNOS_DSP_HW_O3
+	bool "Enable dsp driver for HW_O3"
+	default n
+
+endif

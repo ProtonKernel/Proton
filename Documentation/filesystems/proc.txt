@@ -147,6 +147,7 @@ Table 1-1: Process specific entries in /proc
  maps		Memory maps to executables and library files	(2.4)
  mem		Memory held by this process
  root		Link to the root directory of this process
+ reclaim	Reclaim pages in this process
  stat		Process status
  statm		Process memory status information
  status		Process status in human readable form
@@ -581,6 +582,20 @@ current value:
     > echo 5 > /proc/PID/clear_refs
 
 Any other value written to /proc/PID/clear_refs will have no effect.
+
+The file /proc/PID/reclaim is used to reclaim pages in this process.
+bit 1: file, bit 2: anon, bit 3: all
+
+To reclaim file-backed pages,
+    > echo 1 > /proc/PID/reclaim
+
+To reclaim anonymous pages,
+    > echo 2 > /proc/PID/reclaim
+
+To reclaim all pages,
+    > echo 3 > /proc/PID/reclaim
+
+If a page is shared by several processes, it cannot be reclaimed.
 
 The /proc/pid/pagemap gives the PFN, which can be used to find the pageflags
 using /proc/kpageflags and number of times a page is mapped using

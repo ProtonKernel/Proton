@@ -30,3 +30,6 @@ source "lib/Kconfig"
 source "lib/Kconfig.debug"
 
 source "Documentation/Kconfig"
+
+source "test/Kconfig"
+

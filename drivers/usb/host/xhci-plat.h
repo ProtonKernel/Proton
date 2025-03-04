@@ -21,4 +21,14 @@ struct xhci_plat_priv {
 
 #define hcd_to_xhci_priv(h) ((struct xhci_plat_priv *)hcd_to_xhci(h)->priv)
 #define xhci_to_priv(x) ((struct xhci_plat_priv *)(x)->priv)
+
+struct usb_xhci_pre_alloc {
+	u8 *pre_dma_alloc;
+	u64 offset;
+
+	dma_addr_t	dma;
+};
+
+extern struct usb_xhci_pre_alloc xhci_pre_alloc;
+
 #endif	/* _XHCI_PLAT_H */

@@ -224,6 +224,9 @@ void *radix_tree_delete(struct radix_tree_root *, unsigned long);
 unsigned int radix_tree_gang_lookup(const struct radix_tree_root *,
 			void **results, unsigned long first_index,
 			unsigned int max_items);
+unsigned int radix_tree_gang_lookup_index(const struct radix_tree_root *,
+			void **results, unsigned long *indices,
+			unsigned long first_index, unsigned int max_items);
 int radix_tree_preload(gfp_t gfp_mask);
 int radix_tree_maybe_preload(gfp_t gfp_mask);
 void radix_tree_init(void);

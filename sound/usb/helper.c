@@ -125,8 +125,15 @@ unsigned char snd_usb_parse_datainterval(struct snd_usb_audio *chip,
 	case USB_SPEED_WIRELESS:
 	case USB_SPEED_SUPER:
 	case USB_SPEED_SUPER_PLUS:
+#ifdef CONFIG_GKI_USB
+		pr_info("Data interval = %d\n",
+			get_endpoint(alts, 0)->bInterval);
+		if (get_endpoint(alts, 0)->bInterval >= 1 &&
+		    get_endpoint(alts, 0)->bInterval <= 7)
+#else
 		if (get_endpoint(alts, 0)->bInterval >= 1 &&
 		    get_endpoint(alts, 0)->bInterval <= 4)
+#endif
 			return get_endpoint(alts, 0)->bInterval - 1;
 		break;
 	default:

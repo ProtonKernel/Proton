@@ -1,0 +1,61 @@
+menuconfig CAMERA_FLASH_SELECT
+	bool "Flash select"
+	depends on EXYNOS_DEVICE_CAMERA_MODULE
+	help
+	  Say Y here to enable support for platform-specific V4L drivers.
+
+config CAMERA_FLASH_LM3560_OBJ
+	tristate "Use LM3560"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build LM3560 driver.
+
+config CAMERA_FLASH_RT5033_OBJ
+	tristate "Use RT5033"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build RT5033 driver.
+
+config CAMERA_FLASH_S2MPB02_OBJ
+	tristate "Use S2MPB02"
+	depends on CAMERA_FLASH_SELECT && MFD_S2MPB02
+	default n
+	help
+	  Use to build S2MPB02 driver.
+
+config CAMERA_FLASH_S2MU106_OBJ
+	tristate "Use S2MU106"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build S2MU106 driver.
+
+config CAMERA_FLASH_S2MU107_OBJ
+	tristate "Use S2MU107"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build S2MU107 driver.
+
+config CAMERA_FLASH_GPIO_OBJ
+	tristate "Use GPIO"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build GPIO driver.
+
+config CAMERA_FLASH_I2C_OBJ
+	tristate "Use I2C"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build I2C driver.
+
+config CAMERA_FLASH_KTD2692_OBJ
+	tristate "Use KTD2692"
+	depends on CAMERA_FLASH_SELECT
+	default n
+	help
+	  Use to build KTD2692 driver.

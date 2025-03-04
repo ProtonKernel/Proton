@@ -1,0 +1,23 @@
+config SEC_VIBRATOR
+	tristate "sec vibrator"
+	default n
+	help
+	  If you say yes here you will get support for the
+	  sec vibrator driver
+
+config SEC_VIB_NOTIFIER
+	tristate "use sec vibrator notifier"
+	default n
+	help
+	  Enable notifier functions to get motor enable status
+	  and timeout value by register notifiy
+	  If you unsure, please select n
+
+config SEC_VIBRATOR_TEST
+	bool "KUnit test for sec_vibrator_test"
+	depends on SEC_KUNIT
+	help
+	  This driver is for sec vibrator test driver
+	  sec vibrator kunit test
+	  If you want to add some functions,
+	  Please make the test case.

@@ -530,8 +530,12 @@ extern void sysrq_timer_list_show(void);
 int hrtimers_prepare_cpu(unsigned int cpu);
 #ifdef CONFIG_HOTPLUG_CPU
 int hrtimers_dead_cpu(unsigned int cpu);
+extern void save_pcpu_tick(int cpu);
+extern void restore_pcpu_tick(int cpu);
 #else
-#define hrtimers_dead_cpu	NULL
+static inline int hrtimers_dead_cpu(unsigned int cpu) {return 0;}
+static inline void save_pcpu_tick(int cpu) {}
+static inline void restore_pcpu_tick(int cpu) {}
 #endif
 
 #endif

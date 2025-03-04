@@ -205,6 +205,16 @@ static inline struct page *
 alloc_zeroed_user_highpage_movable(struct vm_area_struct *vma,
 					unsigned long vaddr)
 {
+#if defined(CONFIG_KZEROD)
+	struct page *page;
+
+	atomic_inc(&kzerod_zero_page_alloc_total);
+	page = alloc_zeroed_page();
+	if (page) {
+		atomic_inc(&kzerod_zero_page_alloc_prezero);
+		return page;
+	}
+#endif
 #ifndef CONFIG_CMA
 	return __alloc_zeroed_user_highpage(__GFP_MOVABLE, vma, vaddr);
 #else

@@ -1,0 +1,20 @@
+menuconfig CAMERA_EEPROM_SELECT
+	bool "Sensor eeprom select"
+	depends on EXYNOS_DEVICE_CAMERA_MODULE
+	help
+	  Say Y here to enable support for platform-specific V4L drivers.
+
+config CAMERA_EEPROM_GM1_OBJ
+	bool "Use GM1 EEPROM"
+	depends on CAMERA_EEPROM_SELECT
+	default n
+	help
+	  Use to build GM1 eeprom driver.
+
+config CAMERA_EEPROM_5E9_OBJ
+	bool "Use 5E9 EEPROM"
+	depends on CAMERA_EEPROM_SELECT
+	default n
+	help
+	  Use to build 5E9 eeprom driver.
+

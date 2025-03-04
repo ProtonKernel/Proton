@@ -27,6 +27,7 @@
 #define MADERA_FLL_SRC_NONE		-1
 #define MADERA_FLL_SRC_MCLK1		0
 #define MADERA_FLL_SRC_MCLK2		1
+#define MADERA_FLL_SRC_MCLK3		2
 #define MADERA_FLL_SRC_SLIMCLK		3
 #define MADERA_FLL_SRC_FLL1		4
 #define MADERA_FLL_SRC_FLL2		5
@@ -51,6 +52,7 @@
 
 #define MADERA_CLK_SRC_MCLK1		0x0
 #define MADERA_CLK_SRC_MCLK2		0x1
+#define MADERA_CLK_SRC_MCLK3		0x2
 #define MADERA_CLK_SRC_FLL1		0x4
 #define MADERA_CLK_SRC_FLL2		0x5
 #define MADERA_CLK_SRC_FLL3		0x6
@@ -286,6 +288,9 @@ extern const unsigned int madera_mixer_values[MADERA_NUM_MIXER_INPUTS];
 	MADERA_MIXER_ROUTES(name, name "L"),		\
 	MADERA_MIXER_ROUTES(name, name "R")
 
+#define MADERA_SAMPLE_RATE_CONTROL(name, domain) \
+	SOC_ENUM(name, madera_sample_rate[(domain) - 2])
+
 #define MADERA_RATE_ENUM(xname, xenum) \
 {	.iface = SNDRV_CTL_ELEM_IFACE_MIXER, .name = xname,\
 	.info = snd_soc_info_enum_double, \
@@ -335,8 +340,13 @@ extern const struct soc_enum madera_isrc_fsh[];
 extern const struct soc_enum madera_asrc1_rate[];
 extern const struct soc_enum madera_asrc1_bidir_rate[];
 extern const struct soc_enum madera_asrc2_rate[];
+extern const struct soc_enum madera_output_rate;
+extern const struct soc_enum madera_output_ext_rate;
+extern const struct soc_enum madera_input_rate[];
 extern const struct soc_enum madera_dfc_width[];
 extern const struct soc_enum madera_dfc_type[];
+extern const struct soc_enum madera_fx_rate;
+extern const struct soc_enum madera_spdif_rate;
 
 extern const struct soc_enum madera_in_vi_ramp;
 extern const struct soc_enum madera_in_vd_ramp;
@@ -367,6 +377,8 @@ int madera_dfc_put(struct snd_kcontrol *kcontrol,
 
 int madera_lp_mode_put(struct snd_kcontrol *kcontrol,
 		       struct snd_ctl_elem_value *ucontrol);
+int madera_in_rate_put(struct snd_kcontrol *kcontrol,
+		       struct snd_ctl_elem_value *ucontrol);
 
 int madera_out1_demux_put(struct snd_kcontrol *kcontrol,
 			  struct snd_ctl_elem_value *ucontrol);
@@ -381,6 +393,8 @@ int madera_eq_coeff_put(struct snd_kcontrol *kcontrol,
 int madera_lhpf_coeff_put(struct snd_kcontrol *kcontrol,
 			  struct snd_ctl_elem_value *ucontrol);
 
+int madera_clk_ev(struct snd_soc_dapm_widget *w,
+		  struct snd_kcontrol *kcontrol, int event);
 int madera_sysclk_ev(struct snd_soc_dapm_widget *w,
 		     struct snd_kcontrol *kcontrol, int event);
 int madera_spk_ev(struct snd_soc_dapm_widget *w,
@@ -418,8 +432,14 @@ int madera_core_init(struct madera_priv *priv);
 int madera_core_free(struct madera_priv *priv);
 int madera_init_overheat(struct madera_priv *priv);
 int madera_free_overheat(struct madera_priv *priv);
-int madera_init_inputs(struct snd_soc_component *component);
-int madera_init_outputs(struct snd_soc_component *component, int n_mono_routes);
+int madera_init_inputs(struct snd_soc_component *component,
+		       const char * const *dmic_inputs,
+		       int n_dmic_inputs,
+		       const char * const *dmic_refs,
+		       int n_dmic_refs);
+int madera_init_outputs(struct snd_soc_component *component,
+			const struct snd_soc_dapm_route *routes,
+			int n_mono_routes, int n_real);
 int madera_init_bus_error_irq(struct madera_priv *priv, int dsp_num,
 			      irq_handler_t handler);
 void madera_free_bus_error_irq(struct madera_priv *priv, int dsp_num);

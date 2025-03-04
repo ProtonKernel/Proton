@@ -1,0 +1,22 @@
+obj-$(CONFIG_CAMERA_ACT_AK7348_OBJ) += is-actuator-ak7348.o
+obj-$(CONFIG_CAMERA_ACT_AK7345_OBJ) += is-actuator-ak7345.o
+obj-$(CONFIG_CAMERA_ACT_AK7371_OBJ) += is-actuator-ak7371.o
+obj-$(CONFIG_CAMERA_ACT_AK7372_OBJ) += is-actuator-ak7372.o
+obj-$(CONFIG_CAMERA_ACT_AK737X_OBJ) += is-actuator-ak737x.o
+obj-$(CONFIG_CAMERA_ACT_DW9714_OBJ) += is-actuator-dw9714.o
+obj-$(CONFIG_CAMERA_ACT_DW9780_OBJ) += is-actuator-dw9780.o
+obj-$(CONFIG_CAMERA_ACT_DW9804_OBJ) += is-actuator-dw9804.o
+obj-$(CONFIG_CAMERA_ACT_DW9807_OBJ) += is-actuator-dw9807.o
+obj-$(CONFIG_CAMERA_ACT_DW9808_OBJ) += is-actuator-dw9808.o
+obj-$(CONFIG_CAMERA_ACT_DW9823_OBJ) += is-actuator-dw9823.o
+obj-$(CONFIG_CAMERA_ACT_DW9839_OBJ) += is-actuator-dw9839.o
+obj-$(CONFIG_CAMERA_ACT_LC898217_OBJ) += is-actuator-lc898217.o
+obj-$(CONFIG_CAMERA_ACT_ZC533_OBJ) += is-actuator-zc533.o
+obj-$(CONFIG_CAMERA_ACT_ZC569_OBJ) += is-actuator-zc569.o
+
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera/include
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera/vendor
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera/hardware/api
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera/sensor
+EXTRA_CFLAGS += -I$(srctree)/drivers/media/platform/exynos/camera/sensor/module_framework

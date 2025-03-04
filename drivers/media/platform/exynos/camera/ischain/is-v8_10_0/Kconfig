@@ -1,0 +1,13 @@
+config PABLO_V8_10_0
+	bool "Use PABLO v8.10.0"
+	depends on SOC_EXYNOS9630
+	select EXYNOS_DEVICE_MIPI_CSIS_VER4
+	select CSIS_V5_3
+	select CAMERA_CIS_SELECT
+	select CAMERA_ACT_SELECT
+	select CAMERA_FLASH_SELECT
+	select CAMERA_PDP
+	select MC_SCALER_V8_10
+	select PDP_V1_0_0
+	help
+	  PABLO ISP version 8.0.0

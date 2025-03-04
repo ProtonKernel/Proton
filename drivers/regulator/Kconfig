@@ -1105,5 +1105,50 @@ config REGULATOR_WM8994
 	  This driver provides support for the voltage regulators on the
 	  WM8994 CODEC.
 
-endif
+config REGULATOR_S2MPS19
+	tristate "Samsung S2MPS19 voltage regulator"
+	depends on MFD_S2MPS19
+	help
+	  This driver supports a Samsung S2MPS19 voltage output regulator
+	  via I2C bus. S2MPS19 is comprised of high efficient Buck converters
+	  including Dual-Phase Buck converter, Buck-Boost converter, various LDOs.
 
+config REGULATOR_S2MPS20
+	tristate "Samsung S2MPS20 voltage regulator"
+	depends on MFD_S2MPS20
+	help
+	  This driver supports a Samsung S2MPS20 voltage output regulator
+	  via I2C bus. S2MPS20 is comprised of high efficient Buck converters
+	  including Dual-Phase Buck converter, Buck-Boost converter, various LDOs.
+
+config REGULATOR_S2MPS23
+	tristate "Samsung S2MPS23 voltage regulator"
+	depends on MFD_S2MPS23
+	help
+	  This driver supports a Samsung S2MPS23 voltage output regulator
+	  via I2C bus. S2MPS23 is comprised of high efficient Buck converters
+	  including Dual-Phase Buck converter, Buck-Boost converter, various LDOs.
+
+config REGULATOR_S2MPS24
+	tristate "Samsung S2MPS24 voltage regulator"
+	depends on MFD_S2MPS24
+	help
+	  This driver supports a Samsung S2MPS24 voltage output regulator
+	  via I2C bus. S2MPS24 is comprised of high efficient Buck converters
+	  including Dual-Phase Buck converter, Buck-Boost converter, various LDOs.
+
+config REGULATOR_S2MPB02
+	tristate "Samsung S2MPB02 regulator"
+	depends on MFD_S2MPB02
+	help
+	  This driver controls a Samsung S2MPB02 regulator
+	  via I2C bus.
+
+config REGULATOR_S2MPB03
+	tristate "Samsung S2MPB03 regulator"
+	depends on I2C
+	help
+	  This driver controls a Samsung S2MPB03 regulator
+	  via I2C bus.
+
+endif

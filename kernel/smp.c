@@ -21,6 +21,7 @@
 #include <linux/sched/idle.h>
 #include <linux/hypervisor.h>
 
+#include <soc/samsung/debug-snapshot.h>
 #include "smpboot.h"
 
 enum {
@@ -239,6 +240,7 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		smp_call_func_t func = csd->func;
 		void *info = csd->info;
 
+		dbg_snapshot_irq(DSS_FLAG_SMP_CALL_FN, func, NULL, 0, DSS_FLAG_IN);
 		/* Do we wait until *after* callback? */
 		if (csd->flags & CSD_FLAG_SYNCHRONOUS) {
 			func(info);
@@ -247,6 +249,7 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 			csd_unlock(csd);
 			func(info);
 		}
+		dbg_snapshot_irq(DSS_FLAG_SMP_CALL_FN, func, NULL, 0, DSS_FLAG_OUT);
 	}
 
 	/*

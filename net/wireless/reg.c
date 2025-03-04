@@ -3958,9 +3958,26 @@ void regulatory_propagate_dfs_state(struct wiphy *wiphy,
 	}
 }
 
+unsigned int lpcharge;
+static int is_lpm_check(char *str)
+{
+        if (strncmp(str, "charger", 7) == 0)
+                lpcharge = 1;
+
+        pr_info("%s: Low power charging mode: %d\n", __func__, lpcharge);
+
+        return lpcharge;
+}
+__setup("androidboot.mode=", is_lpm_check);
+
 static int __init regulatory_init_db(void)
 {
 	int err;
+
+	if(lpcharge) {
+		pr_info("%s: skip regulatory_init_db due to lpm mode.\n", __func__);
+		return 0;
+	}
 
 	/*
 	 * It's possible that - due to other bugs/issues - cfg80211
@@ -4010,6 +4027,11 @@ late_initcall(regulatory_init_db);
 
 int __init regulatory_init(void)
 {
+	if(lpcharge) {
+		pr_info("%s: skip regulatory_init due to lpm mode.\n", __func__);
+		return 0;
+	}
+	
 	reg_pdev = platform_device_register_simple("regulatory", 0, NULL, 0);
 	if (IS_ERR(reg_pdev))
 		return PTR_ERR(reg_pdev);

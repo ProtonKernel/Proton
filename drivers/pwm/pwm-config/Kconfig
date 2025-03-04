@@ -1,0 +1,8 @@
+config PWM_CONFIG
+	tristate "translate gpio to pwm for exynos"
+	depends on OF
+	help
+	  PWM pinctrl configuration for ARCH_EXYNOS
+	  If not sure, set n
+	  This codes only works with sec_pwm phandle
+	  check the samsung,pwm-outputs and pwm id

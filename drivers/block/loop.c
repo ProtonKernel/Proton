@@ -86,7 +86,7 @@
 static DEFINE_IDR(loop_index_idr);
 static DEFINE_MUTEX(loop_ctl_mutex);
 
-static int max_part;
+static int max_part = 7;
 static int part_shift;
 
 static int transfer_xor(struct loop_device *lo, int cmd,

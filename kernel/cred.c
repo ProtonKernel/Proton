@@ -16,6 +16,9 @@
 #include <linux/binfmts.h>
 #include <linux/cn_proc.h>
 #include <linux/uidgid.h>
+#ifdef CONFIG_KDP_CRED
+#include <linux/kdp.h>
+#endif
 
 #if 0
 #define kdebug(FMT, ...)						\
@@ -38,7 +41,11 @@ struct group_info init_groups = { .usage = ATOMIC_INIT(2) };
 /*
  * The initial credentials for the initial task
  */
+#ifdef CONFIG_KDP_CRED
+struct cred init_cred __kdp_ro = {
+#else
 struct cred init_cred = {
+#endif
 	.usage			= ATOMIC_INIT(4),
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	.subscribers		= ATOMIC_INIT(2),
@@ -62,12 +69,14 @@ struct cred init_cred = {
 	.group_info		= &init_groups,
 };
 
+#ifndef CONFIG_KDP_CRED
 static inline void set_cred_subscribers(struct cred *cred, int n)
 {
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	atomic_set(&cred->subscribers, n);
 #endif
 }
+#endif
 
 static inline int read_cred_subscribers(const struct cred *cred)
 {
@@ -131,23 +140,51 @@ static void put_cred_rcu(struct rcu_head *rcu)
  */
 void __put_cred(struct cred *cred)
 {
+#ifdef CONFIG_KDP_CRED
+	int ret = 0;
+#endif
 	kdebug("__put_cred(%p{%d,%d})", cred,
 	       atomic_read(&cred->usage),
 	       read_cred_subscribers(cred));
 
+#ifdef CONFIG_KDP_CRED
+	ret = is_kdp_protect_addr((unsigned long)cred);
+
+	if (ret == PROTECT_INIT)
+		BUG_ON(atomic_read(init_cred_kdp.use_cnt) != 0);
+	else if (ret == PROTECT_KMEM)
+		BUG_ON(atomic_read(((struct cred_kdp *)cred)->use_cnt) != 0);
+	else
+#endif
 	BUG_ON(atomic_read(&cred->usage) != 0);
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	BUG_ON(read_cred_subscribers(cred) != 0);
 	cred->magic = CRED_MAGIC_DEAD;
 	cred->put_addr = __builtin_return_address(0);
 #endif
+	
+#ifdef CONFIG_KDP_CRED
+	if(cred == current->cred)
+		printk("[KDP] cred->security: 0x%lx\n", cred->security);
+#endif
 	BUG_ON(cred == current->cred);
 	BUG_ON(cred == current->real_cred);
-
+#ifdef CONFIG_KDP_CRED
+	if (is_kdp_protect_addr((unsigned long)cred)) {
+		if (GET_ROCRED_RCU(cred)->non_rcu)
+			put_rocred_rcu(&(GET_ROCRED_RCU(cred)->rcu));
+		else
+			call_rcu(&(GET_ROCRED_RCU(cred)->rcu), put_rocred_rcu);
+	}
+	else {
+#endif
 	if (cred->non_rcu)
 		put_cred_rcu(&cred->rcu);
 	else
 		call_rcu(&cred->rcu, put_cred_rcu);
+#ifdef CONFIG_KDP_CRED
+	}
+#endif
 }
 EXPORT_SYMBOL(__put_cred);
 
@@ -336,6 +373,9 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 	p->cached_requested_key = NULL;
 #endif
 
+#ifdef CONFIG_KDP_CRED
+	if (!kdp_enable){
+#endif
 	if (
 #ifdef CONFIG_KEYS
 		!p->cred->thread_keyring &&
@@ -351,6 +391,9 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 		atomic_inc(&p->cred->user->processes);
 		return 0;
 	}
+#ifdef CONFIG_KDP_CRED
+	}
+#endif
 
 	new = prepare_creds();
 	if (!new)
@@ -382,9 +425,20 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 #endif
 
 	atomic_inc(&new->user->processes);
+#ifdef CONFIG_KDP_CRED
+	if (kdp_enable) {
+		p->cred = p->real_cred = prepare_ro_creds(new, CMD_COPY_CREDS, (u64)p);
+		put_cred(new);
+	} else {
+		p->cred = p->real_cred = get_cred(new);
+		alter_cred_subscribers(new, 2);
+		validate_creds(new);
+	}
+#else
 	p->cred = p->real_cred = get_cred(new);
 	alter_cred_subscribers(new, 2);
 	validate_creds(new);
+#endif
 	return 0;
 
 error_put:
@@ -435,7 +489,9 @@ int commit_creds(struct cred *new)
 {
 	struct task_struct *task = current;
 	const struct cred *old = task->real_cred;
-
+#ifdef CONFIG_KDP_CRED
+	int ret = 0;
+#endif
 	kdebug("commit_creds(%p{%d,%d})", new,
 	       atomic_read(&new->usage),
 	       read_cred_subscribers(new));
@@ -445,6 +501,15 @@ int commit_creds(struct cred *new)
 	BUG_ON(read_cred_subscribers(old) < 2);
 	validate_creds(old);
 	validate_creds(new);
+#endif
+#ifdef CONFIG_KDP_CRED
+	ret = is_kdp_protect_addr((unsigned long)new);
+
+	if (ret == PROTECT_INIT)
+		BUG_ON(atomic_read(init_cred_kdp.use_cnt) < 1);
+	else if (ret == PROTECT_KMEM)
+		BUG_ON(atomic_read(((struct cred_kdp *)new)->use_cnt) < 1);
+	else
 #endif
 	BUG_ON(atomic_read(&new->usage) < 1);
 
@@ -484,8 +549,21 @@ int commit_creds(struct cred *new)
 	alter_cred_subscribers(new, 2);
 	if (new->user != old->user)
 		atomic_inc(&new->user->processes);
+#ifdef CONFIG_KDP_CRED
+	if (kdp_enable) {
+		struct cred *new_ro;
+		new_ro = prepare_ro_creds(new, CMD_COMMIT_CREDS, 0);
+
+		rcu_assign_pointer(task->real_cred, new_ro);
+		rcu_assign_pointer(task->cred, new_ro);
+	} else {
+		rcu_assign_pointer(task->real_cred, new);
+		rcu_assign_pointer(task->cred, new);
+	}
+#else
 	rcu_assign_pointer(task->real_cred, new);
 	rcu_assign_pointer(task->cred, new);
+#endif
 	if (new->user != old->user)
 		atomic_dec(&old->user->processes);
 	alter_cred_subscribers(old, -2);
@@ -502,7 +580,12 @@ int commit_creds(struct cred *new)
 	    !gid_eq(new->sgid,  old->sgid) ||
 	    !gid_eq(new->fsgid, old->fsgid))
 		proc_id_connector(task, PROC_EVENT_GID);
-
+#ifdef CONFIG_KDP_CRED
+	if (kdp_enable) {
+		put_cred(new);
+		put_cred(new);
+	}
+#endif
 	/* release the old obj and subj refs both */
 	put_cred(old);
 	put_cred(old);
@@ -519,12 +602,24 @@ EXPORT_SYMBOL(commit_creds);
  */
 void abort_creds(struct cred *new)
 {
+#ifdef CONFIG_KDP_CRED
+	int ret = 0;
+#endif
 	kdebug("abort_creds(%p{%d,%d})", new,
 	       atomic_read(&new->usage),
 	       read_cred_subscribers(new));
 
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	BUG_ON(read_cred_subscribers(new) != 0);
+#endif
+#ifdef CONFIG_KDP_CRED
+	ret = is_kdp_protect_addr((unsigned long)new);
+
+	if (ret == PROTECT_INIT)
+		BUG_ON(atomic_read(init_cred_kdp.use_cnt) < 1);
+	else if (ret == PROTECT_KMEM)
+		BUG_ON(atomic_read(((struct cred_kdp *)new)->use_cnt) < 1);
+	else
 #endif
 	BUG_ON(atomic_read(&new->usage) < 1);
 	put_cred(new);
@@ -541,7 +636,6 @@ EXPORT_SYMBOL(abort_creds);
 const struct cred *override_creds(const struct cred *new)
 {
 	const struct cred *old = current->cred;
-
 	kdebug("override_creds(%p{%d,%d})", new,
 	       atomic_read(&new->usage),
 	       read_cred_subscribers(new));
@@ -562,6 +656,16 @@ const struct cred *override_creds(const struct cred *new)
 	 */
 	get_new_cred((struct cred *)new);
 	alter_cred_subscribers(new, 1);
+#ifdef CONFIG_KDP_CRED
+	if (kdp_enable) {
+		volatile unsigned int kdp_use_count = kdp_get_usecount((struct cred *)new);
+		struct cred *new_ro;
+
+		new_ro = prepare_ro_creds((struct cred *)new, CMD_OVRD_CREDS, kdp_use_count);
+		GET_ROCRED_RCU(new_ro)->reflected_cred = (void *)new;
+		rcu_assign_pointer(current->cred, new_ro);
+	} else
+#endif
 	rcu_assign_pointer(current->cred, new);
 	alter_cred_subscribers(old, -1);
 
@@ -592,6 +696,15 @@ void revert_creds(const struct cred *old)
 	alter_cred_subscribers(old, 1);
 	rcu_assign_pointer(current->cred, old);
 	alter_cred_subscribers(override, -1);
+#ifdef CONFIG_KDP_CRED
+	if (kdp_enable) {
+		if (is_kdp_protect_addr((unsigned long)override)){
+			if(GET_ROCRED_RCU(override)->reflected_cred)
+				put_cred((struct cred *)GET_ROCRED_RCU(override)->reflected_cred);
+			put_cred(override);
+		}
+	}
+#endif
 	put_cred(override);
 }
 EXPORT_SYMBOL(revert_creds);
@@ -658,6 +771,9 @@ void __init cred_init(void)
 	/* allocate a slab in which we can store credentials */
 	cred_jar = kmem_cache_create("cred_jar", sizeof(struct cred), 0,
 			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_ACCOUNT, NULL);
+#ifdef CONFIG_KDP_CRED
+	kdp_cred_init();
+#endif
 }
 
 /**

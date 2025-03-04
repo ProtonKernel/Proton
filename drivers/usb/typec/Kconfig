@@ -61,6 +61,15 @@ config TYPEC_TPS6598X
 	  If you choose to build this driver as a dynamically linked module, the
 	  module will be called tps6598x.ko.
 
+config SUPPORT_USB_TYPEC_OPS
+	bool "Support USB TypeC Operations"
+	depends on TYPEC
+	default n
+	help
+	  Say Y here if you are using USB TypeC Operations
+
+	  If you choose to use this you are gonna use ops instead of listing.
+
 source "drivers/usb/typec/mux/Kconfig"
 
 source "drivers/usb/typec/altmodes/Kconfig"

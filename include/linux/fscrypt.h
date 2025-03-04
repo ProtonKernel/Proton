@@ -45,7 +45,11 @@ struct fscrypt_name {
 #define fname_len(p)		((p)->disk_name.len)
 
 /* Maximum value for the third parameter of fscrypt_operations.set_context(). */
+#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
+#define FSCRYPT_SET_CONTEXT_MAX_SIZE	44
+#else
 #define FSCRYPT_SET_CONTEXT_MAX_SIZE	40
+#endif
 
 #ifdef CONFIG_FS_ENCRYPTION
 /*
@@ -63,6 +67,10 @@ struct fscrypt_operations {
 	int (*get_context)(struct inode *inode, void *ctx, size_t len);
 	int (*set_context)(struct inode *inode, const void *ctx, size_t len,
 			   void *fs_data);
+#if defined(CONFIG_DDAR) || defined(CONFIG_FSCRYPT_SDP)
+	int (*get_knox_context)(struct inode *, const char *, void *, size_t);
+	int (*set_knox_context)(struct inode *, const char *, const void *, size_t, void *);
+#endif
 	const union fscrypt_context *(*get_dummy_context)(
 		struct super_block *sb);
 	bool (*empty_dir)(struct inode *inode);
@@ -217,6 +225,17 @@ int fscrypt_get_encryption_info(struct inode *inode);
 void fscrypt_put_encryption_info(struct inode *inode);
 void fscrypt_free_inode(struct inode *inode);
 int fscrypt_drop_inode(struct inode *inode);
+#ifdef CONFIG_FSCRYPT_SDP
+extern int fscrypt_get_encryption_key(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *key);
+extern int fscrypt_get_encryption_key_classified(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *key);
+extern int fscrypt_get_encryption_kek(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *kek);
+#endif
 
 /* fname.c */
 int fscrypt_setup_filename(struct inode *inode, const struct qstr *iname,
@@ -268,6 +287,20 @@ static inline void fscrypt_set_ops(struct super_block *sb,
 {
 	sb->s_cop = s_cop;
 }
+
+#ifdef CONFIG_DDAR
+extern int fscrypt_dd_decrypt_page(struct inode *inode, struct page *page);
+extern int fscrypt_dd_encrypted(struct bio *bio);
+extern int fscrypt_dd_encrypted_inode(const struct inode *inode);
+extern int fscrypt_dd_is_traced_inode(const struct inode *inode);
+extern void fscrypt_dd_trace_inode(const struct inode *inode);
+extern long fscrypt_dd_get_ino(struct bio *bio);
+extern long fscrypt_dd_ioctl(unsigned int cmd, unsigned long *arg, struct inode *inode);
+extern int fscrypt_dd_submit_bio(struct inode *inode, struct bio *bio);
+extern int fscrypt_dd_may_submit_bio(struct bio *bio);
+extern struct inode *fscrypt_bio_get_inode(const struct bio *bio);
+extern bool fscrypt_dd_can_merge_bio(struct bio *bio, struct address_space *mapping);
+#endif
 #else  /* !CONFIG_FS_ENCRYPTION */
 
 static inline bool fscrypt_has_encryption_key(const struct inode *inode)
@@ -442,6 +475,27 @@ static inline void fscrypt_free_inode(struct inode *inode)
 static inline int fscrypt_drop_inode(struct inode *inode)
 {
 	return 0;
+}
+
+static inline int fscrypt_get_encryption_key(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *key)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline int fscrypt_get_encryption_key_classified(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *key)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline int fscrypt_get_encryption_kek(
+						struct fscrypt_info *crypt_info,
+						struct fscrypt_key *kek)
+{
+	return -EOPNOTSUPP;
 }
 
  /* fname.c */

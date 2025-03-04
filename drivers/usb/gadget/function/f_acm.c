@@ -683,8 +683,13 @@ acm_bind(struct usb_configuration *c, struct usb_function *f)
 	acm_ss_in_desc.bEndpointAddress = acm_fs_in_desc.bEndpointAddress;
 	acm_ss_out_desc.bEndpointAddress = acm_fs_out_desc.bEndpointAddress;
 
+#ifdef CONFIG_GKI_USB
 	status = usb_assign_descriptors(f, acm_fs_function, acm_hs_function,
 			acm_ss_function, acm_ss_function);
+#else
+	status = usb_assign_descriptors(f, acm_fs_function, acm_hs_function,
+			acm_ss_function, NULL);
+#endif
 	if (status)
 		goto fail;
 

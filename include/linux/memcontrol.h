@@ -182,6 +182,13 @@ struct memcg_padding {
 #define MEMCG_PADDING(name)
 #endif
 
+#ifdef CONFIG_MEMCG_HEIMDALL
+#define MEMCG_HEIMDALL_SHRINK_ANON 1
+#define MEMCG_HEIMDALL_SHRINK_FILE 2
+void forced_shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memcg,
+			      int type, unsigned long nr_requested);
+#endif
+
 /*
  * Remember four most recent foreign writebacks with dirty pages in this
  * cgroup.  Inode sharing is expected to be uncommon and, even if we miss

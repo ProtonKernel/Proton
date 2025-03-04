@@ -13,3 +13,12 @@ config ION_CMA_HEAP
 	  Choose this option to enable CMA heaps with Ion. This heap is backed
 	  by the Contiguous Memory Allocator (CMA). If your system has these
 	  regions, you should say Y here.
+
+config ION_RBIN_HEAP
+	bool "ION RBIN Heap"
+	default y
+	depends on ION && RBIN && CLEANCACHE
+	help
+	  Provides ION RBIN heap which utilizes RBIN memory.
+	  While RBIN heap is similar with CMA heap, it assumes that an ION buffer
+	  can be composed of multiple free chunks.

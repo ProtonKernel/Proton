@@ -621,7 +621,12 @@ static int set_format(struct snd_usb_substream *subs, struct audioformat *fmt)
 		subs->need_setup_fmt = false;
 
 	/* set interface */
+#ifdef CONFIG_GKI_USB
+	if (subs->interface != fmt->iface ||
+			subs->altset_idx != fmt->altset_idx) {
+#else
 	if (iface->cur_altsetting != alts) {
+#endif
 		err = snd_usb_select_mode_quirk(subs, fmt);
 		if (err < 0)
 			return -EIO;
@@ -639,11 +644,18 @@ static int set_format(struct snd_usb_substream *subs, struct audioformat *fmt)
 					      fmt->altsetting, subs->direction);
 		if (err)
 			return err;
+
+#ifdef CONFIG_GKI_USB
+		subs->interface = fmt->iface;
+		subs->altset_idx = fmt->altset_idx;
+#endif
 		snd_usb_set_interface_quirk(dev);
 	}
 
+#ifndef CONFIG_GKI_USB
 	subs->interface = fmt->iface;
 	subs->altset_idx = fmt->altset_idx;
+#endif
 	subs->data_endpoint = snd_usb_add_endpoint(subs->stream->chip,
 						   alts, fmt->endpoint, subs->direction,
 						   SND_USB_ENDPOINT_TYPE_DATA);
@@ -1057,10 +1069,22 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
 		goto unlock;
 	}
 
-	snd_usb_endpoint_sync_pending_stop(subs->sync_endpoint);
-	snd_usb_endpoint_sync_pending_stop(subs->data_endpoint);
+#ifdef CONFIG_GKI_USB
+	if (snd_vendor_get_ops())
+		ret = snd_usb_pcm_change_state(subs, UAC3_PD_STATE_D0);
+	else {
+		snd_usb_endpoint_sync_pending_stop(subs->sync_endpoint);
+		snd_usb_endpoint_sync_pending_stop(subs->data_endpoint);
 
-	ret = snd_usb_pcm_change_state(subs, UAC3_PD_STATE_D0);
+		ret = snd_usb_pcm_change_state(subs, UAC3_PD_STATE_D0);
+	}
+#else
+		snd_usb_endpoint_sync_pending_stop(subs->sync_endpoint);
+		snd_usb_endpoint_sync_pending_stop(subs->data_endpoint);
+
+		ret = snd_usb_pcm_change_state(subs, UAC3_PD_STATE_D0);
+#endif
+
 	if (ret < 0)
 		goto unlock;
 

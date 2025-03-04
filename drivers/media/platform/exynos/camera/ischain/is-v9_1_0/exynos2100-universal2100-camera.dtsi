@@ -1,0 +1,2097 @@
+/*
+ * Samsung Exynos SoC series Pablo driver
+ *
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/camera/exynos_is_dt.h>
+
+#include "camera/module_2ld.dtsi"
+#include "camera/module_3j1.dtsi"
+#include "camera/module_2la.dtsi"
+#include "camera/module_gw2.dtsi"
+#include "camera/module_imx518.dtsi"
+#include "camera/module_imx563.dtsi"
+
+/ {
+	fragment@camera {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <1>;
+			interrupt-parent = <&gic>;
+
+			/* REAR CAMERA */
+			is_sensor_2ld: is_sensor_2ld@20 {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk0_out>;
+				pinctrl-2 = <&sensor_mclk0_fn>;
+				pinctrl-3 = <>;
+
+				/* board */
+				position = <0>;	/* Rear:0. Front:1. Rear_sub:2. Secure:3. */
+				id = <0>; /* is_sensor id */
+				mclk_ch = <0>;
+				sensor_i2c_ch = <0>; /* SENSOR_CONTROL_I2C0 */
+
+				/* vendor */
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <0>;
+				rom_cal_index = <0>;
+
+				/* peri */
+				af {
+					product_name = <18>; /* ACTUATOR_NAME_AK737X : ak7371 or ak7374 */
+					i2c_ch = <2>; /* SENSOR_CONTROL_I2C2 */
+				};
+
+				flash {
+					product_name = <11>; /* FLASH_GPIO */
+				};
+
+				mcu {
+					product_name = <2>; /* INTERNAL */
+				};
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT0*/ 1000 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 4032 756 2>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT1*/ 1001 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 4032 756 2>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				/* sensor modes */
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 756	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode1 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 566	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode2 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 566	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode3 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2016 378	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode4 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2016 282	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					/* MODE 3 - 24fps LIVE FOCUS */
+					mode5 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 756	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode6 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 566	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					/* MODE 2 - SM */ /* TEMP_2020 */
+					mode7 {
+						common = <2016 1134 480 0 7 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE>;
+					};
+					mode8 {
+						common = <2016 1134 240 0 8 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE>;
+						option { votf = <1>; };
+					};
+					/* MODE 2 */
+					mode9 {
+						common = <1008 756 120 0 9 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_DISABLE PD_NONE>;
+					};
+					/* MODE 2 - SSM */
+					mode10 {
+						vc0 = </* in */ 0 HW_FORMAT_RAW10_SDC 1416 1134		/* out */ HW_FORMAT_RAW8_SDC VC_NOTHING 1776 566>;
+						option { votf = <1>; };
+					};
+#if 0 /* TEMP_2020 */
+					mode11 {
+						common = <2016 1134 60 0 11 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE EX_DUALFPS_480>;
+					};
+#endif
+#if 0 /* SDC ON */
+					mode12 {
+						common = <1280 720 60 0 12 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE EX_DUALFPS_960>;
+					};
+#else /* SDC OFF */
+					mode13 {
+						common = <1280 720 60 0 13 CSI_DATA_LANES_3 2964 CSI_MODE_VC_DT LRTE_ENABLE PD_NONE EX_DUALFPS_960>;
+					};
+#endif
+					/* Sensor setting index for EX_AEB is same with normal preview */
+					mode14 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 756	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode15 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 4032 566	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 0 0x1>;
+
+					scenario_normal_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 300>; share = <SRT_ACQUIRE SHARED_PIN2 1>; };
+						60 { pname = "VDDAF_COMMON_CAM"; pin = <PIN_REGULATOR 1 1>; share = <SRT_ACQUIRE SHARED_PIN6 1>; actuator_i2c_delay = <10000>; };
+						65 { pname = "VDDAF_2.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN8 1>; }; /* CAMERA_REAR2_AF */
+						66 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN7 1>; }; /* CAMERA_REAR2_AF */
+						85 { pname = "VDD_VM_2.8V_OIS"; pin = <PIN_REGULATOR 1 100>; share = <SRT_ACQUIRE SHARED_PIN3 1>; };
+						86 { pname = "VDDD_1.8V_OIS"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN4 1>; };
+						100 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; share = <SRT_ACQUIRE SHARED_PIN1 1>; };
+						110 { pname = "MCLK"; pin = <PIN_MCLK 1 1500>; share = <SRT_ACQUIRE SHARED_PIN0 1>; };
+						120 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 3000>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_vision_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; };
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						120 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 3000>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_hw_init_normal_on {
+						/* HW INIT (without ois power control) */
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						120 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 3000>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_normal_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						10 { pname = "VDDAF_COMMON_CAM"; pin = <PIN_REGULATOR 0 10>; share = <SRT_RELEASE SHARED_PIN6 0>; };
+						60 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; share = <SRT_RELEASE SHARED_PIN0 0>; };
+						80 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; share = <SRT_RELEASE SHARED_PIN1 0>; };
+						116 { pname = "VDDD_1.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN4 0>; };
+						117 { pname = "VDD_VM_2.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN3 0>; };
+						118 { pname = "VDDAF_2.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN8 0>; }; /* CAMERA_REAR2_AF */
+						119 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN7 0>; }; /* CAMERA_REAR2_AF */
+						130 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; share = <SRT_RELEASE SHARED_PIN2 0>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_vision_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; };
+					};
+
+					scenario_retention_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "(retention) sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; share = <SRT_RELEASE SHARED_PIN0 0>; };
+						40 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; share = <SRT_RELEASE SHARED_PIN1 0>; };
+						116 { pname = "VDD_VM_2.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN3 0>; };
+						117 { pname = "VDDD_1.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN4 0>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_hw_init_retention_on {
+						/* RETENTION ON HW INIT(without ois power control) */
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "(retention) sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_ois_factory_on {
+					};
+
+					scenario_ois_factory_off {
+					};
+
+					scenario_read_rom_on {
+					};
+
+					scenario_read_rom_off {
+					};
+				};
+			};
+
+			/* Tele CAMERA */
+			is_sensor_gw2: is_sensor_gw2@5A {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk0_out>;
+				pinctrl-2 = <&sensor_mclk0_fn>;
+				pinctrl-3 = <>;
+
+				/* board */
+				position = <2>; /* Rear:0. Front:1, Tele:2 */
+				id = <2>; /* is_sensor id */
+				mclk_ch = <0>;
+				sensor_i2c_ch = <1>; /* SENSOR_CONTROL_I2C1 */
+
+				/* vendor */
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <0>;
+				rom_cal_index = <1>;
+				rom_dualcal_id = <0>;
+				rom_dualcal_index = <1>;
+
+				af {
+					product_name = <18>; /* ACTUATOR_NAME_AK737X : ak7371 or ak7374 */
+					i2c_ch = <2>; /* SENSOR_CONTROL_I2C2 */
+				};
+
+				flash {
+					product_name = <11>; /* FLASH_GPIO */
+				};
+
+				preprocessor {
+					product_name = <100>; /* NOTHING */
+				};
+
+				mcu {
+					product_name = <2>; /* INTERNAL */
+				};
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not avaliable */>;			/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT0*/ 1000 /* VC_SENSOR_MODE_SUPER_PD_3_TAIL */ 405 1160 1736 2>; /* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not avaliable */>;			/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT1*/ 1001 /* VC_SENSOR_MODE_SUPER_PD_3_TAIL */ 405 1160 1736 2>; /* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				/* sensor modes */
+				modes {
+					/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+					/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1152 1720             /* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode1 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 960 1064              /* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+					};
+					mode2 {
+						option { votf = <1>; };
+					};
+					mode3 {
+						option { votf = <1>; };
+					};
+					mode4 {
+						option { votf = <1>; };
+					};
+					mode5 {
+						option { votf = <1>; };
+					};
+					mode6 {
+						option { votf = <1>; };
+					};
+					mode7 {
+						option { votf = <1>; };
+					};
+					mode8 {
+						option { votf = <1>; };
+					};
+					mode9 {
+						option { votf = <1>; };
+					};
+					mode10 {
+						option { votf = <1>; };
+					};
+					mode11 {
+						option { votf = <1>; };
+					};
+					mode12 {
+						option { votf = <1>; };
+					};
+					mode13 {
+						option { votf = <1>; };
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 0 0x1>;
+
+					scenario_normal_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						30 { pname = "VDDAF_2.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN8 1>; actuator_i2c_delay = <10000>; };
+						31 { pname = "VDDAF_COMMON_CAM"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN6 1>; };
+						35 { pname = "VDD_VM_2.8V_OIS"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN3 1>; };
+						36 { pname = "VDDD_1.8V_OIS"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN4 1>; };
+						40 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN2 1>; };
+						50 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN7 1>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; share = <SRT_ACQUIRE SHARED_PIN1 1>; };
+						80 { pname = "MCLK"; pin = <PIN_MCLK 1 0>; share = <SRT_ACQUIRE SHARED_PIN0 1>; };
+						90 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 10000>; gpio = <&gpm20 0 0x1>; };
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm20 0 0x1>; };
+						20 { pname = "VDDAF_2.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN8 0>; };
+						25 { pname = "VDDAF_COMMON_CAM"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN6 0>; };
+						40 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN2 0>; };
+						50 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN7 0>; };
+						76 { pname = "VDDD_1.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN4 0>; };
+						77 { pname = "VDD_VM_2.8V_OIS"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN3 0>; };
+						80 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; share = <SRT_RELEASE SHARED_PIN0 0>; };
+						100 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; share = <SRT_RELEASE SHARED_PIN1 0>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_vision_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						45 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; };
+						90 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 8000>; gpio = <&gpm20 0 0x1>; };
+					};
+
+					scenario_vision_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm20 0 0x1>; };
+						55 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; };
+					};
+				};
+			};
+
+			/* Ultra Wide CAMERA */
+			is_sensor_2la: is_sensor_2la@2D {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk3_out>;
+				pinctrl-2 = <&sensor_mclk3_fn>;
+				pinctrl-3 = <>;
+
+				/* board */
+				position = <4>; /* Rear:0. Front:1, Tele:2 */
+				id = <4>; /* is_sensor id */
+				mclk_ch = <3>;
+				sensor_i2c_ch = <4>; /* SENSOR_CONTROL_I2C4 */
+
+				/* vendor */
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <2>;
+				rom_cal_index = <0>;
+				rom_dualcal_id = <0>;
+				rom_dualcal_index = <0>;
+
+				af {
+					product_name = <100>; /* NOTHING */
+				};
+
+				flash {
+					product_name = <11>; /* FLASH_GPIO */
+				};
+
+				preprocessor {
+					product_name = <100>; /* NOTHING */
+				};
+
+				ois {
+					product_name = <100>; /* NOTHING */
+				};
+
+				/* sensor modes */
+				modes {
+					/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+					/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						option { votf = <1>; };
+					};
+					mode1 {
+						option { votf = <1>; };
+					};
+					mode2 {
+						option { votf = <1>; };
+					};
+					mode3 {
+						option { votf = <1>; };
+					};
+					mode4 {
+						option { votf = <1>; };
+					};
+					mode5 {
+						option { votf = <1>; };
+					};
+					mode6 {
+						option { votf = <1>; };
+					};
+					mode7 {
+						option { votf = <1>; };
+					};
+				};
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 3 0x1>;
+
+					scenario_normal_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm21 0 0x1>; };
+						60 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 10>; gpio = <&gpm21 0 0x1>; };
+					};
+
+					scenario_normal_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm21 0 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_vision_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; };
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm21 0 0x1>; };
+						60 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 10>; gpio = <&gpm21 0 0x1>; };
+					};
+
+					scenario_vision_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm21 0 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; };
+					};
+
+					scenario_read_rom_on {
+					};
+
+					scenario_read_rom_off {
+					};
+				};
+			};
+
+			is_sensor_imx563: is_sensor_imx563@10 {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk3_out>;
+				pinctrl-2 = <&sensor_mclk3_fn>;
+				pinctrl-3 = <>;
+
+				/* board */
+				position = <4>; /* Rear:0. Front:1, Tele:2 */
+				id = <4>; /* is_sensor id */
+				mclk_ch = <3>;
+				sensor_i2c_ch = <4>; /* SENSOR_CONTROL_I2C4 */
+
+				/* vendor */
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <2>;
+				rom_cal_index = <0>;
+				rom_dualcal_id = <0>;
+				rom_dualcal_index = <0>;
+
+				af {
+					product_name = <100>; /* NOTHING */
+				};
+
+				flash {
+					product_name = <100>; /* NOTHING */
+				};
+
+				preprocessor {
+					product_name = <100>; /* NOTHING */
+				};
+
+				ois {
+					product_name = <100>; /* NOTHING */
+				};
+
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 3 0x1>;
+
+					scenario_normal_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						20 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN7 1>; };
+						50 { pname = "VDDD_1.05V_WIDESUB"; pin = <PIN_REGULATOR 1 0>; };
+					};
+
+					scenario_normal_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						30 { pname = "VDDD_1.05V_WIDESUB"; pin = <PIN_REGULATOR 0 0>; };
+						60 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN7 0>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_vision_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; };
+						20 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 0>; };
+					};
+
+					scenario_vision_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						60 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 0>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; };
+					};
+
+					scenario_read_rom_on {
+						10 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN7 1>; };
+					};
+
+					scenario_read_rom_off {
+						20 { pname = "VDDIO_1.8V_SUB"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN7 0>; };
+					};
+				};
+			};
+
+			/* FRONT CAMERA */
+			is_sensor_3j1: is_sensor_3j1@10 {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk1_out>;
+				pinctrl-2 = <&sensor_mclk1_fn>;
+				pinctrl-3 = <>;
+
+				/* board */
+				position = <1>;	/* Rear:0. Front:1. Rear_sub:2. Secure:3. */
+				id = <1>; /* is_sensor id */
+				mclk_ch = <1>;
+				sensor_i2c_ch = <1>; /* SENSOR_CONTROL_I2C1 */
+
+				/* vendor */
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <1>;
+				rom_cal_index = <0>;
+
+				/* peri*/
+				af {
+					product_name = <18>; /* ACTUATOR_NAME_AK737X */
+					i2c_ch = <3>; /* SENSOR_CONTROL_I2C3 */
+				};
+
+				flash {
+					product_name = <100>; /* NOTHING */
+				};
+
+				ois {
+					product_name = <100>; /* NOTHING */
+				};
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT0*/ 1000 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 3648 684 2>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not avaliable */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT1*/ 1001 /*VC_SENSOR_MODE_2PD_MODE3*/ 102 3648 684 2>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 684	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 684>;
+						option { votf = <1>; };
+					};
+					mode1 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2736 684	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2736 684>;
+						option { votf = <1>; };
+					};
+					mode2 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3968 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3968 558>;
+						option { votf = <1>; };
+					};
+					mode3 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3968 470	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3968 470>;
+						option { votf = <1>; };
+					};
+					mode4 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2944 552	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2944 552>;
+						option { votf = <1>; };
+					};
+					mode5 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3216 452	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3216 452>;
+						option { votf = <1>; };
+					};
+					mode6 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3216 382	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3216 382>;
+						option { votf = <1>; };
+					};
+					mode7 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 2208 552	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 2208 552>;
+						option { votf = <1>; };
+					};
+					mode8 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1824 342	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1824 342>;
+						option { votf = <1>; };
+					};
+					mode10 {
+						option { votf = <1>; };
+					};
+					mode11 {
+						option { votf = <1>; };
+					};
+					mode12 {
+						option { votf = <1>; };
+					};
+					mode13 {
+						option { votf = <1>; };
+					};
+					mode14 {
+						option { votf = <1>; };
+					};
+					mode15 {
+						option { votf = <1>; };
+					};
+					mode16 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1472 276	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1472 276>;
+						option { votf = <1>; };
+					};
+					mode17 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1616 226	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1616 226>;
+						option { votf = <1>; };
+					};
+					mode18 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1616 192	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1616 192>;
+						option { votf = <1>; };
+					};
+					mode19 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1104 276	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1104 276>;
+						option { votf = <1>; };
+					};
+					mode20 {
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 3648 342	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 3648 342>;
+						option { votf = <1>; };
+					};
+					mode21 {
+						option { votf = <1>; };
+					};
+					mode22 {
+						option { votf = <1>; };
+					};
+				};
+
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 1 0x1>;
+
+					scenario_normal_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						10 { pname = "VDDAF_2.8V_VT"; pin = <PIN_REGULATOR 1 0>; actuator_i2c_delay = <3000>; };
+						60 { pname = "rst_high"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpp13 0 0x1>; };
+					};
+
+					scenario_normal_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						50 { pname = "rst_low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 0 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_vision_on {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; };
+						60 { pname = "rst_high"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpp13 0 0x1>; };
+					};
+
+					scenario_vision_off {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						50 { pname = "rst_low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 0 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; };
+					};
+				};
+			};
+
+			/* REAR TOF */
+			is_sensor_imx518: is_sensor_imx518@1A {
+				pinctrl-names = "pin0", "pin1", "pin2", "release";
+				pinctrl-0 = <>;
+				pinctrl-1 = <&sensor_mclk2_out>;
+				pinctrl-2 = <&sensor_mclk2_fn>;
+				pinctrl-3 = <>;
+
+				position = <8>; /* Rear:0. Front:1, Tele:2 */
+				id = <3>; /* fimc_is_sensor id */
+				mclk_ch = <2>;
+				sensor_i2c_ch = <3>; /* SENSOR_CONTROL_I2C3 */
+
+				rom_type = <2>; /* ROM_TYPE_EEPROM */
+				rom_id = <4>;
+				rom_cal_index = <0>;
+				rom_dualcal_id = <0>;
+				rom_dualcal_index = <2>;
+
+				af {
+					product_name = <100>;  /* NOTHING */
+				};
+
+				flash {
+					product_name = <100>;  /* NOTHING */
+				};
+
+				preprocessor {
+					product_name = <100>; /* NOTHING */
+				};
+
+				ois {
+					product_name = <100>; /* NOTHING */
+				};
+
+				power_seq {
+					use = <1>;
+					gpio_mclk = <&gpg1 2 0x1>;
+
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN5 1>; };
+						10 { pname = "rst_high"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 2 0x1>; };
+						45 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN6 1>; };
+						110 { pname = "rst_high"; pin = <PIN_OUTPUT 1 1000>; gpio = <&gpp13 2 0x1>; };
+						120 { pname = "ldo_on"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpg1 5 0x1>; };
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						15 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN6 0>; };
+						40 { pname = "rst_low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpp13 2 0x1>; };
+						50 { pname = "ldo_off"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpg1 5 0x1>; };
+						140 { pname = "S2MPB02_BUCK2"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN5 0>; };
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						15 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 1 0>; share = <SRT_ACQUIRE SHARED_PIN6 1>; };
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						15 { pname = "VDDIO_1.8V_VT"; pin = <PIN_REGULATOR 0 0>; share = <SRT_RELEASE SHARED_PIN6 0>; };
+					};
+
+					scenario_additional_power {
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value dealy voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "ldo_on"; pin = <PIN_OUTPUT 1 0>; gpio = <&gpg1 5 0x1>; };
+					};
+				};
+			};
+
+			is_flash_gpio: is-flash-gpio@0 {
+				compatible = "samsung,sensor-flash-s2mpb02";
+				id = <0 2 4>;
+				status = "okay";
+
+				torch-gpio = <&gpg0 4 0x1>;
+				flash-gpio = <&gpb5 3 0x1>;
+			};
+
+			/* REAR CAMERA */
+			is_sensor0: is_sensor0@17030000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x0 0x17050000 0x1000>, /* MIPI-CSI2 */
+					<0x0 0x170A0000 0x10000>; /* PHY: M0S4S4S4S4S4S2 */
+				scenario = <SENSOR_SCENARIO_NORMAL>;	/* Normal, Vision, OIS etc */
+				id = <0>;
+				csi_ch = <2>;
+				status = "okay";
+				use_cphy = <1>;
+
+				interrupts = <0 INTREQ__CSIS2 IRQ_TYPE_LEVEL_HIGH>, /*MIPI-CSI2 */
+					<0 INTREQ__STRP_DMA0 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "csi", "ebuf";
+				phys = <&mipi_phy_csis2_m0s4s4s4s4s4s2 0>;
+			};
+
+			/* FRONT CAMERA */
+			is_sensor1: is_sensor1@17040000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x0 0x17030000 0x1000>, /* MIPI-CSI0 */
+					<0x0 0x170A0000 0x10000>; /* PHY: M0S4S4S4S4S4S2 */
+				scenario = <SENSOR_SCENARIO_NORMAL>;    /* Normal, Vision, OIS etc */
+				id = <1>;
+				csi_ch = <0>;
+				status = "okay";
+
+				interrupts = <0 INTREQ__CSIS0 IRQ_TYPE_LEVEL_HIGH>, /* MIPI-CSI0 */
+					<0 INTREQ__STRP_DMA0 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "csi", "ebuf";
+				phys = <&mipi_phy_csis0_m0s4s4s4s4s4s2 0>;
+			};
+
+			/* Tele CAMERA */
+			is_sensor2: is_sensor2@17050000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x0 0x17060000 0x1000>, /* MIPI-CSI3 */
+					<0x0 0x170A0000 0x10000>; /* PHY: M0S4S4S4S4S4S2 */
+				scenario = <SENSOR_SCENARIO_NORMAL>;    /* Normal, Vision, OIS etc */
+				id = <2>;
+				csi_ch = <3>;
+				status = "okay";
+				use_cphy = <1>;
+
+				interrupts = <0 INTREQ__CSIS3 IRQ_TYPE_LEVEL_HIGH>, /* MIPI-CSI3 */
+					<0 INTREQ__STRP_DMA0 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "csi", "ebuf";
+				phys = <&mipi_phy_csis3_m0s4s4s4s4s4s2 0>;
+			};
+
+			/* Reseved: FRONT SUB */
+			is_sensor3: is_sensor3@17060000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				scenario = <SENSOR_SCENARIO_NORMAL>;    /* Normal, Vision, OIS etc */
+				id = <5>;
+				csi_ch = <1>;
+				status = "disabled";
+			};
+
+			/* ULTRA WIDE CAMERA */
+			is_sensor4: is_sensor4@17070000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x0 0x17040000 0x1000>, /* MIPI-CSI1 */
+					<0x0 0x170A0000 0x10000>; /* PHY: M0S4S4S4S4S4S2 */
+				scenario = <SENSOR_SCENARIO_NORMAL>;    /* Normal, Vision, OIS etc */
+				id = <4>;
+				csi_ch = <1>;
+				status = "okay";
+				use_cphy = <1>;
+
+				interrupts = <0 INTREQ__CSIS1 IRQ_TYPE_LEVEL_HIGH>, /* MIPI-CSI1 */
+						<0 INTREQ__STRP_DMA0 IRQ_TYPE_LEVEL_HIGH>;
+				phys = <&mipi_phy_csis1_m0s4s4s4s4s4s2 0>;
+			};
+
+			/* REAR TOF */
+			is_sensor5: is_sensor5@17080000 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x0 0x17080000 0x1000>, /* MIPI-CSI5 */
+					<0x0 0x170D0000 0x10000>; /* PHY: M0S4S4S4S4S4S2 */
+				scenario = <SENSOR_SCENARIO_VISION>;    /* Normal, Vision, OIS etc */
+				id =  <3>;
+				csi_ch = <5>;
+				status = "okay";
+
+				interrupts = <0 INTREQ__CSIS5 IRQ_TYPE_LEVEL_HIGH>, /* MIPI-CSI5 */
+						<0 INTREQ__STRP_DMA0 IRQ_TYPE_LEVEL_HIGH>;
+				phys = <&mipi_phy_csis5_m0s4s4s4s4s4s2 0>;
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */
+
+/***** reference symbol node *****/
+&pinctrl_1 {
+	/* REAR TELE */
+	hsi2c39_bus_in: hsi2c39-bus-in {
+		samsung,pins = "gpm1-0", "gpm1-1";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+	/* FRONT */
+	hsi2c40_bus_in: hsi2c40-bus-in {
+		samsung,pins = "gpm2-0", "gpm2-1";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+	/* REAR AF, EEPROM */
+	hsi2c41_bus_in: hsi2c41-bus-in {
+		samsung,pins = "gpm3-0", "gpm3-1";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+	/* REAR WIDE */
+	hsi2c42_bus_in: hsi2c42-bus-in {
+		samsung,pins = "gpm4-0", "gpm4-1";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+	/* U WIDE */
+	hsi2c43_bus_in: hsi2c43-bus-in {
+		samsung,pins = "gpm5-0", "gpm5-1";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+};
+
+&pinctrl_4 {
+	/* FRONT AF*/
+	hsi2c7_bus_in: hsi2c7-bus-in {
+		samsung,pins = "gpp3-2", "gpp3-3";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+};
+
+&hsi2c_42 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpm4 0 0 &gpm4 1 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c42_bus_in>;
+	pinctrl-1 = <&hsi2c42_bus>;
+	pinctrl-2 = <&hsi2c42_bus_in>;
+
+	is-2ld@10 {
+		compatible = "samsung,exynos-is-cis-2ld";
+		reg = <0x10>; /* 1 bit right shift */
+		id = <0>; /* matching is_sensor id */
+		setfile = "default";
+		rev_reg = <0x0002 2 0xA301>;
+	};
+};
+
+&hsi2c_39 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpm1 0 0 &gpm1 1 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c39_bus_in>;
+	pinctrl-1 = <&hsi2c39_bus>;
+	pinctrl-2 = <&hsi2c39_bus_in>;
+
+	is-gw2@2D {
+		compatible = "samsung,exynos-is-cis-gw2";
+		reg = <0x2D>; /* 1 bit right shift */
+		id = <2>; /* matching is_sensor id */
+		setfile = "setA";
+		rev_reg = <0x0002 2 0xA300>;
+	};
+};
+
+&hsi2c_40 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpm2 0 0 &gpm2 1 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c40_bus_in>;
+	pinctrl-1 = <&hsi2c40_bus>;
+	pinctrl-2 = <&hsi2c40_bus_in>;
+
+	is-3j1@10 {
+		compatible = "samsung,exynos-is-cis-3j1";
+		reg = <0x10>; /* 1 bit right shift */
+		id = <1>; /* matching is_sensor id */
+		setfile = "default";
+		rev_reg = <0x0002 1 0xA2>;
+	};
+};
+
+&hsi2c_41 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpm3 0 0 &gpm3 1 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c41_bus_in>;
+	pinctrl-1 = <&hsi2c41_bus>;
+	pinctrl-2 = <&hsi2c41_bus_in>;
+
+	is-actuator@0C { /* wide AF */
+		compatible = "samsung,exynos-is-actuator-ak737x";
+		reg = <0x0C>;
+		id = <0>; /* matching is_sensor id */
+		/* AK737x: addr 0xF3, data 0x0E */
+		vendor_product_id = <0xF3 0x0E 0xF3 0x13 0xF3 0x00>;
+		vendor_first_pos = <250>;
+		vendor_first_delay = <2000>;
+		vendor_soft_landing_seqid = <1>;
+		vendor_soft_landing_list = <100 30 0 30>; /* 1st_pos delay 2nd_pos delay */
+		vendor_use_sleep_mode;
+		vendor_use_standby_mode; /* AK7377 with vendor_use_sleep_mode */
+	};
+
+	is-actuator@0F { /* tele AF */
+		compatible = "samsung,exynos-is-actuator-ak737x";
+		reg = <0x0F>;
+		id = <2>; /* matching sensor id */
+		/* AK7377: addr 0xF3, data 0x0E */
+		vendor_product_id = <0xF3 0x0E 0xF3 0x13 0xF3 0x00>;
+		vendor_first_pos = <250>;
+		vendor_first_delay = <2000>;
+		vendor_soft_landing_seqid = <1>;
+		vendor_soft_landing_list = <100 30 0 30>; /* 1st_pos delay 2nd_pos delay */
+		vendor_use_sleep_mode;
+		vendor_use_standby_mode; /* AK7377 with vendor_use_sleep_mode */
+	};
+
+	rear_eeprom@50 {
+		compatible = "samsung,rear-eeprom-i2c";
+		reg = <0x50>;
+		rom_power_position = <0>;
+		rom_size = <0x10000>;
+		cal_map_es_version = <15>; // 15
+		camera_module_es_version = "A";
+		/* skip_cal_loading; */
+		/* HubbleXY_Rear_Cal_Map_V015_20190828_for_LSI */
+		/* 0 header */
+		header_crc_check_list = <0x0000 0x01FB 0x01FC>;
+		/* 0 master LSC */
+		/* 1 master all */
+		crc_check_list = <0x0200 0x1BFB 0x1BFC 0x1C00 0x35DF 0x35FC>;
+		/* 0 u-wide dual cal data */
+		/* 1 tele LSC */
+		/* 2 tele dual cal data */
+		dual_crc_check_list = <0x4000 0x59FB 0x59FC
+					0x72F0 0x7AFB 0x7AFC>;
+		/* Master */
+		rom_header_version_start_addr = <0x50>;
+		rom_header_cal_data_start_addr = <0x200>;
+		rom_header_cal_map_ver_start_addr = <0x70>;
+		rom_header_isp_setfile_ver_start_addr = <0x74>;
+		rom_header_project_name_start_addr = <0x7E>;
+		rom_header_module_id_addr = <0xAE>; /* 0xA8 + reserved bytes */
+		rom_header_sensor_id_addr = <0xB8>;
+		rom_header_mtf_data_addr = <0xE0>;
+		rom_awb_master_addr = <0x3440>;
+		rom_awb_module_addr = <0x3464>;
+		rom_af_cal_d10_addr = <0x3420>;
+		rom_af_cal_d50_addr = <0x3418>;
+		rom_af_cal_pan_addr = <0x3414>;
+		/* Slave 0 */
+		rom_header_sensor2_version_start_addr = <0x40>;
+		rom_header_sensor2_id_addr = <0xC8>;
+		rom_header_sensor2_mtf_data_addr = <0x182>;
+		rom_sensor2_awb_master_addr = <0x7240>;
+		rom_sensor2_awb_module_addr = <0x7264>;
+		rom_sensor2_af_cal_d30_addr = <0x7220>;
+		rom_sensor2_af_cal_d50_addr = <0x7218>;
+		rom_sensor2_af_cal_pan_addr = <0x7214>;
+		/* Dual cal slave 0 - Ultra wide */
+		rom_dualcal_slave0_start_addr = <0x3600>;
+		rom_dualcal_slave0_size = <0x08FC>; /* 2300 */
+		/* x y z sx sy */
+		/* range max_err avg_err dll_version prj_name */
+		rom_dualcal_slave0_tilt_list = <0x3660 0x3664 0x3668 0x36C0 0x36C4
+						0x3DE0 0x3DE4 0x3DE8 0x3600 0x3D42>;
+		/* Dual cal slave 1 - Tele */
+		rom_dualcal_slave1_start_addr = <0x72F0>;
+		rom_dualcal_slave1_size = <0x080C>; /* 2060 */
+		/* x y z sx sy */
+		/* range max_err avg_err dll_version prj_name */
+		rom_dualcal_slave1_tilt_list = <0x73A8 0x73AC 0x73B0 0x73CC 0x73D0
+						0x75C2 0x75C6 0x75CA 0x75E4 0x75CF>;
+
+		rom_dualcal_slave1_cropshift_x_addr= <0x758E>;
+		rom_dualcal_slave1_cropshift_y_addr= <0x7590>;
+
+		rom_dualcal_slave1_dummy_flag_addr= <0x75E3>;
+
+		/* sensor ois - xgg ygg xcoef ycoef xsupper ysupper calmark */
+		/* sensor2 ois - xgg ygg xcoef ycoef xsupper ysupper calmark */
+		/* TO DO */
+		rom_ois_list = <0x34F0 0x34F4 0x34FC 0x34FE 0x3518 0x351A 0x3510
+				0x7B10 0x7B14 0x7B1C 0x7B1E 0x7B38 0x7B3A 0x7B30>;
+
+		/* Tele Crostalk Cal data */
+		rom_pdxtc_cal_data_start_addr = <0x7E04>;
+		rom_pdxtc_cal_data_coef_size = <0x6>; /* 6 */
+		rom_pdxtc_cal_data_val_size = <0x21C>; /* 540 */
+
+		/* Dual cal slave 2 - TOF */
+		rom_dualcal_slave2_start_addr = <0x8300>;
+		rom_dualcal_slave2_size = <0x8FC>; /* 2300 */
+
+		/* Dual cal slave 2 - wide - TOF tilt */
+		/* x y z sx sy */
+		/* range max_err avg_err dll_version*/
+		rom_dualcal_slave2_tilt_list = <0x836C 0x8370 0x8374 0x86C0 0x86C4
+										0x87E0 0x87E4 0x87E8 0x8300>;
+		/* Dual cal slave 3 - ultra wide - TOF tilt */
+		/* x y z sx sy */
+		/* range max_err avg_err dll_version*/
+		rom_dualcal_slave3_tilt_list = <0x8460 0x8464 0x8468 0x88C8 0x88CC
+										0x89E8 0x89EC 0x89F0 0x8300>;
+	};
+};
+
+&hsi2c_7 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpp3 2 0 &gpp3 3 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c7_bus_in>;
+	pinctrl-1 = <&hsi2c7_bus>;
+	pinctrl-2 = <&hsi2c7_bus_in>;
+
+	is-actuator@0C { /* front AF */
+		compatible = "samsung,exynos-is-actuator-ak737x";
+		reg = <0x0C>;
+		id = <1>; /* matching is_sensor id */
+		/* AK737x: addr 0xF3, data 0x0E */
+		vendor_product_id = <0xF3 0x0E>;
+		vendor_first_pos = <120>;
+		vendor_first_delay = <2000>;
+	};
+
+	front_eeprom@51 {
+		compatible = "samsung,front-eeprom-i2c";
+		reg = <0x51>;
+		rom_power_position = <1>;
+		rom_size = <0x4000>;
+		cal_map_es_version = <4>; //6
+		camera_module_es_version = "A";
+		/*skip_cal_loading;*/
+		/* HubbleXY_Front_Cal_Map_V006_20190723_for_LSI */
+		/* 0 header */
+		header_crc_check_list = <0x0000 0x015F 0x01FC>;
+		/* 0 master */
+		crc_check_list = <0x0200 0x34DF 0x34FC>;
+		/* Master */
+		rom_header_version_start_addr = <0x30>;
+		rom_header_cal_data_start_addr = <0x200>;
+		rom_header_cal_map_ver_start_addr = <0x50>;
+		/* rom_header_isp_setfile_ver_start_addr = <>; */
+		rom_header_project_name_start_addr = <0x5C>;
+		rom_header_module_id_addr = <0xAE>; /* 0xA8 + reserved bytes */
+		rom_header_sensor_id_addr = <0x70>;
+		rom_header_mtf_data_addr = <0xE0>;
+		rom_awb_master_addr = <0x1A40>;
+		rom_awb_module_addr = <0x1A4C>;
+		rom_af_cal_d10_addr = <0x1A20>;
+		rom_af_cal_pan_addr = <0x1A14>;
+	};
+
+	rear-tof-eeprom@53 {
+		compatible = "samsung,rear3-eeprom-i2c";
+		reg = <0x53>;
+
+		rom_power_position = <8>;
+		rom_size = <0x1900>;
+		cal_map_es_version = <1>; /* TO DO 1 -> 2 */
+		camera_module_es_version = "A";
+		/* skip_header_loading; */
+		/* skip_crc_check; */
+		/*skip_cal_loading;*/
+
+		/* piccaso_REAR_TOF_Cal_Map_V001_190725 */
+		/* 0 header */
+		header_crc_check_list = <0x0000 0x00C9 0x00FC>;
+		/* 1 cal all */
+		crc_check_list = <0x0100 0x128F 0x18FC>;
+
+		rom_header_cal_map_ver_start_addr = <0x50>;
+		rom_header_version_start_addr = <0x40>;
+
+		rom_header_module_id_addr = <0xAE>;
+		rom_header_sensor_id_addr = <0xB8>;
+
+		rom_tof_cal_size_addr = <0x0142>; /* QVGA CAL */
+		rom_tof_cal_start_addr = <0x0100>;
+		rom_tof_cal_mode_id_addr = <0x11A4>;  /* VGA UID */
+		rom_tof_cal_result_addr = <0x00CA>;
+		rom_tof_cal_validation_addr = <0x11D0 0x11EE>; /*QVGA 500 start, 300 start*/
+	};
+
+	fimc-is-imx518@1A { /* rear tof */
+		compatible = "samsung,exynos-is-cis-imx518";
+		reg = <0x1A>; /* 1 bit right shift */
+		id = <3>; /* matching fimc_is_sensor id */
+		setfile = "setA";
+		status = "okay";
+	};
+};
+
+&hsi2c_43 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gpios = <&gpm5 0 0 &gpm5 1 0>;
+	status = "okay";
+	clock-frequency = <1000000>;
+	samsung,reset-before-trans;
+	samsung,fast-plus-mode;
+
+	pinctrl-names = "default","on_i2c","off_i2c";
+	pinctrl-0 = <&hsi2c43_bus_in>;
+	pinctrl-1 = <&hsi2c43_bus>;
+	pinctrl-2 = <&hsi2c43_bus_in>;
+
+	is-2la@2D {
+		compatible = "samsung,exynos-is-cis-2la";
+		reg = <0x2D>; /* 1 bit right shift */
+		id = <4>; /* matching is_sensor id */
+		setfile = "setA";
+		status = "okay";
+		rev_reg = <0x0002 2 0xA202>;
+	};
+
+	is-imx563@10 {
+		compatible = "samsung,exynos-is-cis-imx563";
+		reg = <0x10>; /* 1 bit right shift */
+		id = <4>; /* matching is_sensor id */
+		setfile = "setA";
+		status = "okay";
+		rev_reg = <0x0002 2 0xA202>;
+	};
+
+	rear2_eeprom@51 { /* Ultra wide eeprom */
+		compatible = "samsung,rear2-eeprom-i2c";
+		reg = <0x51>;
+
+		rom_power_position = <4>;
+		rom_size = <0x4000>;
+		cal_map_es_version = <15>;
+		camera_module_es_version = "A";
+		/*skip_cal_loading;*/
+
+		/* HubbleXY_Rear_Cal_Map_V015_20190828_for_LSI */
+		/* 0 header */
+		header_crc_check_list = <0x0000 0x00FB 0x00FC>;
+		/* 0 master LSC */
+		/* 1 master all */
+		crc_check_list = <0x0100 0x1AFB 0x1AFC 0x2200 0x22DF 0x22FC>;
+
+		/* Master */
+		rom_header_version_start_addr = <0x40>;
+		rom_header_cal_data_start_addr = <0x100>;
+		rom_header_cal_map_ver_start_addr = <0x50>;
+		rom_header_isp_setfile_ver_start_addr = <0x54>;
+		rom_header_project_name_start_addr = <0x5E>;
+		rom_header_module_id_addr = <0xAE>; /* 0xA8 + reserved bytes */
+		rom_header_sensor_id_addr = <0xB8>;
+		rom_header_mtf_data_addr = <0x66>;
+		rom_awb_master_addr = <0x2200>;
+		rom_awb_module_addr = <0x2224>;
+	};
+};
+
+
+&mipi_phy_csis5_m0s4s4s4s4s4s2 {
+	vdd_0p85-supply = <&l13_reg>;
+	vdd_1p8-supply = <&l19_reg>;
+};
+
+&exynos_is {
+	memlog_size = <0x0 0x0>;	/* IS_MEMLOG_PRINTF_DRV_SIZE, IS_MEMLOG_PRINTF_DDK_SIZE */
+
+	vender {
+		rear_sensor_id = <52>;	/* 2LD */
+		front_sensor_id = <38>; /* 3J1 */
+		rear2_sensor_id = <54>;	/* GW2 */
+		rear3_sensor_id = <125>; /* IMX563 */
+		rear_tof_sensor_id = <122>; /* IMX518 */
+		use_module_check;
+		use_ois;
+		check_sensor_vendor;
+		ois_sensor_index = <0>;
+		aperture_sensor_index = <0>;
+		mcu_sensor_index = <0>;
+
+		max_supported_camera = <9>;
+		supported_cameraId = <0 1 2 20 21 23 50 52 80>;
+		ois_gyro_list = <0x00 0x00 0x01 0x01 0x01>;
+		/*
+		* Wide(0)
+		* Front(1) - use 80 FOV in factory internally
+		* U Wide(2)
+		* Front 80(3) - not available for factory
+		* Rear ToF(4) - not available for factory
+		* Front Secure(5) - not available for factory
+		* Dual Zoom(20)
+		* Dual Portrait Tele(21) - Main Tele/Sub Wide
+		* Dual Portrait Wide(23) - Main Wide/Sub U Wide
+		* Tele 2x2(50)
+		* Tele 17.9(52)
+		* REAR ToF(80)
+		*/
+
+		/* sysfs camera id */
+		max_camera_num = <9>;
+		camera_info0 {			/* 0 : sysfs rear */
+			internal_id = <0>;	/* 0 : wide */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS , 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <1>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info1 {			/* 1 : sysfs front */
+			internal_id = <1>;	/* 1 : front master */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS, 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <0>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info2 {			/* 2 : sysfs rear2 */
+			internal_id = <4>;	/* 4 : ultra wide */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS, 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <0>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info3 {			/* 3 : sysfs front2 */
+			internal_id = <3>;	/* 3 : front sub */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS, 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <0>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info4 {			/* 4 : sysfs rear3 */
+			internal_id = <2>;	/* 4 : tele */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS, 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <1>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID   */
+		};
+		camera_info5 {			/* 5 : sysfs front3 */
+			valid = <0>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info6 {			/* 6 : sysfs rear4 */
+			valid = <0>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info7 {			/* 7 : sysfs front4 */
+			valid = <0>;		/* 0 : INVALID, 1 : VALID */
+		};
+		camera_info8 {			/* 8 : sysfs rear tof */
+			internal_id = <8>;	/* 3 : rear tof */
+			isp = <0>;		/* 0 : INT, 1 : EXT, 2 : SOC */
+			cal_memory = <2>;	/* 0 : N, 1 : FROM, 2 : EEPROM, 3 : OTP  */
+			read_version = <0>;	/* 0 : SYSFS, 1 : CAMON */
+			core_voltage = <0>;	/* 0 : N, 1 : Y */
+			upgrade = <0>;		/* 0 : N, 1 : SYSFS, 2 : CAMON */
+			fw_write = <0>;		/* 0 : N, 1 : OS, 2 : SD, 3 : ALL */
+			fw_dump = <0>;		/* 0 : N, 1 : Y */
+			companion = <0>;	/* 0 : N, 1 : Y */
+			ois = <0>;		/* 0 : N, 1 : Y */
+			valid = <1>;		/* 0 : INVALID, 1 : VALID */
+		};
+	};
+
+	lic_offsets {
+		/* 3AA = <setA lic offset0, setA lic offset1, set A trigger context */
+		/*		setB lic offset0, setB lic offset1, set B trigger context> */
+		/* 4672: 4640x4352 */
+		/* 5824: 5804x4352 */
+		3AA = <5461 10922 16383 0 5461 10922 16383 0>;
+	};
+
+	is_dvfs {
+		#define DVFS_INT_CAM_L0 690000
+		#define DVFS_INT_CAM_L1 680000
+		#define DVFS_INT_CAM_L2 670000
+		#define DVFS_INT_CAM_L3 660000
+		#define DVFS_INT_CAM_L4 650000
+		#define DVFS_INT_CAM_L5 640000
+		#define DVFS_INT_CAM_L6 630000
+
+		#define DVFS_INT_L0 800000
+		#define DVFS_INT_L1 533000
+		#define DVFS_INT_L2 400000
+		#define DVFS_INT_L3 267000
+		#define DVFS_INT_L4 80000
+
+		#define DVFS_CSIS_L0 690000
+		#define DVFS_CSIS_L1 680000
+		#define DVFS_CSIS_L2 670000
+		#define DVFS_CSIS_L3 660000
+		#define DVFS_CSIS_L4 650000
+		#define DVFS_CSIS_L5 640000
+		#define DVFS_CSIS_L6 630000
+
+		#define DVFS_CAM_L0 690000
+		#define DVFS_CAM_L1 680000
+		#define DVFS_CAM_L2 670000
+		#define DVFS_CAM_L3 660000
+		#define DVFS_CAM_L4 650000
+		#define DVFS_CAM_L5 640000
+		#define DVFS_CAM_L6 630000
+
+		#define DVFS_ISP_L0 690000
+		#define DVFS_ISP_L1 680000
+		#define DVFS_ISP_L2 670000
+		#define DVFS_ISP_L3 660000
+		#define DVFS_ISP_L4 650000
+		#define DVFS_ISP_L5 640000
+		#define DVFS_ISP_L6 630000
+
+		#define DVFS_MIF_L0 3172000
+		#define DVFS_MIF_L1 2730000
+		#define DVFS_MIF_L2 2535000
+		#define DVFS_MIF_L3 2288000
+		#define DVFS_MIF_L4 2028000
+		#define DVFS_MIF_L5 1716000
+		#define DVFS_MIF_L6 1539000
+		#define DVFS_MIF_L7 1352000
+		#define DVFS_MIF_L8 1014000
+		#define DVFS_MIF_L9 845000
+		#define DVFS_MIF_L10 546000
+		#define DVFS_MIF_L11 421000
+
+		#define CPU_CL0 "0-3"
+		#define CPU_CL1 "4-6"
+		#define CPU_CL2 "7"
+
+		table0 {
+			desc = "dvfs table v0.2";
+
+			default_int_cam = <DVFS_INT_CAM_L0>;
+			default_cam = <DVFS_CAM_L0>;
+			default_csis = <DVFS_CSIS_L0>;
+			default_isp = <DVFS_ISP_L0>;
+			default_mif = <DVFS_MIF_L0>;
+			default_int = <DVFS_INT_L0>;
+			default_hpg = <1>;
+			default_cpu = CPU_CL0;
+
+			rear_single_wide_photo_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_wide_photo_cam = <DVFS_CAM_L3>;
+			rear_single_wide_photo_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_photo_isp = <DVFS_ISP_L3>;
+			rear_single_wide_photo_mif = <DVFS_MIF_L6>;
+			rear_single_wide_photo_int = <DVFS_INT_L2>;
+			rear_single_wide_photo_hpg = <1>;
+			rear_single_wide_photo_cpu = CPU_CL0;
+
+			rear_single_wide_photo_full_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_wide_photo_full_cam = <DVFS_CAM_L3>;
+			rear_single_wide_photo_full_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_photo_full_isp = <DVFS_ISP_L3>;
+			rear_single_wide_photo_full_mif = <DVFS_MIF_L3>;
+			rear_single_wide_photo_full_int = <DVFS_INT_L1>;
+			rear_single_wide_photo_full_hpg = <1>;
+			rear_single_wide_photo_full_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd30_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_wide_video_fhd30_cam = <DVFS_CAM_L6>;
+			rear_single_wide_video_fhd30_csis = <DVFS_CSIS_L4>;
+			rear_single_wide_video_fhd30_isp = <DVFS_ISP_L6>;
+			rear_single_wide_video_fhd30_mif = <DVFS_MIF_L8>;
+			rear_single_wide_video_fhd30_int = <DVFS_INT_L2>;
+			rear_single_wide_video_fhd30_hpg = <1>;
+			rear_single_wide_video_fhd30_cpu = CPU_CL0;
+
+			rear_single_wide_videohdr_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_wide_videohdr_cam = <DVFS_CAM_L3>;
+			rear_single_wide_videohdr_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_videohdr_isp = <DVFS_ISP_L3>;
+			rear_single_wide_videohdr_mif = <DVFS_MIF_L3>;
+			rear_single_wide_videohdr_int = <DVFS_INT_L1>;
+			rear_single_wide_videohdr_hpg = <1>;
+			rear_single_wide_videohdr_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd60_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_wide_video_fhd60_cam = <DVFS_CAM_L5>;
+			rear_single_wide_video_fhd60_csis = <DVFS_CSIS_L4>;
+			rear_single_wide_video_fhd60_isp = <DVFS_ISP_L6>;
+			rear_single_wide_video_fhd60_mif = <DVFS_MIF_L6>;
+			rear_single_wide_video_fhd60_int = <DVFS_INT_L2>;
+			rear_single_wide_video_fhd60_hpg = <1>;
+			rear_single_wide_video_fhd60_cpu = CPU_CL1;
+
+			rear_single_wide_video_uhd30_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_wide_video_uhd30_cam = <DVFS_CAM_L6>;
+			rear_single_wide_video_uhd30_csis = <DVFS_CSIS_L4>;
+			rear_single_wide_video_uhd30_isp = <DVFS_ISP_L6>;
+			rear_single_wide_video_uhd30_mif = <DVFS_MIF_L6>;
+			rear_single_wide_video_uhd30_int = <DVFS_INT_L2>;
+			rear_single_wide_video_uhd30_hpg = <1>;
+			rear_single_wide_video_uhd30_cpu = CPU_CL0;
+
+			rear_single_wide_video_uhd60_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_wide_video_uhd60_cam = <DVFS_CAM_L5>;
+			rear_single_wide_video_uhd60_csis = <DVFS_CSIS_L4>;
+			rear_single_wide_video_uhd60_isp = <DVFS_ISP_L6>;
+			rear_single_wide_video_uhd60_mif = <DVFS_MIF_L4>;
+			rear_single_wide_video_uhd60_int = <DVFS_INT_L2>;
+			rear_single_wide_video_uhd60_hpg = <1>;
+			rear_single_wide_video_uhd60_cpu = CPU_CL1;
+
+			rear_single_wide_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_wide_capture_cam = <DVFS_CAM_L3>;
+			rear_single_wide_capture_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_capture_isp = <DVFS_ISP_L3>;
+			rear_single_wide_capture_mif = <DVFS_MIF_L1>;
+			rear_single_wide_capture_int = <DVFS_INT_L1>;
+			rear_single_wide_capture_hpg = <1>;
+			rear_single_wide_capture_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd120_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_wide_video_fhd120_cam = <DVFS_CAM_L6>;
+			rear_single_wide_video_fhd120_csis = <DVFS_CSIS_L4>;
+			rear_single_wide_video_fhd120_isp = <DVFS_ISP_L6>;
+			rear_single_wide_video_fhd120_mif = <DVFS_MIF_L3>;
+			rear_single_wide_video_fhd120_int = <DVFS_INT_L2>;
+			rear_single_wide_video_fhd120_hpg = <1>;
+			rear_single_wide_video_fhd120_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd240_int_cam = <DVFS_INT_CAM_L2>;
+			rear_single_wide_video_fhd240_cam = <DVFS_CAM_L5>;
+			rear_single_wide_video_fhd240_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_video_fhd240_isp = <DVFS_ISP_L3>;
+			rear_single_wide_video_fhd240_mif = <DVFS_MIF_L3>;
+			rear_single_wide_video_fhd240_int = <DVFS_INT_L1>;
+			rear_single_wide_video_fhd240_hpg = <8>;
+			rear_single_wide_video_fhd240_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd480_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_wide_video_fhd480_cam = <DVFS_CAM_L3>;
+			rear_single_wide_video_fhd480_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_video_fhd480_isp = <DVFS_ISP_L3>;
+			rear_single_wide_video_fhd480_mif = <DVFS_MIF_L3>;
+			rear_single_wide_video_fhd480_int = <DVFS_INT_L2>;
+			rear_single_wide_video_fhd480_hpg = <1>;
+			rear_single_wide_video_fhd480_cpu = CPU_CL0;
+
+			rear_single_wide_video_fhd960_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_wide_video_fhd960_cam = <DVFS_CAM_L3>;
+			rear_single_wide_video_fhd960_csis = <DVFS_CSIS_L3>;
+			rear_single_wide_video_fhd960_isp = <DVFS_ISP_L3>;
+			rear_single_wide_video_fhd960_mif = <DVFS_MIF_L3>;
+			rear_single_wide_video_fhd960_int = <DVFS_INT_L2>;
+			rear_single_wide_video_fhd960_hpg = <1>;
+			rear_single_wide_video_fhd960_cpu = CPU_CL0;
+
+			rear_single_wide_video_8k24_int_cam = <DVFS_INT_CAM_L4>;
+			rear_single_wide_video_8k24_cam = <DVFS_CAM_L1>;
+			rear_single_wide_video_8k24_csis = <DVFS_CSIS_L1>;
+			rear_single_wide_video_8k24_isp = <DVFS_ISP_L4>;
+			rear_single_wide_video_8k24_mif = <DVFS_MIF_L5>;
+			rear_single_wide_video_8k24_int = <DVFS_INT_L2>;
+			rear_single_wide_video_8k24_hpg = <1>;
+			rear_single_wide_video_8k24_cpu = CPU_CL0;
+
+			rear_single_wide_video_8k30_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_wide_video_8k30_cam = <DVFS_CAM_L1>;
+			rear_single_wide_video_8k30_csis = <DVFS_CSIS_L1>;
+			rear_single_wide_video_8k30_isp = <DVFS_ISP_L4>;
+			rear_single_wide_video_8k30_mif = <DVFS_MIF_L3>;
+			rear_single_wide_video_8k30_int = <DVFS_INT_L1>;
+			rear_single_wide_video_8k30_hpg = <1>;
+			rear_single_wide_video_8k30_cpu = CPU_CL0;
+
+			rear_single_ultrawide_photo_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_ultrawide_photo_cam = <DVFS_CAM_L3>;
+			rear_single_ultrawide_photo_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_photo_isp = <DVFS_ISP_L3>;
+			rear_single_ultrawide_photo_mif = <DVFS_MIF_L6>;
+			rear_single_ultrawide_photo_int = <DVFS_INT_L2>;
+			rear_single_ultrawide_photo_hpg = <1>;
+			rear_single_ultrawide_photo_cpu = CPU_CL0;
+
+			rear_single_ultrawide_photo_full_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_ultrawide_photo_full_cam = <DVFS_CAM_L3>;
+			rear_single_ultrawide_photo_full_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_photo_full_isp = <DVFS_ISP_L3>;
+			rear_single_ultrawide_photo_full_mif = <DVFS_MIF_L3>;
+			rear_single_ultrawide_photo_full_int = <DVFS_INT_L1>;
+			rear_single_ultrawide_photo_full_hpg = <1>;
+			rear_single_ultrawide_photo_full_cpu = CPU_CL0;
+
+			rear_single_ultrawide_video_fhd30_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_ultrawide_video_fhd30_cam = <DVFS_CAM_L3>;
+			rear_single_ultrawide_video_fhd30_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_video_fhd30_isp = <DVFS_ISP_L3>;
+			rear_single_ultrawide_video_fhd30_mif = <DVFS_MIF_L6>;
+			rear_single_ultrawide_video_fhd30_int = <DVFS_INT_L2>;
+			rear_single_ultrawide_video_fhd30_hpg = <1>;
+			rear_single_ultrawide_video_fhd30_cpu = CPU_CL0;
+
+			rear_single_ultrawide_video_fhd30_supersteady_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_ultrawide_video_fhd30_supersteady_cam = <DVFS_CAM_L5>;
+			rear_single_ultrawide_video_fhd30_supersteady_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_video_fhd30_supersteady_isp = <DVFS_ISP_L5>;
+			rear_single_ultrawide_video_fhd30_supersteady_mif = <DVFS_MIF_L7>;
+			rear_single_ultrawide_video_fhd30_supersteady_int = <DVFS_INT_L3>;
+			rear_single_ultrawide_video_fhd30_supersteady_hpg = <1>;
+			rear_single_ultrawide_video_fhd30_supersteady_cpu = CPU_CL0;
+
+			rear_single_ultrawide_video_fhd30_hf_supersteady_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_cam = <DVFS_CAM_L5>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_isp = <DVFS_ISP_L6>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_mif = <DVFS_MIF_L8>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_int = <DVFS_INT_L3>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_hpg = <1>;
+			rear_single_ultrawide_video_fhd30_hf_supersteady_cpu = CPU_CL0;
+
+			rear_single_ultrawide_video_fhd60_hf_supersteady_int_cam = <DVFS_INT_CAM_L4>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_cam = <DVFS_CAM_L4>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_isp = <DVFS_ISP_L6>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_mif = <DVFS_MIF_L5>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_int = <DVFS_INT_L2>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_hpg = <1>;
+			rear_single_ultrawide_video_fhd60_hf_supersteady_cpu = CPU_CL1;
+
+			rear_single_ultrawide_video_uhd30_int_cam = <DVFS_INT_CAM_L6>;
+			rear_single_ultrawide_video_uhd30_cam = <DVFS_CAM_L3>;
+			rear_single_ultrawide_video_uhd30_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_video_uhd30_isp = <DVFS_ISP_L3>;
+			rear_single_ultrawide_video_uhd30_mif = <DVFS_MIF_L6>;
+			rear_single_ultrawide_video_uhd30_int = <DVFS_INT_L2>;
+			rear_single_ultrawide_video_uhd30_hpg = <1>;
+			rear_single_ultrawide_video_uhd30_cpu = CPU_CL0;
+
+			rear_single_ultrawide_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_ultrawide_capture_cam = <DVFS_CAM_L3>;
+			rear_single_ultrawide_capture_csis = <DVFS_CSIS_L3>;
+			rear_single_ultrawide_capture_isp = <DVFS_ISP_L3>;
+			rear_single_ultrawide_capture_mif = <DVFS_MIF_L1>;
+			rear_single_ultrawide_capture_int = <DVFS_INT_L1>;
+			rear_single_ultrawide_capture_hpg = <1>;
+			rear_single_ultrawide_capture_cpu = CPU_CL0;
+
+			rear_single_tele_photo_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_photo_cam = <DVFS_CAM_L3>;
+			rear_single_tele_photo_csis = <DVFS_CSIS_L3>;
+			rear_single_tele_photo_isp = <DVFS_ISP_L3>;
+			rear_single_tele_photo_mif = <DVFS_MIF_L6>;
+			rear_single_tele_photo_int = <DVFS_INT_L2>;
+			rear_single_tele_photo_hpg = <1>;
+			rear_single_tele_photo_cpu = CPU_CL0;
+
+			rear_single_tele_photo_full_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_photo_full_cam = <DVFS_CAM_L3>;
+			rear_single_tele_photo_full_csis = <DVFS_CSIS_L3>;
+			rear_single_tele_photo_full_isp = <DVFS_ISP_L3>;
+			rear_single_tele_photo_full_mif = <DVFS_MIF_L3>;
+			rear_single_tele_photo_full_int = <DVFS_INT_L1>;
+			rear_single_tele_photo_full_hpg = <1>;
+			rear_single_tele_photo_full_cpu = CPU_CL0;
+
+			rear_single_tele_video_fhd30_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_tele_video_fhd30_cam = <DVFS_CAM_L5>;
+			rear_single_tele_video_fhd30_csis = <DVFS_CSIS_L4>;
+			rear_single_tele_video_fhd30_isp = <DVFS_ISP_L5>;
+			rear_single_tele_video_fhd30_mif = <DVFS_MIF_L6>;
+			rear_single_tele_video_fhd30_int = <DVFS_INT_L2>;
+			rear_single_tele_video_fhd30_hpg = <1>;
+			rear_single_tele_video_fhd30_cpu = CPU_CL0;
+
+			rear_single_tele_video_uhd30_int_cam = <DVFS_INT_CAM_L5>;
+			rear_single_tele_video_uhd30_cam = <DVFS_CAM_L5>;
+			rear_single_tele_video_uhd30_csis = <DVFS_CSIS_L4>;
+			rear_single_tele_video_uhd30_isp = <DVFS_ISP_L5>;
+			rear_single_tele_video_uhd30_mif = <DVFS_MIF_L6>;
+			rear_single_tele_video_uhd30_int = <DVFS_INT_L2>;
+			rear_single_tele_video_uhd30_hpg = <1>;
+			rear_single_tele_video_uhd30_cpu = CPU_CL0;
+
+			rear_single_tele_video_8k24_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_video_8k24_cam = <DVFS_CAM_L1>;
+			rear_single_tele_video_8k24_csis = <DVFS_CSIS_L1>;
+			rear_single_tele_video_8k24_isp = <DVFS_ISP_L4>;
+			rear_single_tele_video_8k24_mif = <DVFS_MIF_L4>;
+			rear_single_tele_video_8k24_int = <DVFS_INT_L2>;
+			rear_single_tele_video_8k24_hpg = <1>;
+			rear_single_tele_video_8k24_cpu = CPU_CL0;
+
+			rear_single_tele_video_8k30_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_video_8k30_cam = <DVFS_CAM_L1>;
+			rear_single_tele_video_8k30_csis = <DVFS_CSIS_L1>;
+			rear_single_tele_video_8k30_isp = <DVFS_ISP_L4>;
+			rear_single_tele_video_8k30_mif = <DVFS_MIF_L3>;
+			rear_single_tele_video_8k30_int = <DVFS_INT_L1>;
+			rear_single_tele_video_8k30_hpg = <1>;
+			rear_single_tele_video_8k30_cpu = CPU_CL0;
+
+			rear_single_tele_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_capture_cam = <DVFS_CAM_L3>;
+			rear_single_tele_capture_csis = <DVFS_CSIS_L3>;
+			rear_single_tele_capture_isp = <DVFS_ISP_L3>;
+			rear_single_tele_capture_mif = <DVFS_MIF_L1>;
+			rear_single_tele_capture_int = <DVFS_INT_L0>;
+			rear_single_tele_capture_hpg = <1>;
+			rear_single_tele_capture_cpu = CPU_CL0;
+
+			rear_single_tele_remosaic_photo_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_remosaic_photo_cam = <DVFS_CAM_L1>;
+			rear_single_tele_remosaic_photo_csis = <DVFS_CSIS_L1>;
+			rear_single_tele_remosaic_photo_isp = <DVFS_ISP_L3>;
+			rear_single_tele_remosaic_photo_mif = <DVFS_MIF_L3>;
+			rear_single_tele_remosaic_photo_int = <DVFS_INT_L2>;
+			rear_single_tele_remosaic_photo_hpg = <1>;
+			rear_single_tele_remosaic_photo_cpu = CPU_CL0;
+
+			rear_single_tele_remosaic_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_tele_remosaic_capture_cam = <DVFS_CAM_L1>;
+			rear_single_tele_remosaic_capture_csis = <DVFS_CSIS_L1>;
+			rear_single_tele_remosaic_capture_isp = <DVFS_ISP_L3>;
+			rear_single_tele_remosaic_capture_mif = <DVFS_MIF_L1>;
+			rear_single_tele_remosaic_capture_int = <DVFS_INT_L0>;
+			rear_single_tele_remosaic_capture_hpg = <1>;
+			rear_single_tele_remosaic_capture_cpu = CPU_CL0;
+
+			rear_dual_wide_tele_photo_int_cam = <DVFS_INT_CAM_L3>;
+			rear_dual_wide_tele_photo_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_tele_photo_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_tele_photo_isp = <DVFS_ISP_L3>;
+			rear_dual_wide_tele_photo_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_tele_photo_int = <DVFS_INT_L0>;
+			rear_dual_wide_tele_photo_hpg = <1>;
+			rear_dual_wide_tele_photo_cpu = CPU_CL0;
+
+			rear_dual_wide_tele_video_fhd30_int_cam = <DVFS_INT_CAM_L4>;
+			rear_dual_wide_tele_video_fhd30_cam = <DVFS_CAM_L4>;
+			rear_dual_wide_tele_video_fhd30_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_tele_video_fhd30_isp = <DVFS_ISP_L4>;
+			rear_dual_wide_tele_video_fhd30_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_tele_video_fhd30_int = <DVFS_INT_L0>;
+			rear_dual_wide_tele_video_fhd30_hpg = <1>;
+			rear_dual_wide_tele_video_fhd30_cpu = CPU_CL0;
+
+			rear_dual_wide_tele_video_uhd30_int_cam = <DVFS_INT_CAM_L4>;
+			rear_dual_wide_tele_video_uhd30_cam = <DVFS_CAM_L4>;
+			rear_dual_wide_tele_video_uhd30_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_tele_video_uhd30_isp = <DVFS_ISP_L4>;
+			rear_dual_wide_tele_video_uhd30_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_tele_video_uhd30_int = <DVFS_INT_L0>;
+			rear_dual_wide_tele_video_uhd30_hpg = <1>;
+			rear_dual_wide_tele_video_uhd30_cpu = CPU_CL0;
+
+			rear_dual_wide_tele_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_dual_wide_tele_capture_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_tele_capture_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_tele_capture_isp = <DVFS_ISP_L3>;
+			rear_dual_wide_tele_capture_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_tele_capture_int = <DVFS_INT_L0>;
+			rear_dual_wide_tele_capture_hpg = <1>;
+			rear_dual_wide_tele_capture_cpu = CPU_CL0;
+
+			rear_dual_wide_ultrawide_photo_int_cam = <DVFS_INT_CAM_L3>;
+			rear_dual_wide_ultrawide_photo_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_ultrawide_photo_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_ultrawide_photo_isp = <DVFS_ISP_L3>;
+			rear_dual_wide_ultrawide_photo_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_ultrawide_photo_int = <DVFS_INT_L0>;
+			rear_dual_wide_ultrawide_photo_hpg = <1>;
+			rear_dual_wide_ultrawide_photo_cpu = CPU_CL0;
+
+			rear_dual_wide_ultrawide_video_fhd30_int_cam = <DVFS_INT_CAM_L4>;
+			rear_dual_wide_ultrawide_video_fhd30_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_ultrawide_video_fhd30_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_ultrawide_video_fhd30_isp = <DVFS_ISP_L4>;
+			rear_dual_wide_ultrawide_video_fhd30_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_ultrawide_video_fhd30_int = <DVFS_INT_L0>;
+			rear_dual_wide_ultrawide_video_fhd30_hpg = <1>;
+			rear_dual_wide_ultrawide_video_fhd30_cpu = CPU_CL0;
+
+			rear_dual_wide_ultrawide_video_uhd30_int_cam = <DVFS_INT_CAM_L4>;
+			rear_dual_wide_ultrawide_video_uhd30_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_ultrawide_video_uhd30_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_ultrawide_video_uhd30_isp = <DVFS_ISP_L4>;
+			rear_dual_wide_ultrawide_video_uhd30_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_ultrawide_video_uhd30_int = <DVFS_INT_L0>;
+			rear_dual_wide_ultrawide_video_uhd30_hpg = <1>;
+			rear_dual_wide_ultrawide_video_uhd30_cpu = CPU_CL0;
+
+			rear_dual_wide_ultrawide_capture_int_cam = <DVFS_INT_CAM_L3>;
+			rear_dual_wide_ultrawide_capture_cam = <DVFS_CAM_L3>;
+			rear_dual_wide_ultrawide_capture_csis = <DVFS_CSIS_L3>;
+			rear_dual_wide_ultrawide_capture_isp = <DVFS_ISP_L3>;
+			rear_dual_wide_ultrawide_capture_mif = <DVFS_MIF_L0>;
+			rear_dual_wide_ultrawide_capture_int = <DVFS_INT_L0>;
+			rear_dual_wide_ultrawide_capture_hpg = <1>;
+			rear_dual_wide_ultrawide_capture_cpu = CPU_CL0;
+
+			triple_photo_int_cam = <DVFS_INT_CAM_L3>;
+			triple_photo_cam = <DVFS_CAM_L1>;
+			triple_photo_csis = <DVFS_CSIS_L0>;
+			triple_photo_isp = <DVFS_ISP_L1>;
+			triple_photo_mif = <DVFS_MIF_L1>;
+			triple_photo_int = <DVFS_INT_L1>;
+			triple_photo_hpg = <1>;
+			triple_photo_cpu = CPU_CL0;
+
+			triple_video_fhd30_int_cam = <DVFS_INT_CAM_L3>;
+			triple_video_fhd30_cam = <DVFS_CAM_L1>;
+			triple_video_fhd30_csis = <DVFS_CSIS_L0>;
+			triple_video_fhd30_isp = <DVFS_ISP_L1>;
+			triple_video_fhd30_mif = <DVFS_MIF_L1>;
+			triple_video_fhd30_int = <DVFS_INT_L1>;
+			triple_video_fhd30_hpg = <1>;
+			triple_video_fhd30_cpu = CPU_CL0;
+
+			triple_video_uhd30_int_cam = <DVFS_INT_CAM_L3>;
+			triple_video_uhd30_cam = <DVFS_CAM_L1>;
+			triple_video_uhd30_csis = <DVFS_CSIS_L0>;
+			triple_video_uhd30_isp = <DVFS_ISP_L1>;
+			triple_video_uhd30_mif = <DVFS_MIF_L1>;
+			triple_video_uhd30_int = <DVFS_INT_L1>;
+			triple_video_uhd30_hpg = <1>;
+			triple_video_uhd30_cpu = CPU_CL0;
+
+			triple_video_fhd60_int_cam = <DVFS_INT_CAM_L0>;
+			triple_video_fhd60_cam = <DVFS_CAM_L0>;
+			triple_video_fhd60_csis = <DVFS_CSIS_L0>;
+			triple_video_fhd60_isp = <DVFS_ISP_L0>;
+			triple_video_fhd60_mif = <DVFS_MIF_L1>;
+			triple_video_fhd60_int = <DVFS_INT_L1>;
+			triple_video_fhd60_hpg = <1>;
+			triple_video_fhd60_cpu = CPU_CL1;
+
+			triple_video_uhd60_int_cam = <DVFS_INT_CAM_L3>;
+			triple_video_uhd60_cam = <DVFS_CAM_L1>;
+			triple_video_uhd60_csis = <DVFS_CSIS_L0>;
+			triple_video_uhd60_isp = <DVFS_ISP_L1>;
+			triple_video_uhd60_mif = <DVFS_MIF_L1>;
+			triple_video_uhd60_int = <DVFS_INT_L1>;
+			triple_video_uhd60_hpg = <1>;
+			triple_video_uhd60_cpu = CPU_CL1;
+
+			triple_capture_int_cam = <DVFS_INT_CAM_L3>;
+			triple_capture_cam = <DVFS_CAM_L1>;
+			triple_capture_csis = <DVFS_CSIS_L0>;
+			triple_capture_isp = <DVFS_ISP_L1>;
+			triple_capture_mif = <DVFS_MIF_L1>;
+			triple_capture_int = <DVFS_INT_L1>;
+			triple_capture_hpg = <1>;
+			triple_capture_cpu = CPU_CL0;
+
+			front_single_photo_int_cam = <DVFS_INT_CAM_L5>;
+			front_single_photo_cam = <DVFS_CAM_L3>;
+			front_single_photo_csis = <DVFS_CSIS_L3>;
+			front_single_photo_isp = <DVFS_ISP_L3>;
+			front_single_photo_mif = <DVFS_MIF_L6>;
+			front_single_photo_int = <DVFS_INT_L2>;
+			front_single_photo_hpg = <1>;
+			front_single_photo_cpu = CPU_CL0;
+
+			front_single_photo_full_int_cam = <DVFS_INT_CAM_L5>;
+			front_single_photo_full_cam = <DVFS_CAM_L3>;
+			front_single_photo_full_csis = <DVFS_CSIS_L3>;
+			front_single_photo_full_isp = <DVFS_ISP_L3>;
+			front_single_photo_full_mif = <DVFS_MIF_L3>;
+			front_single_photo_full_int = <DVFS_INT_L1>;
+			front_single_photo_full_hpg = <1>;
+			front_single_photo_full_cpu = CPU_CL0;
+
+			front_single_video_fhd30_int_cam = <DVFS_INT_CAM_L6>;
+			front_single_video_fhd30_cam = <DVFS_CAM_L3>;
+			front_single_video_fhd30_csis = <DVFS_CSIS_L3>;
+			front_single_video_fhd30_isp = <DVFS_ISP_L3>;
+			front_single_video_fhd30_mif = <DVFS_MIF_L6>;
+			front_single_video_fhd30_int = <DVFS_INT_L2>;
+			front_single_video_fhd30_hpg = <1>;
+			front_single_video_fhd30_cpu = CPU_CL0;
+
+			front_single_video_uhd30_int_cam = <DVFS_INT_CAM_L6>;
+			front_single_video_uhd30_cam = <DVFS_CAM_L3>;
+			front_single_video_uhd30_csis = <DVFS_CSIS_L3>;
+			front_single_video_uhd30_isp = <DVFS_ISP_L3>;
+			front_single_video_uhd30_mif = <DVFS_MIF_L6>;
+			front_single_video_uhd30_int = <DVFS_INT_L2>;
+			front_single_video_uhd30_hpg = <1>;
+			front_single_video_uhd30_cpu = CPU_CL0;
+
+			front_single_video_fhd60_int_cam = <DVFS_INT_CAM_L5>;
+			front_single_video_fhd60_cam = <DVFS_CAM_L3>;
+			front_single_video_fhd60_csis = <DVFS_CSIS_L3>;
+			front_single_video_fhd60_isp = <DVFS_ISP_L3>;
+			front_single_video_fhd60_mif = <DVFS_MIF_L6>;
+			front_single_video_fhd60_int = <DVFS_INT_L2>;
+			front_single_video_fhd60_hpg = <1>;
+			front_single_video_fhd60_cpu = CPU_CL1;
+
+			front_single_video_uhd60_int_cam = <DVFS_INT_CAM_L5>;
+			front_single_video_uhd60_cam = <DVFS_CAM_L3>;
+			front_single_video_uhd60_csis = <DVFS_CSIS_L3>;
+			front_single_video_uhd60_isp = <DVFS_ISP_L3>;
+			front_single_video_uhd60_mif = <DVFS_MIF_L4>;
+			front_single_video_uhd60_int = <DVFS_INT_L2>;
+			front_single_video_uhd60_hpg = <1>;
+			front_single_video_uhd60_cpu = CPU_CL1;
+
+			front_single_capture_int_cam = <DVFS_INT_CAM_L3>;
+			front_single_capture_cam = <DVFS_CAM_L3>;
+			front_single_capture_csis = <DVFS_CSIS_L3>;
+			front_single_capture_isp = <DVFS_ISP_L3>;
+			front_single_capture_mif = <DVFS_MIF_L1>;
+			front_single_capture_int = <DVFS_INT_L0>;
+			front_single_capture_hpg = <1>;
+			front_single_capture_cpu = CPU_CL0;
+
+			front_single_vt_int_cam = <DVFS_INT_CAM_L5>;
+			front_single_vt_cam = <DVFS_CAM_L3>;
+			front_single_vt_csis = <DVFS_CSIS_L3>;
+			front_single_vt_isp = <DVFS_ISP_L3>;
+			front_single_vt_mif = <DVFS_MIF_L8>;
+			front_single_vt_int = <DVFS_INT_L2>;
+			front_single_vt_hpg = <1>;
+			front_single_vt_cpu = CPU_CL0;
+
+			front_single_video_fhd120_int_cam = <DVFS_INT_CAM_L6>;
+			front_single_video_fhd120_cam = <DVFS_CAM_L3>;
+			front_single_video_fhd120_csis = <DVFS_CSIS_L3>;
+			front_single_video_fhd120_isp = <DVFS_ISP_L3>;
+			front_single_video_fhd120_mif = <DVFS_MIF_L4>;
+			front_single_video_fhd120_int = <DVFS_INT_L2>;
+			front_single_video_fhd120_hpg = <1>;
+			front_single_video_fhd120_cpu = CPU_CL0;
+
+			rear_single_wide_dualfps_int_cam = <DVFS_INT_CAM_L3>;
+			rear_single_wide_dualfps_cam = <DVFS_CAM_L3>;   /* VOTF */
+			rear_single_wide_dualfps_csis = <DVFS_CSIS_L3>; /* VOTF */
+			rear_single_wide_dualfps_isp = <DVFS_ISP_L3>;
+			rear_single_wide_dualfps_mif = <DVFS_MIF_L4>;
+			rear_single_wide_dualfps_int = <DVFS_INT_L1>;
+			rear_single_wide_dualfps_hpg = <6>;
+			rear_single_wide_dualfps_cpu = CPU_CL0;
+
+			rear_single_wide_fastae_int_cam = <DVFS_INT_CAM_L4>;
+			rear_single_wide_fastae_cam = <DVFS_CAM_L3>;            /* VOTF */
+			rear_single_wide_fastae_csis = <DVFS_CSIS_L3>;  /* VOTF */
+			rear_single_wide_fastae_isp = <DVFS_ISP_L3>;
+			rear_single_wide_fastae_mif = <DVFS_MIF_L4>;
+			rear_single_wide_fastae_int = <DVFS_INT_L2>;
+			rear_single_wide_fastae_hpg = <1>;
+			rear_single_wide_fastae_cpu = CPU_CL0;
+
+			pip_dual_photo_int_cam = <DVFS_INT_CAM_L3>;
+			pip_dual_photo_cam = <DVFS_CAM_L2>;
+			pip_dual_photo_csis = <DVFS_CSIS_L1>;
+			pip_dual_photo_isp = <DVFS_ISP_L1>;
+			pip_dual_photo_mif = <DVFS_MIF_L1>;
+			pip_dual_photo_int = <DVFS_INT_L2>;
+			pip_dual_photo_hpg = <1>;
+			pip_dual_photo_cpu = CPU_CL0;
+
+			pip_dual_capture_int_cam = <DVFS_INT_CAM_L3>;
+			pip_dual_capture_cam = <DVFS_CAM_L2>;
+			pip_dual_capture_csis = <DVFS_CSIS_L1>;
+			pip_dual_capture_isp = <DVFS_ISP_L1>;
+			pip_dual_capture_mif = <DVFS_MIF_L1>;
+			pip_dual_capture_int = <DVFS_INT_L0>;
+			pip_dual_capture_hpg = <1>;
+			pip_dual_capture_cpu = CPU_CL0;
+
+			pip_dual_video_fhd30_int_cam = <DVFS_INT_CAM_L3>;
+			pip_dual_video_fhd30_cam = <DVFS_CAM_L2>;
+			pip_dual_video_fhd30_csis = <DVFS_CSIS_L1>;
+			pip_dual_video_fhd30_isp = <DVFS_ISP_L1>;
+			pip_dual_video_fhd30_mif = <DVFS_MIF_L1>;
+			pip_dual_video_fhd30_int = <DVFS_INT_L2>;
+			pip_dual_video_fhd30_hpg = <1>;
+			pip_dual_video_fhd30_cpu = CPU_CL0;
+
+			ext_rear_single_int_cam = <DVFS_INT_CAM_L5>;
+			ext_rear_single_cam = <DVFS_CAM_L5>;
+			ext_rear_single_csis = <DVFS_CSIS_L5>;
+			ext_rear_single_isp = <DVFS_ISP_L5>;
+			ext_rear_single_mif = <DVFS_MIF_L8>;
+			ext_rear_single_int = <DVFS_INT_L2>;
+			ext_rear_single_hpg = <1>;
+			ext_rear_single_cpu = CPU_CL0;
+
+			ext_front_secure_int_cam = <DVFS_INT_CAM_L5>;
+			ext_front_secure_cam = <DVFS_CAM_L5>;
+			ext_front_secure_csis = <DVFS_CSIS_L5>;
+			ext_front_secure_isp = <DVFS_ISP_L5>;
+			ext_front_secure_mif = <DVFS_MIF_L8>;
+			ext_front_secure_int = <DVFS_INT_L2>;
+			ext_front_secure_hpg = <1>;
+			ext_front_secure_cpu = CPU_CL0;
+
+			max_int_cam = <DVFS_INT_CAM_L0>;
+			max_cam = <DVFS_CAM_L0>;
+			max_csis = <DVFS_CSIS_L0>;
+			max_isp = <DVFS_ISP_L0>;
+			max_mif = <DVFS_MIF_L0>;
+			max_int = <DVFS_INT_L0>;
+			max_hpg = <1>;
+			max_cpu = CPU_CL0;
+		};
+	};
+};

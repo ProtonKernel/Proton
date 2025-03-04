@@ -31,6 +31,11 @@ config SND_SAMSUNG_SPDIF
 config SND_SAMSUNG_I2S
 	tristate "Samsung I2S interface support"
 
+config SND_SOC_SAMSUNG_DISPLAYPORT
+	tristate "Samsung DISPLAYPORT Audio"
+	help
+	  Say Y if you want to use displayport audio.
+
 config SND_SOC_SAMSUNG_NEO1973_WM8753
 	tristate "Audio support for Openmoko Neo1973 Smartphones (GTA02)"
 	depends on MACH_NEO1973_GTA02
@@ -194,6 +199,49 @@ config SND_SOC_ODROID
 	help
 	  Say Y here to enable audio support for the Odroid XU3/XU4.
 
+config SND_SOC_SAMSUNG_EXYNOS2100
+	tristate "Audio support on exynos2100"
+	select SND_SOC_SAMSUNG_ABOX
+	select SND_SOC_SAMSUNG_VTS
+	select SND_SOC_SAMSUNG_MAILBOX
+	select SND_SOC_SAMSUNG_VTS_S_LIF
+#	select SND_SOC_SAMSUNG_DISPLAYPORT
+	help
+		Say Y if you want to add support for audio on the Exynos2100.
+
+config SND_SOC_SAMSUNG_EXYNOS2100_TFA9874
+	tristate "TFA9874 amp support on exynos2100"
+	select SND_SOC_TFA9874
+	select FW_LOADER_USER_HELPER
+	select FW_LOADER_USER_HELPER_FALLBACK
+
+config SND_SOC_SAMSUNG_EXYNOS2100_CS35L41_I2C
+	tristate "CS35L41 support on exynos2100 with i2c bus"
+	select SND_SOC_CS35L41_I2C
+	select MFD_CS35L41_I2C
+
+config SND_SOC_SAMSUNG_EXYNOS2100_CS47L92_SPI
+	tristate "CS47L92 support on exynos2100 with spi bus"
+	select SND_SOC_CS47L92
+	select MFD_MADERA
+	select MFD_MADERA_SPI
+	select MFD_CS47L92
+	select MFD_ARIZONA
+	select REGULATOR_ARIZONA_LDO1
+	select REGULATOR_ARIZONA_MICSUPP
+	select EXTCON
+	select EXTCON_MADERA
+	select EXTCON_MADERA_INPUT_EVENT
+	select GPIO_MADERA
+
+config SND_SOC_SAMSUNG_EXYNOS2100_MADERA
+	tristate "Madera audio codec support on exynos2100"
+	select SND_SOC_SAMSUNG_EXYNOS2100
+
+config SND_SOC_SAMSUNG_UNBOUND_PRINCE
+	tristate "Prince AMP support on exynos2100"
+	select SND_SOC_SAMSUNG_EXYNOS2100
+
 config SND_SOC_ARNDALE_RT5631_ALC5631
         tristate "Audio support for RT5631(ALC5631) on Arndale Board"
         depends on I2C
@@ -209,5 +257,14 @@ config SND_SOC_SAMSUNG_TM2_WM5110
 	select SND_SAMSUNG_I2S
 	help
 	  Say Y if you want to add support for SoC audio on the TM2 board.
+
+config SND_SOC_SAMSUNG_AUDIO
+	tristate "Audio support for Samsung Projects"
+	help
+	  Say Y here to enable audio support for the Samsung Audio.
+
+
+source "sound/soc/samsung/abox/Kconfig"
+source "sound/soc/samsung/vts/Kconfig"
 
 endif #SND_SOC_SAMSUNG

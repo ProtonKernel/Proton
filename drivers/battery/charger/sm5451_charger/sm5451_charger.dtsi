@@ -1,0 +1,14 @@
+&hsi2c_2 {
+	status = "okay";
+
+	sm5451_charger: sm5451@63 {
+		compatible = "siliconmitus,sm5451";
+		reg = <0x63>;
+	};
+};
+
+/* /home/dpi/qb5_8814/workspace/P4_1716/android/kernel/kmodule/battery/charger/sm5451_charger_gki/sm5451_charger.r9s.dtsi */
+&sm5451_charger {
+	sm5451,pps_lr = <340000>;
+	sm5451,rpcm = <30000>;
+};

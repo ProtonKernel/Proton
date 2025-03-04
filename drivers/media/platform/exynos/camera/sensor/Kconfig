@@ -1,0 +1,18 @@
+config EXYNOS_DEVICE_MIPI_CSIS_VER4
+	bool "Use Sensor driver (Sensor Group)"
+	depends on USE_SENSOR_GROUP
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	default n
+	help
+	  Enable Device MIPI-CSIS S/W Version 4(Including WDMA and Sensor Group)
+
+source "drivers/media/platform/exynos/camera/sensor/csi2/Kconfig"
+
+config EXYNOS_DEVICE_CAMERA_MODULE
+	bool "Use Camera modules"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	default y
+	help
+	  Select camera module.
+
+source "drivers/media/platform/exynos/camera/sensor/module_framework/Kconfig"

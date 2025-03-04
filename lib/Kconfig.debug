@@ -35,6 +35,21 @@ config PRINTK_CALLER
 	  no option to enable/disable at the kernel command line parameter or
 	  sysfs interface.
 
+config PRINTK_PROCESS
+        bool "Show process information on printks"
+        depends on PRINTK
+        help
+          Selecting this option causes printk() to add cpu number, process name
+	  and pid to every message.
+
+	  This option is intended for environments where multiple cores and
+	  multiple processes concurrently call printk() for many times, for it
+	  is difficult to interpret without knowing where these lines came from.
+
+	  Since toggling after boot makes the code racy, currently there is
+	  no option to enable/disable at the kernel command line parameter or
+	  sysfs interface.
+
 config CONSOLE_LOGLEVEL_DEFAULT
 	int "Default console loglevel (1-15)"
 	range 1 15
@@ -265,6 +280,7 @@ config ENABLE_MUST_CHECK
 config FRAME_WARN
 	int "Warn for stack frames larger than (needs gcc 4.4)"
 	range 0 8192
+	default 4096 if (SEC_KUNIT && UML)
 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
 	default 2048 if PARISC
 	default 1536 if (!64BIT && XTENSA)

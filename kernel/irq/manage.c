@@ -20,6 +20,7 @@
 #include <linux/sched/task.h>
 #include <uapi/linux/sched/types.h>
 #include <linux/task_work.h>
+#include <linux/sec_debug.h>
 
 #include "internals.h"
 
@@ -128,6 +129,7 @@ void synchronize_irq(unsigned int irq)
 	struct irq_desc *desc = irq_to_desc(irq);
 
 	if (desc) {
+		secdbg_base_built_set_task_in_sync_irq(current, irq, desc);
 		__synchronize_hardirq(desc, true);
 		/*
 		 * We made sure that no hardirq handler is
@@ -136,6 +138,8 @@ void synchronize_irq(unsigned int irq)
 		 */
 		wait_event(desc->wait_for_threads,
 			   !atomic_read(&desc->threads_active));
+
+		secdbg_base_built_set_task_in_sync_irq(NULL, 0, NULL);
 	}
 }
 EXPORT_SYMBOL(synchronize_irq);

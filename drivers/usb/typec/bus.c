@@ -357,6 +357,8 @@ static int typec_probe(struct device *dev)
 	struct altmode *altmode = to_altmode(adev);
 	int ret;
 
+	pr_info("%s\n", __func__);
+
 	/* Fail if the port does not support the alternate mode */
 	if (!altmode->partner)
 		return -ENODEV;

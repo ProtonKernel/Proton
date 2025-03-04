@@ -268,6 +268,12 @@ static int ashmem_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
+#define MB_TO_PAGES(x) ((x) << (20 - PAGE_SHIFT))
+#define K(x) ((x) << (PAGE_SHIFT-10))
+
+#define ASHMEM_OVERUSE_MB	400
+#define ASHMEM_OVERUSE_PAGES	MB_TO_PAGES(ASHMEM_OVERUSE_MB)
+
 /**
  * ashmem_release() - Releases an Anonymous Shared Memory structure
  * @ignored:	      The backing file's Index Node(?) - It is ignored here.
@@ -280,6 +286,15 @@ static int ashmem_release(struct inode *ignored, struct file *file)
 {
 	struct ashmem_area *asma = file->private_data;
 	struct ashmem_range *range, *next;
+
+	if (asma->file && atomic_long_read(&asma->file->f_count) == 1) {
+		long shmem = global_node_page_state(NR_SHMEM);
+
+		if (shmem > ASHMEM_OVERUSE_PAGES) {
+			pr_err("shmem: %lu kB ashmem size: %zu name: %s\n",
+			       K(shmem), asma->size, asma->name);
+		}
+	}
 
 	mutex_lock(&ashmem_mutex);
 	list_for_each_entry_safe(range, next, &asma->unpinned_list, unpinned)

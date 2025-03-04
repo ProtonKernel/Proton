@@ -83,10 +83,29 @@ config PCIE_DW_PLAT_EP
 	  selected.
 
 config PCI_EXYNOS
-	bool "Samsung Exynos PCIe controller"
-	depends on SOC_EXYNOS5440 || COMPILE_TEST
+	tristate "Samsung Exynos PCIe controller"
+	depends on PCI
+	depends on OF
+	depends on PCI_MSI_IRQ_DOMAIN
+	select PCIEPORTBUS
+	select PCIE_DW_HOST
+
+config PCI_EXYNOS_2100
+	tristate "Samsung Exynos PCIe controller 1000"
+	depends on PCI
+	depends on OF
 	depends on PCI_MSI_IRQ_DOMAIN
 	select PCIE_DW_HOST
+
+config EXYNOS_PCIE_GEN2_S2MPU
+	tristate "Enable Exynos PCIe S2MPU"
+	depends on PCI_EXYNOS
+	help
+	  enable S2MPU feature for PCIe GEN2 channel
+
+config EXYNOS_PCI_PM_ASYNC
+	tristate "Enable Exynos PCI PM ASYNC SUSPEND/RESUME"
+	depends on PCI_EXYNOS
 
 config PCI_IMX6
 	bool "Freescale i.MX6/7/8 PCIe controller"
@@ -267,5 +286,10 @@ config PCIE_AL
 	  core plus Annapurna Labs proprietary hardware wrappers. This is
 	  required only for DT-based platforms. ACPI platforms with the
 	  Annapurna Labs PCIe controller don't need to enable this.
+	  
+config SEC_PANIC_PCIE_ERR
+	depends on PCI_EXYNOS
+	default n
+	bool "Force PANIC on PCIe Main Errors"
 
 endmenu

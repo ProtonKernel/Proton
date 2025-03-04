@@ -5,6 +5,22 @@
 menuconfig SOC_SAMSUNG
 	bool "Samsung SoC driver support" if COMPILE_TEST
 
+config SOC_EXYNOS9820
+	bool "Samsung EXYNOS9820"
+	select SOC_SAMSUNG
+
+config SOC_EXYNOS2100
+	bool "Samsung EXYNOS2100"
+	select SOC_SAMSUNG
+	help
+	Support Samsung SOC Exynos2100.
+
+config SOC_EXYNOS2100_EVT0
+	bool "Samsung EXYNOS2100 EVT0"
+	select SOC_SAMSUNG
+	help
+	Support Samsung SOC Exynos2100 EVT0.
+
 if SOC_SAMSUNG
 
 config EXYNOS_CHIPID
@@ -13,10 +29,43 @@ config EXYNOS_CHIPID
 	select MFD_SYSCON
 	select SOC_BUS
 
+config ECT
+	tristate "Enable Exynos Characteristic Table File"
+	default n
+	help
+	Support ECT for Exynos SoC.
+
+config EXYNOS_PM
+	tristate "Enable Exynos PM"
+	help
+	Support EXYNOS_PM for Exynos SoC.
+
+config ECT_DUMP
+        bool "Enable Exynos Characteristic Table File Dump sysfs"
+        default n
+        depends on ECT
+
+config EXYNOS_RGT
+	tristate "Exynos Regulator Debug Support"
+	depends on REGULATOR
+	depends on DEBUG_FS
+	depends on OF
+	help
+	dummy device driver for debugging samsung PMIC
+
+config EXYNOS_CHIPID_V2
+	tristate "Exynos Chipid controller driver v2"
+	depends on ARCH_EXYNOS
+
 config EXYNOS_PMU
 	bool "Exynos PMU controller driver" if COMPILE_TEST
 	depends on ARCH_EXYNOS || ((ARM || ARM64) && COMPILE_TEST)
 	select EXYNOS_PMU_ARM_DRIVERS if ARM && ARCH_EXYNOS
+
+config EXYNOS_PMU_IF
+	tristate "Exynos PMU controller Interface driver"
+	help
+	Support PMU register API for Exynos SoC.
 
 # There is no need to enable these drivers for ARMv8
 config EXYNOS_PMU_ARM_DRIVERS
@@ -27,4 +76,403 @@ config EXYNOS_PM_DOMAINS
 	bool "Exynos PM domains" if COMPILE_TEST
 	depends on PM_GENERIC_DOMAINS || COMPILE_TEST
 
+config CAL_IF
+	tristate "Exynos Chip Abstraction Layer Interface"
+	help
+	Support CMU CAL for Exynos SoC.
+
+config EXYNOS_DEBUG_INFO
+	bool "Exynos Debug infromation"
+	default y
+	help
+	Support printing Exynos Debug information.
+
+config CMUCAL
+	tristate "Exynos CMU Chip Abstraction Layer"
+	default y
+	depends on CAL_IF
+	help
+	Support CMUCAL for Exynos SoC.
+
+config CP_PMUCAL
+	tristate "Exynos PMU(for CP) Chip Abstraction Layer"
+	default n
+	depends on CAL_IF
+	help
+	Support CP_PMUCAL for Exynos SoC.
+
+config CMUCAL_DEBUG
+	tristate "CMUCAL Debug Interface"
+	default y
+	depends on CMUCAL
+
+config CMUCAL_QCH_IGNORE_SUPPORT
+	tristate "CMUCAL QCH IGNORE Support"
+	default y
+	depends on CMUCAL
+
+config PMUCAL
+        bool "Exynos PMU Chip Abstraction Layer"
+        depends on CAL_IF
+        default y
+        help
+        Support PMUCAL for Exynos SoC.
+
+config PMUCAL_DBG
+        tristate "Exynos PMUCAL debugging interface"
+        depends on PMUCAL
+        help
+        Support PMUCAL debugging for Exynos SoC.
+
+config EXYNOS_FLEXPMU_DBG
+        tristate "Exynos FLEXPMU debugging interface"
+	depends on PMUCAL
+	help
+	Support FLEXPMU for Exynos SoC.
+
+config USI_V2
+	tristate "Enable Universal Serial Interface version 2"
+	default y
+
+config CMU_EWF
+	tristate "exynos early wakeup force enable"
+	depends on CAL_IF
+	default n
+	help
+	Support CMUEWF for Exynos SoC.
+
+config EXYNOS_ACPM
+	tristate "ACPM driver support"
+	depends on ARCH_EXYNOS
+	default n
+	help
+	Support ACPM for Exynos SoC.
+
+config ACPM_DVFS
+        tristate "Exynos ACPM DVFS manager"
+        depends on CAL_IF && CMUCAL
+        default n
+        help
+        Support ACPM DVFS for Exynos SoC.
+
+config EXYNOS_PD
+	tristate "Exynos PM domain Support"
+        depends on CAL_IF && CMUCAL
+	depends on PM
+	select PM_GENERIC_DOMAINS
+
+config EXYNOS_PD_DBG
+	tristate "Exynos PM domain Support"
+        depends on CAL_IF && CMUCAL
+	depends on PM
+	select PM_GENERIC_DOMAINS
+
+config EXYNOS_EL2
+	tristate "Exynos EL2 Solution"
+	depends on ARCH_EXYNOS
+	help
+	  Exynos EL2 Solution has implemented Stage 2
+	  MMU and IOMMU
+
+config EXYNOS_S2MPU
+        tristate "Exynos Stage 2 Memory Protection Unit(S2MPU)"
+	depends on EXYNOS_EL2
+        help
+          Exynos S2MPU driver to set S2MPU access permission.
+
+config EXYNOS_S2MPUFD_FAIL_DETECTOR
+        bool "Exynos S2MPU Fail Detector"
+        depends on EXYNOS_S2MPU
+	default y
+        help
+          Support Exynos S2MPU Fail Detector
+
+config EXYNOS_S2MPUFD_ILLEGAL_ACCESS_PANIC
+        bool "Kernel Panic over S2MPU Illegal Access"
+        depends on EXYNOS_S2MPUFD_FAIL_DETECTOR
+	default y
+        help
+          Kernel panic will occur in case that S2MPU illegal
+          access is detected.
+
+config EXYNOS_S2MPU_PD
+	bool "Exynos S2MPU PM domain support"
+	depends on EXYNOS_S2MPU
+	default y
+	help
+	  Backup and restore S2MPU when PM domains
+	  on and off.
+
+config EXYNOS_PD_EL3
+	tristate "Exynos PD Save/Restore"
+	default m
+	help
+	Support Exynos Power Domain Save/Restore
+
+config EXYNOS_SECURE_LOG
+	tristate "Exynos Secure Log"
+	default m
+	help
+	Support Exynos Secure Log
+
+config EXYNOS_SEH
+	tristate "Exynos Smart Exception Handler"
+	default m
+	help
+	Support Exynos Smart Exception Handler
+
+config EXYNOS_TZASC_FAIL_DETECTOR
+	tristate "Exynos TZASC Fail Detector"
+	default m
+	help
+	Support Exynos TZASC Fail Detector
+
+config EXYNOS_TZASC_ILLEGAL_READ_LOGGING
+	bool "Logging TZASC Read Fail Information"
+	depends on EXYNOS_TZASC_FAIL_DETECTOR
+	default n
+	help
+	TZASC fail information of illegal reads will be printed
+	by the Kernel logging system.
+
+config EXYNOS_TZASC_ILLEGAL_ACCESS_PANIC
+	bool "Kernel Panic over TZASC Illegal Access"
+	depends on EXYNOS_TZASC_FAIL_DETECTOR
+	default y
+	help
+	Kernel panic will occur in case that TZASC illegal
+	access is detected.
+
+config EXYNOS_PPMPU_FAIL_DETECTOR
+	tristate "Exynos PPMPU Fail Detector"
+	default m
+	help
+	Support Exynos PPMPU Fail Detector
+
+config EXYNOS_PPMPU_ILLEGAL_READ_LOGGING
+	bool "Logging PPMPU Read Fail Information"
+	depends on EXYNOS_PPMPU_FAIL_DETECTOR
+	default n
+	help
+	PPMPU fail information of illegal reads will be printed
+	by the Kernel logging system.
+
+config EXYNOS_PPMPU_ILLEGAL_ACCESS_PANIC
+	bool "Kernel Panic over PPMPU Illegal Access"
+	depends on EXYNOS_PPMPU_FAIL_DETECTOR
+	default y
+	help
+	Kernel panic will occur in case that PPMPU illegal
+	access is detected.
+
+config EXYNOS_KERNEL_INFO
+	bool "Exynos Kernel Information"
+	default y
+	help
+	Send kernel info to EL3_Monitor.
+
+config EXYNOS_SSP
+	tristate "Exynos Smart Secure Platform"
+	depends on ARCH_EXYNOS
+	help
+	Support Smart Secure Platform
+
+config EXYNOS_CPUPM
+	tristate "Exynos CPU Power Management driver"
+	depends on ARCH_EXYNOS && PMUCAL
+	help
+	Support Exynos CPU Power Control for EXYNOS SoC.
+
+config EXYNOS_CPUHP
+	tristate "CPU Hotplug driver support"
+	default n
+	help
+	Support CPU Hotplug for Exynos SoC.
+
+config EXYNOS_UFCC
+	tristate "User Frequency & C-state Control"
+	depends on EXYNOS_CPUPM && ARM_EXYNOS_ACME
+	help
+	  Control Frequency & C-state by user
+
+config EXYNOS_PM_QOS
+	tristate "Exynos PM QOS"
+	default m
+	help
+	  Support Exynos PM QOS
+
+config EXYNOS_SDM
+	tristate "Exynos Security Dump Manager Support"
+	depends on DEBUG_SNAPSHOT
+	default m
+	help
+	  Exynos Security Dump Manager
+
+config EXYNOS_SCI
+	tristate "EXYNOS SCI interface driver support"
+	help
+	Enable exynos sci interface driver support
+
+config USE_LLC_LOG
+	tristate "USE_LLC_LOG support"
+	default m
+	depends on EXYNOS_SCI
+	help
+	  Enable use_llc_log support
+
+config EXYNOS_SCI_DBG
+	tristate "EXYNOS SCI DBG interface driver support"
+	depends on EXYNOS_SCI
+	help
+	Enable exynos sci debug interface driver support
+
+config USE_PPC_LOG
+	tristate "USE_PPC_LOG support"
+	default m
+	depends on EXYNOS_SCI_DBG
+	help
+	  Enable use_ppc_log support
+
+config EXYNOS_SCI_DBG_AUTO
+	tristate "EXYNOS_SCI_DBG_AUTO support"
+	default m
+	depends on EXYNOS_SCI_DBG
+	depends on !(USE_SIGNED_BINARY)
+	help
+	  Enable exynos-sci_dbg_auto support
+
+config EXYNOS_BCM_DBG
+	tristate "EXYNOS_BCM_DBG driver support"
+	help
+	  Enable exynos-bcm_dbg driver support
+
+config EXYNOS_BCM_DBG_GNR
+	tristate "EXYNOS_BCM_DBG_GNR driver support"
+	help
+	  Enable exynos-bcm_dbg driver support
+
+config EXYNOS_BCM_DBG_AUTO
+	tristate "EXYNOS_BCM_DBG_AUTO support"
+	default m
+	depends on EXYNOS_BCM_DBG
+	depends on !(USE_SIGNED_BINARY)
+	help
+	  Enable exynos-bcm_dbg_auto support
+
+config EXYNOS_BCM_DBG_DUMP
+	tristate "EXYNOS_BCM_DBG dump support"
+	depends on EXYNOS_BCM_DBG
+	help
+	  Enable exynos-bcm_dbg dump support
+
+config EXYNOS_DVFS_MANAGER
+	tristate "Exynos DVFS Manager"
+	default m
+	help
+	  Enable DVFS Manager for Exynos SoC.
+	  This module controls constraint between each DVFS domains.
+
+config EXYNOS_MCINFO
+	tristate "Exynos memory controller information"
+	default m
+
+config MCINFO_SYSFS
+	bool "Exynos memory controller information sysfs"
+	depends on EXYNOS_MCINFO
+	default	y if SYSFS
+
+config EXYNOS_MSN
+	tristate "Exynos Mobile Scheduler Notifier"
+	default m
+	help
+	  Enable Exynos Mobile Scheduler Notifier
+
+config EXYNOS_AFM
+	tristate "Exynos AFM Handler"
+	depends on CPU_FREQ
+	default m
+	help
+	  Enable AFM handler for Exynos SoC.
+
+config EXYNOS_CONTENT_PATH_PROTECTION
+	tristate "Exynos Content Path Protection"
+	default m
+	help
+	  Enable content path protection of EXYNOS.
+
+config EXYNOS_DP_POWER_CONTROL
+       bool "Exynos DP power control for DRM"
+       depends on HDCP2_DP_ENABLE
+       default y
+       help
+         Enable DP power control of EXYNOS.
+
+config EXYNOS_MIGOV
+	tristate "Exynos Multi IP Governor support"
+	default m
+	help
+	Support Multi IP Governor for Exynos SoC.
+
+config EXYNOS_CPU_PROFILER
+	tristate "Exynos CPU Profiler support"
+	default m
+	help
+	Support CPU Profiler for Exynos SoC.
+
+config EXYNOS_GPU_PROFILER
+	tristate "Exynos GPU Profiler support"
+	default m
+	help
+	Support GPU Profiler for Exynos SoC.
+
+config EXYNOS_MIF_PROFILER
+	tristate "Exynos MIF Profiler support"
+	default m
+	help
+	Support MIF Profiler for Exynos SoC.
+config EXYNOS_MEMORY_LOGGER
+	tristate "Exynos Memory Logger"
+	help
+	  Exynos Memory Logger API is provided by memlog driver.
+
+	  Memlog means exynos memory Logger driver. The memlog provides
+	  the logging method desired by each driver in memory for debugging,
+	  memlog provides APIs for memory logging.
+
+config EXYNOS_IMGLOADER
+	tristate "Exynos Image Loader"
+	default m
+	help
+	  Enable Image Loader for Exynos SoC.
+
+config EXYNOS_SYSTEM_EVENT
+	tristate "Exynos System Event Framework"
+	default m
+	help
+	  Enable System Event Framework for Exynos SoC.
+
+config EXYNOS_IDLE_PROFILER
+	tristate "Exynos IDLE Profiler support"
+	default m
+	help
+	Support IDLE Profiler for Exynos SoC.
+
+config EXYNOS_DEBUG_FREQ
+	tristate "check constraint freq and print log"
+	depends on CAL_IF
+	default m
+	help
+	  If this config is set, check constraint freq every time which cpufreq,
+
+config EXYNOS_PM_DVS
+	tristate "Enable Exynos dynamic voltage setting"
+	default m
+
+source "drivers/soc/samsung/acpm/Kconfig"
+
+source "drivers/soc/samsung/debug/Kconfig"
+source "drivers/soc/samsung/xperf/Kconfig"
+
+source "drivers/soc/samsung/cpif/Kconfig"
+source "drivers/soc/samsung/exynos-hdcp/Kconfig"
 endif

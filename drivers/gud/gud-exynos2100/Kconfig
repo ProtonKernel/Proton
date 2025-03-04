@@ -1,0 +1,34 @@
+#
+# Trustonic drivers configuration
+#
+config TRUSTONIC_TEE
+    tristate "Trustonic TEE Driver"
+    depends on ARM || ARM64
+    default m
+    ---help---
+      Enable Trustonic TEE support
+
+config TRUSTONIC_TEE_DEBUG
+    bool "Trustonic TEE driver debug mode"
+    depends on TRUSTONIC_TEE
+    default n
+    ---help---
+      Enable the debug mode in the Trustonic TEE Driver.
+
+config TRUSTONIC_TRUSTED_UI
+    tristate "Trustonic Trusted UI"
+    depends on TRUSTONIC_TEE
+    default m
+    ---help---
+      Enable Trustonic Trusted User Interface
+
+config TRUSTONIC_TRUSTED_UI_FB_BLANK
+    bool "Trustonic Trusted UI with fb_blank"
+    depends on TRUSTONIC_TRUSTED_UI
+    default y
+    ---help---
+    Blank the framebuffer before starting a TUI session
+
+#ExySp
+source "drivers/gud/gud-exynos2100/sec-os-ctrl/Kconfig"
+source "drivers/gud/gud-exynos2100/sec-os-booster/Kconfig"

@@ -1,0 +1,318 @@
+/*
+ * SAMSUNG EXYNOSxxxx board camera device tree source
+ *
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/camera/exynos_is_dt.h>
+
+/ {
+	fragment@camera {
+		target-path = "/";
+		__overlay__ {
+			is_sensor_hm1: is_sensor_hm1@20 {
+				compatible = "samsung,sensor-module";
+
+				/* common */
+				sensor_id = <SENSOR_NAME_S5KHM1>;
+				active_width = <12000>;
+				active_height = <9000>;
+				margin_left = <0>;
+				margin_right = <0>;
+				margin_top = <0>;
+				margin_bottom = <0>;
+				max_framerate = <240>;
+				bitwidth = <10>;
+				use_retention_mode = <SENSOR_RETENTION_UNSUPPORTED>;
+				sensor_maker = "SLSI";
+				sensor_name = "S5KHM1";
+				setfile_name = "setfile_hm1.bin";
+
+				status = "okay";
+
+				vc_extra {
+					/* ex) statX = <stat_type, sensor_mode, max_width, max_height, max_element> */
+					stat0 = </* not available */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT1 */
+					stat1 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT0*/ 1000 /*VC_SENSOR_MODE_SUPER_PD_4_TAIL*/ 409 992 1484 1>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT1 */
+					stat2 = </* not available */>;									/* VC_BUF_DATA_TYPE_SENSOR_STAT2 */
+					stat3 = </*VC_STAT_TYPE_PDP_3_1_PDAF_STAT1*/ 1001 /*VC_SENSOR_MODE_SUPER_PD_4_TAIL*/ 409 992 1484 1>;	/* VC_BUF_DATA_TYPE_GENERAL_STAT2 */
+				};
+
+				/* sensor modes */
+				/*
+				SENSOR_HM1_12000X9000_10FPS = 0,
+				SENSOR_HM1_7200X5400_14FPS = 1,
+				SENSOR_HM1_7680X4320_24FPS = 2,
+				SENSOR_HM1_4000X2252_30FPS_CENTER_CROP = 3,
+				SENSOR_HM1_4000X3000_30FPS = 4,
+				SENSOR_HM1_4000X3000_30FPS_DECOMP_TIMING = 5,
+				SENSOR_HM1_4000X3000_30FPS_FULL_DILLUTION = 6,
+				SENSOR_HM1_4000X2252_30FPS = 7,
+				SENSOR_HM1_4000X2252_30FPS_FULL_DILLUTION = 8,
+				SENSOR_HM1_4000X3000_60FPS = 9,
+				SENSOR_HM1_4000X2252_60FPS = 10,
+				SENSOR_HM1_3840X2160_120FPS = 11,
+				SENSOR_HM1_3328X1872_120FPS = 12,
+				SENSOR_HM1_1984X1488_30FPS = 13,
+				SENSOR_HM1_1920X1080_240FPS = 14,
+				SENSOR_HM1_1920X1080_120FPS = 15,
+				SENSOR_HM1_992X744_120FPS = 16,
+				SENSOR_HM1_4000X3000_30FPS_SHORT = 17,
+				SENSOR_HM1_4000X3000_30FPS_SHORT_DECOMP_TIMING = 18,
+				SENSOR_HM1_4000X3000_30FPS_SHORT_FULL_DILLUTION = 19,
+				SENSOR_HM1_4000X2252_30FPS_SHORT = 20,
+				*/
+				modes {
+						/* common = <width, height, fps, settle, mode, lane, speed, interleave, lrte, pd_mode> */
+						/* vcX = <map, hwformat, width, height, hwformat, type, width, height> */
+					mode0 { /* SENSOR_HM1_12000X9000_10FPS */
+						common = <12000 9000 10 0 0 CSI_DATA_LANES_3 1859 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 12000 9000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 12000 9000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 1484	/* out */ HW_FORMAT_RAW10 VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { special_mode = <IS_SPECIAL_MODE_REMOSAIC>; };
+					};
+					mode1 { /* SENSOR_HM1_7200X5400_14FPS */
+						common = <7200 5400 14 0 1 CSI_DATA_LANES_3 1859 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 7200 5400	/* out */ HW_FORMAT_RAW10 VC_NOTHING 7200 5400>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1200 900	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1200 900>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { special_mode = <IS_SPECIAL_MODE_REMOSAIC>; };
+					};
+					mode2 { /* SENSOR_HM1_7680X4320_24FPS */
+						common = <7680 4320 24 0 2 CSI_DATA_LANES_3 1859 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 7680 4320	/* out */ HW_FORMAT_RAW10 VC_NOTHING 7680 4320>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1280 716	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1280 716>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { binning = <1000>; };
+					};
+#if 0 // CENTER_CROP
+					mode3 { /* SENSOR_HM1_4000X2252_30FPS_CENTER_CROP */
+						common = <4000 2252 30 0 3 CSI_DATA_LANES_3 1859 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 2252	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 2252>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 664 364	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 664 364>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+#endif
+					mode4 { /* SENSOR_HM1_4000X3000_30FPS */
+						common = <4000 3000 30 0 4 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_OPTION_VIDEO>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode5 { /* SENSOR_HM1_4000X3000_30FPS_DECOMP_TIMING (5) = > SENSOR_HM1_4000X3000_30FPS_FULL_DILLUTION (6)*/
+						common = <4000 3000 30 0 6 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_REMOSAIC_CAL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode6 { /* SENSOR_HM1_4000X3000_30FPS_FULL_DILLUTION */
+						common = <4000 3000 30 0 6 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode7 { /* SENSOR_HM1_4000X2252_30FPS */
+						common = <4000 2252 30 0 7 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_OPTION_VIDEO>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 2252	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 2252>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode8 { /* SENSOR_HM1_4000X2252_30FPS_FULL_DILLUTION */
+						common = <4000 2252 30 0 8 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 2252	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 2252>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode9 { /* SENSOR_HM1_4000X3000_60FPS */
+						common = <4000 3000 60 0 9 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode10 { /* SENSOR_HM1_4000X2252_60FPS */
+						common = <4000 2252 60 0 10 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 2252	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 2252>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode11 { /* SENSOR_HM1_3840X2160_120FPS */
+						common = <3840 2160 120 0 11 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3840 2160	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3840 2160>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1920 534	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1920 534>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode12 { /* SENSOR_HM1_3328X1872_120FPS */
+						common = <3328 1872 120 0 12 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 3328 1872	/* out */ HW_FORMAT_RAW10 VC_NOTHING 3328 1872>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1664 462	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1664 462>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode13 { /* SENSOR_HM1_1984X1488_30FPS */
+						common = <1984 1488 30 0 13 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1984 1488	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1984 1488>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 992 370	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 992 370>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode14 { /* SENSOR_HM1_1920X1080_240FPS */
+						common = <1920 1080 240 0 14 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1920 1080	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1920 1080>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 960 266	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 960 266>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode15 { /* SENSOR_HM1_1920X1080_120FPS */
+						common = <1920 1080 120 0 15 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 1920 1080	/* out */ HW_FORMAT_RAW10 VC_NOTHING 1920 1080>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 960 266	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 960 266>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode16 { /* SENSOR_HM1_992X744_120FPS */
+						common = <992 744 120 0 16 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_NONE>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 992 744	/* out */ HW_FORMAT_RAW10 VC_NOTHING 992 744>;
+						vc1 = </* in */ 1 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; binning = <6000>; special_mode = <IS_SPECIAL_MODE_FASTAE>; };
+					};
+					mode17 { /* SENSOR_HM1_4000X3000_30FPS_SHORT */
+						common = <4000 3000 30 0 17 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_OPTION_VIDEO>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode18 { /* SENSOR_HM1_4000X3000_30FPS_SHORT_DECOMP_TIMING */
+						common = <4000 3000 30 0 18 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_REMOSAIC_CAL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode19 { /* SENSOR_HM1_4000X3000_30FPS_SHORT_FULL_DILLUTION */
+						common = <4000 3000 30 0 19 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 3000	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 3000>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 742	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 742>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+					mode20 { /* SENSOR_HM1_4000X2252_30FPS_SHORT */
+						common = <4000 2252 30 0 20 CSI_DATA_LANES_3 2639 CSI_MODE_VC_ONLY LRTE_DISABLE PD_MSPD_TAIL EX_OPTION_VIDEO>;
+						vc0 = </* in */ 0 HW_FORMAT_RAW10 4000 2252	/* out */ HW_FORMAT_RAW10 VC_NOTHING 4000 2252>;
+						vc1 = </* in */ 1 HW_FORMAT_RAW10 1984 558	/* out */ HW_FORMAT_RAW10 VC_TAILPDAF 1984 558>;
+						vc2 = </* in */ 2 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						vc3 = </* in */ 3 HW_FORMAT_UNKNOWN 0 0		/* out */ HW_FORMAT_UNKNOWN VC_NOTHING 0 0>;
+						option { votf = <1>; };
+					};
+				};
+
+
+				power_seq {
+					use = <1>;
+					scenario_normal_on {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 0>; gpio = <&gpm14 0 0x1>; };
+						20 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						30 { pname = "VDDA_2.8V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						40 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						50 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 0>; };
+						60 { pname = "VDDAF_3.3V_CAM"; pin = <PIN_REGULATOR 1 1>; };
+						90 { pname = "on_i2c"; pin = <PIN_I2C 1 0>; };
+						100 { pname = "pin"; pin = <PIN_FUNCTION 2 0>; };
+						110 { pname = "MCLK"; pin = <PIN_MCLK 1 1500>; };
+						120 { pname = "sen_rst high"; pin = <PIN_OUTPUT 1 8200>; gpio = <&gpm14 0 0x1>; };
+					};
+
+					scenario_normal_off {
+						sensor_scenario = <SENSOR_SCENARIO_NORMAL>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						5 { pname = "sen_rst low"; pin = <PIN_OUTPUT 0 10>; gpio = <&gpm14 0 0x1>; };
+						10 { pname = "VDDAF_3.3V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						20 { pname = "VDDPHY_1.05V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						30 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+						40 { pname = "VDDA_2.8V_CAM"; pin = <PIN_REGULATOR 0 0>; };
+						60 { pname = "MCLK"; pin = <PIN_MCLK 0 0>; };
+						70 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						80 { pname = "pin"; pin = <PIN_FUNCTION 1 0>; };
+						90 { pname = "pin"; pin = <PIN_FUNCTION 0 0>; };
+						110 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						130 { pname = "VDDD_1.05V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+					};
+
+					scenario_vision_on {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+					};
+
+					scenario_vision_off {
+						sensor_scenario = <SENSOR_SCENARIO_VISION>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+					};
+
+					scenario_read_rom_on {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_ON>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 1 1000>; };
+						20 { pname = "on_i2c"; pin = <PIN_I2C 1 0>; };
+					};
+
+					scenario_read_rom_off {
+						sensor_scenario = <SENSOR_SCENARIO_READ_ROM>;
+						gpio_scenario = <GPIO_SCENARIO_OFF>;
+
+						/* A start node number should be over the 10 for reserved number 0~9. */
+						/* pname = "name"; pin = <act value delay voltage>; gpio = <gpx# # 0x1>; */
+						10 { pname = "off_i2c"; pin = <PIN_I2C 0 0>; };
+						20 { pname = "VDDIO_1.8V_CAM"; pin = <PIN_REGULATOR 0 10>; };
+					};
+				};
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */

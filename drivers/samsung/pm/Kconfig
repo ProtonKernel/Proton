@@ -1,0 +1,69 @@
+# drivers/samsung/pm/Kconfig
+#
+# Copyright (c) 2010-2020 Samsung Electronics Co., Ltd.
+#		http://www.samsung.com/
+#
+# Licensed under GPLv2
+#
+comment "Samsung Mobile Power Management Options"
+menuconfig SEC_PM
+	bool "Samsung Mobile Power Management"
+	default n
+	help
+	  This option enables support for various drivers and features for
+	  Samsung Mobile Power Management.
+
+config SEC_PM_DEBUG
+	tristate "Enable Samsung Mobile Power management debug support"
+	default n
+	depends on SEC_PM
+	help
+	  This option enables Samsung Mobile Power management debug support.
+	  Intended for test and debug only.
+
+config SEC_PM_BIGDATA
+	bool "Enable Samsung Mobile Power management big data support"
+	default n
+	depends on SEC_PM
+	help
+	  This option enables Samsung Mobile Power management big data support.
+
+config SEC_PM_CPUFREQ
+	tristate "Enable Samsung Mobile CPU Frequency control support"
+	default n
+	depends on SEC_PM
+	help
+	  This option enables Samsung Mobile CPU Frequency control support.
+	  Adjust the minimum and maximum frequency for each CPU clusters.
+
+config SEC_PM_LOG
+	tristate "Enable Samsung Mobile Log buffers to trace power events"
+	default n
+	depends on SEC_PM
+	help
+	  This option enables Samsung Mobile Log buffer support.
+	  Trace power events via log buffers.
+
+config SEC_PM_CPUFREQ
+	tristate "Enable Samsung Mobile CPU Frequency control support"
+	default n
+	depends on SEC_PM
+	help
+	  This option enables Samsung Mobile CPU Frequency control support.
+	  Adjust the minimum and maximum frequency for each CPU clusters.
+
+config SEC_PM_THERMISTOR
+    tristate "SEC Thermistor support"
+    depends on SEC_PM && IIO
+    default n
+    help
+      This driver supports SEC Thermistor sensor reading and its
+      interpretation. This driver uses the industrial I/O subsystem
+      and needs adc-temperature mapping table for conversion.
+
+config SEC_WAKEUP_CPU_ALLOCATOR
+    tristate "SEC Wakeup cpu support"
+    depends on SEC_PM
+    default n
+    help
+      This driver supports SEC Wakeup cpu support

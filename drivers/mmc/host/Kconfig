@@ -784,6 +784,13 @@ config MMC_DW_HI3798CV200
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on HiSilicon Hi3798CV200 SoC.
 
+config MMC_DW_DEBUG
+	tristate "Samsung DWMCI debug feature"
+	depends on MMC_DW
+	help
+	  This selects support for infomation logging for debugging.
+	  Select this option if this feature is needed on working.
+
 config MMC_DW_K3
 	tristate "K3 specific extensions for Synopsys DW Memory Card Interface"
 	depends on MMC_DW

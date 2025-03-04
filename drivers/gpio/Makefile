@@ -169,3 +169,8 @@ obj-$(CONFIG_GPIO_XTENSA)		+= gpio-xtensa.o
 obj-$(CONFIG_GPIO_ZEVIO)		+= gpio-zevio.o
 obj-$(CONFIG_GPIO_ZX)			+= gpio-zx.o
 obj-$(CONFIG_GPIO_ZYNQ)			+= gpio-zynq.o
+
+CFLAGS_sec_detect_conn.o	+= -Wformat
+
+# Samsung Connector Check Feature
+obj-$(CONFIG_SEC_DETECT_CONN)	+= sec_detect_conn.o

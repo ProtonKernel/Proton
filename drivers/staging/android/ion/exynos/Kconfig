@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-2.0
+config ION_EXYNOS_CARVEOUT_HEAP
+	bool "Ion Exynos Carveout heap support"
+	help
+	  Choose this option to enable carveout heaps with Ion for Exynos SoCs.
+	  Carveout heaps are backed by memory reserved from the system.
+	  Allocation times are typically faster at the cost of memory not
+	  being used. Unless you know your system has these regions,
+	  you should say N here.
+
+config ION_EXYNOS_CMA_HEAP
+	bool "Ion Exynos CMA heap support"
+	depends on CMA
+	help
+	  Choose this option to enable CMA heap with Ion for Exynos SoCs.
+	  Unlike the cma heap supported by ION_CMA_HEAP, only selected
+	  cma area is registered as a heap.
+
+config ION_EXYNOS
+	tristate "Ion Exynos heap support"
+	depends on ION
+
+config ION_EXYNOS_HPA_HEAP
+	bool "Ion HPA heap support"
+	depends on ION && HPA
+	help
+	  Choose this option to enable HPA heaps with Ion. This heap is backed
+	  by the High-order Pages Allocator (HPA). If your system needs HPA for
+	  some reason, you should say Y here.

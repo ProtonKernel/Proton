@@ -12,3 +12,9 @@ obj-$(CONFIG_SCSI_UFSHCD_PLATFORM) += ufshcd-pltfrm.o
 obj-$(CONFIG_SCSI_UFS_HISI) += ufs-hisi.o
 obj-$(CONFIG_SCSI_UFS_MEDIATEK) += ufs-mediatek.o
 ufshcd-core-$(CONFIG_SCSI_UFS_CRYPTO) += ufshcd-crypto.o
+obj-$(CONFIG_SCSI_UFS_EXYNOS) += ufs-exynos-core.o
+ufs-exynos-core-$(CONFIG_SCSI_UFS_EXYNOS) += ufs-exynos.o ufs-exynos-dbg.o ufs-exynos-perf.o ufs-exynos-fmp.o ufs-cal-if.o ufs-exynos-srpmb.o
+
+ifdef CONFIG_SEC_KUNIT
+GCOV_PROFILE_ufs-sysfs.o	:=y
+endif

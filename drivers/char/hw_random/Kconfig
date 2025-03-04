@@ -413,16 +413,16 @@ config HW_RANDOM_S390
 
 	  If unsure, say Y.
 
-config HW_RANDOM_EXYNOS
-	tristate "Samsung Exynos True Random Number Generator support"
-	depends on ARCH_EXYNOS || COMPILE_TEST
-	default HW_RANDOM
+config HW_RANDOM_EXYNOS_SWD
+	tristate "EXYNOS SWD HW random number generator support"
+	depends on ARCH_EXYNOS
+	default m
 	---help---
-	  This driver provides support for the True Random Number
-	  Generator available in Exynos SoCs.
+	  This driver provides kernel-side support for TRNG hardware
+	  found in secure world by using smc call
 
-	  To compile this driver as a module, choose M here: the module
-	  will be called exynos-trng.
+	  To compile this driver as a module, choose M here: the
+	  module will be called exynos-rng.
 
 	  If unsure, say Y.
 

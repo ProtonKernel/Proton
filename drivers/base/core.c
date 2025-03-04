@@ -27,6 +27,7 @@
 #include <linux/netdevice.h>
 #include <linux/sched/signal.h>
 #include <linux/sysfs.h>
+#include <linux/sec_debug.h>
 
 #include "base.h"
 #include "power/power.h"
@@ -3883,6 +3884,7 @@ void device_shutdown(void)
 	cpufreq_suspend();
 
 	spin_lock(&devices_kset->list_lock);
+	secdbg_base_built_set_task_in_dev_shutdown(current);
 	/*
 	 * Walk the devices list backward, shutting down each in turn.
 	 * Beware that device unplug events may also start pulling
@@ -3939,6 +3941,7 @@ void device_shutdown(void)
 
 		spin_lock(&devices_kset->list_lock);
 	}
+	secdbg_base_built_set_task_in_dev_shutdown(NULL);
 	spin_unlock(&devices_kset->list_lock);
 }
 

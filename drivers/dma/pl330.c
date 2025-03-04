@@ -2010,7 +2010,7 @@ static int pl330_update(struct pl330_dmac *pl330)
 			/* Detach the req */
 			descdone = thrd->req[active].desc;
 
-			if (!descdone->infiniteloop) {
+			if (!descdone->infiniteloop)
 				thrd->req[active].desc = NULL;
 
 			/* Get going again ASAP */

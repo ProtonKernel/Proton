@@ -34,7 +34,7 @@
 
 config SCSI_UFSHCD
 	tristate "Universal Flash Storage Controller Driver Core"
-	depends on SCSI && SCSI_DMA
+	depends on SCSI && (SCSI_DMA || UML)
 	select PM_DEVFREQ
 	select DEVFREQ_GOV_SIMPLE_ONDEMAND
 	select NLS
@@ -96,6 +96,15 @@ config SCSI_UFS_DWC_TC_PLATFORM
 
 	  If unsure, say N.
 
+config SCSI_UFS_TEST_MODE
+       bool "Samsung UFS TEST feature"
+       depends on SCSI_UFSHCD && SCSI_UFSHCD_PLATFORM
+       help
+         This selects support for test mode for debugging.
+         Select this option if this feature is needed on working.
+
+	 If unsure, say N.
+
 config SCSI_UFS_QCOM
 	tristate "QCOM specific hooks to UFS controller platform driver"
 	depends on SCSI_UFSHCD_PLATFORM && ARCH_QCOM
@@ -149,7 +158,40 @@ config SCSI_UFS_BSG
 	  that supports UFS devices.
 
 	  Select this if you need a bsg device node for your UFS controller.
+
+config SCSI_UFS_EXYNOS
+	tristate "EXYNOS UFS Host Controller Driver"
+	depends on SCSI_UFSHCD && SCSI_UFSHCD_PLATFORM
+	---help---
+	  This selects the EXYNOS UFS host controller driver.
+
+	  If you have a controller with this interface, say Y or M here.
+
 	  If unsure, say N.
+
+config SCSI_UFS_EXYNOS_FMP
+       bool "EXYNOS Flash Memory Protector for UFS Host"
+       depends on SCSI_UFS_EXYNOS && EXYNOS_FMP && SCSI_UFS_CRYPTO
+       default y
+       ---help---
+         This selects the EXYNOS UFS FMP Driver.
+
+         If you have a controller with this interface, say Y or M here.
+
+         If unsure, say N.
+
+config SCSI_UFS_EXYNOS_SRPMB
+	bool "EXYNOS Secure RPMB(Replay Protected Memory Block) UFS Host"
+	depends on SCSI_UFS_EXYNOS && UFS_SRPMB
+	default y
+	help
+	  RPMB(Replay Protected Memory Block) is a storage which is to store data
+	  to the specific memory area in an authenticated and replay protected manner.
+	  Usage of nonce and write count register are providing additional
+	  protection against replay of messages where messages could be recorded and
+	  played back later by an attacker.
+
+	  If you have a controller with this interface, say Y or M here. If unsure, say N.
 
 config SCSI_UFS_CRYPTO
 	bool "UFS Crypto Engine Support"
@@ -159,3 +201,16 @@ config SCSI_UFS_CRYPTO
 	  Enabling this makes it possible for the kernel to use the crypto
 	  capabilities of the UFS device (if present) to perform crypto
 	  operations on data being transferred to/from the device.
+
+config SEC_UFS_WB_FEATURE
+	tristate "SEC specific UFS Write Booster Support"
+	depends on SCSI_UFS_EXYNOS
+	help
+	 Enable Samsung Write Booster feature support
+	 Enabling this allows kernel to use SEC WB feature defined
+	 and implemented by SEC.
+
+if SEC_KUNIT
+
+
+endif # SEC_KUNIT

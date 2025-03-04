@@ -1,0 +1,44 @@
+#
+# (C) COPYRIGHT 2012 ARM Limited. All rights reserved.
+#
+# This program is free software and is provided to you under the terms of the
+# GNU General Public License version 2 as published by the Free Software
+# Foundation, and any use by you of this program is subject to the terms
+# of such GNU licence.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, you can access it online at
+# http://www.gnu.org/licenses/gpl-2.0.html.
+#
+# SPDX-License-Identifier: GPL-2.0
+#
+
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R20P0),y)
+	obj-$(CONFIG_MALI_MIDGARD) += v_r20p0/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R23P0),y)
+	obj-$(CONFIG_MALI_MIDGARD) += v_r23p0/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R24P0),y)
+	obj-$(CONFIG_MALI_MIDGARD) += v_r24p0/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R25P1),y)
+	obj-$(CONFIG_MALI_MIDGARD) += bv_r25p1/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R26P0),y)
+	obj-$(CONFIG_MALI_MIDGARD) += bv_r26p0/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R32P1),y)
+	obj-$(CONFIG_MALI_MIDGARD) += bv_r32p1/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R38P0),y)
+	obj-$(CONFIG_MALI_MIDGARD) += bv_r38p0/
+endif
+ifeq ($(CONFIG_MALI_DDK_VALHALL_R38P1),y)
+	obj-$(CONFIG_MALI_MIDGARD) += bv_r38p1/
+endif

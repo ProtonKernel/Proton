@@ -49,7 +49,7 @@
 /*
  * The nr of bytes of cached data to keep around.
  */
-#define DM_BUFIO_DEFAULT_RETAIN_BYTES   (256 * 1024)
+#define DM_BUFIO_DEFAULT_RETAIN_BYTES   (1024 * 1024)
 
 /*
  * Align buffer writes to this boundary.

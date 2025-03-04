@@ -44,4 +44,18 @@ config DMABUF_SELFTESTS
 	default n
 	depends on DMA_SHARED_BUFFER
 
+config DMA_BUF_CONTAINER
+	tristate "Dma-buf container support"
+	depends on DMA_SHARED_BUFFER
+	---help---
+	  dma-buf container is a dma-buf that can contain multiple different
+	  dma-buf objects. It is useful when delivering a lot of dma-buf objects
+	  between processes or user and kernel to reduce communication overhead.
+
+
+config DMABUF_TRACE
+	bool "dma-buf trace support"
+	default y
+	depends on DMA_SHARED_BUFFER
+
 endmenu

@@ -1,0 +1,23 @@
+config CSIS_V1_2
+	bool "Use CSI H/W v1.2"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	help
+	  csi version 1.2
+
+config CSIS_V5_2
+	bool "Use CSI H/W v5.2"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	help
+	  csi version 5.2
+
+config CSIS_V5_3
+	bool "Use CSI H/W v5.3"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	help
+	  csi version 5.3
+
+config CSIS_V5_4
+	bool "Use CSI H/W v5.4"
+	depends on VIDEO_EXYNOS_PABLO_ISP
+	help
+	  csi version 5.4

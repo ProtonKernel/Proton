@@ -1,0 +1,359 @@
+# drivers/samsung/debug/Kconfig
+#
+# Copyright (c) 2010-2020 Samsung Electronics Co., Ltd.
+#               http://www.samsung.com/
+#
+# Licensed under GPLv2
+
+config SEC_DEBUG_BASE
+	tristate "Enable Samsung debug fundamentals"
+	depends on SEC_DEBUG
+	default n
+	help
+	  Samsung Debug Base Driver
+
+config SEC_DEBUG_BASE_BUILT_IN
+	bool "Samsung Debug Built-In Support"
+	depends on SEC_DEBUG
+	default y
+	help
+	  Samsung Debug Base Driver (Built-In)
+
+config SEC_DEBUG_AUTO_COMMENT
+	bool "Enable Samsung kernel fault auto comment"
+	depends on PRINTK
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables kernel fault auto comment feature.
+	  This option also requires bootloader change that enables auto comment
+	  extraction along with ramdump.
+
+config SEC_DEBUG_MODE
+	tristate "Enable Samsung force upload mode support"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables get force upload
+	  This option call dbg_snapshot_scratch_clear
+	  according to force_upload variables
+
+config SEC_DEBUG_EXTRA_INFO
+	tristate "Enable Samsung reset reason extra info"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables storing reset reason extra info
+	  This option enables ap reset info bigdata
+	  based on reset reason extra info
+
+config SEC_DEBUG_EXTRA_INFO_BUILT_IN
+	bool "Enable Samsung reset reason extra info built in"
+	depends on SEC_DEBUG
+	default y
+	help
+	  to support extra info built in
+	  This option enables storing reset reason extra info
+	  This option enables ap reset info bigdata
+	  based on reset reason extra info
+
+config SEC_DEBUG_HW_PARAM
+	tristate "Enable Samsung hw parameter driver"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables storing HW parameter driver
+	  This option gets some hardware dependent parameters
+	  based on sec debug
+
+config SEC_DEBUG_RESET_REASON
+	tristate "Enable Samsung reset reason driver"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables reset reason driver
+	  based on sec debug
+
+config SEC_DEBUG_MEMTAB
+	bool "Enable member offset table"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables sec_debug member offset table.
+	  The table includes information of member required. And the bootloader
+	  will search on the table with key name.
+
+config SEC_DEBUG_HIST_LOG
+	tristate "support storing debug history log"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables to store debug history log.
+
+config SEC_DEBUG_SUMMARY_LOG
+	tristate "support storing debug history log"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option enables to store debug history log.
+
+config SEC_DEBUG_SYSRQ_KMSG
+	bool "support storing last n lines of kmsg before sysrq trigger"
+	depends on SEC_DEBUG
+	default n
+	help
+	  This option enables storing last n lines of kmsg before sysrq triggered.
+	  It can be used for debugging purpose in case of sysrq triggered.
+
+config SEC_DEBUG_PRINT_PCLR
+	bool "Add PC/LR to Panic message for die()"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables PC and LR value present in panic message when the
+	  kernel calls die(). It may be useful for upload screen and auto
+	  comment.
+
+config SEC_DEBUG_BUG_ON_SLUB_CORRUPTION
+	bool "Trigger a BUG when slub corruption is detected"
+	depends on SEC_DEBUG
+	default y
+	help
+	  Select this option if the kernel should BUG when it encounters
+	  slub corruption when they get checked for validity.
+
+config SEC_DEBUG_AVOID_UNNECESSARY_TRAP
+	bool "avoid unnecessary trap"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option helps to obtain normal log by avoiding unnessary trap again
+	  after exception handling
+
+config SEC_DEBUG_SPINBUG_PANIC
+	bool "Panic on spin bug"
+	depends on SEC_DEBUG && DEBUG_SPINLOCK
+	default y
+	help
+	  This option enables the kernel to panic on "spin bug"
+
+config SEC_DEBUG_WORKQUEUE_LOCKUP_PANIC
+	bool "Bug on workqueue lockup"
+	depends on SEC_DEBUG && WQ_WATCHDOG
+	default y
+	help
+	  This option enables the kernel to panic on workqueue lockup
+
+config SEC_DEBUG_EXCEPTION_STACK
+	bool "Preserve stack data when the exception happened"
+	depends on SEC_DEBUG
+	default y
+	help
+	  If this is set, kernel can preserve the specific size of stack data
+	  when an exception occurs from EL1. This can help to fiqure out the
+	  stack data before the exception happened.
+
+config SEC_DEBUG_ATOMIC_SLEEP_PANIC
+	bool "Panic (Reboot) On Atomic Sleep"
+	depends on SEC_DEBUG && !SAMSUNG_PRODUCT_SHIP
+	default y
+	help
+	  Say Y here to enable the kernel to panic on "atomic sleep",
+
+	  Say N if you want warning messages only.
+
+config SEC_DEBUG_WATCHDOGD_FOOTPRINT
+	tristate "store watchdogd footprint"
+	depends on SEC_DEBUG
+	default m
+	help
+	  If this config is set, store watchdogd footprint information.
+
+config SEC_DEBUG_LOCKUP_INFO
+	bool "Gather softlockup/hardlockup information"
+	depends on SEC_DEBUG
+	default n
+	help
+	  Gather softlockup/hardlockup information for auto analysis
+
+config SEC_DEBUG_BAD_STACK_CAREFULLY
+	bool "Handle bad_stack more carefully"
+	depends on SEC_DEBUG
+	default n
+	help
+	  This options prevent infinite abort loop about stack corruption.
+
+config SEC_DEBUG_OBJECTS_FREE
+	bool "Enable debug objects when freeing activate objects"
+	depends on DEBUG_OBJECTS_FREE
+	default n
+	help
+	  This option enalbles to debug when freeing activate objects.
+
+config SEC_DEBUG_OBJECTS_FIXUP
+	bool "Enable debug objects fixup"
+	depends on DEBUG_OBJECTS_FREE
+	default n
+	help
+	  This option enalbles to debug abnormal state transition of debug_object.
+
+config SEC_DEBUG_FPSIMD_CHECK_CONTEXT
+	bool "Detect for fpsimd has corruption"
+	depends on SEC_DEBUG
+	default n
+	help
+	  If FPSIMD has corruption, use this feature for detect problem.
+
+config SEC_DEBUG_FAIL_TO_FREEZE_PANIC
+	bool "Panic on fail to freeze tasks"
+	depends on SEC_DEBUG && !SAMSUNG_PRODUCT_SHIP
+	default y
+	help
+	  This option enables the kernel to panic on fail to freeze tasks
+
+config SEC_DEBUG_UNFROZEN_TASK
+	bool "Set unfrozen task information"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables the kernel to set unfrozen task information
+
+config SEC_DEBUG_FAULT_MSG_ADV
+	bool "Print fault message for all kernel fault"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables the kernel to print fault message and print
+	  physical fault address when synchronous external abort happen and
+	  add esr argument for undef function.
+
+config SEC_DEBUG_EMERG_WDT_CALLER
+	bool "Mark a caller for emergency watchdog caller"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables the kernel to indicate a caller of emergency
+	  watchdog caller.
+
+config SEC_DEBUG_BAD_STACK_INFO
+	bool "Set bad stack informaion"
+	depends on SEC_DEBUG
+	default n
+	help
+	  This option enables the kernel to save additional information when
+	  kernel run into handle_bad_stack.
+
+config SEC_DEBUG_DTASK
+	bool "Support uninterruptible sleep task debugging"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables getting information of task with TASK_UNINTERRUPTIBLE.
+
+config SEC_DEBUG_PM_DEVICE_INFO
+	bool "Set suspend/shutdown device informaion"
+	depends on SEC_DEBUG
+	default n
+	help
+	  This option enables the kernel to save a device information while the
+	  device is suspending/shutting down.
+
+config SEC_DEBUG_TASK_IN_STATE_INFO
+	bool "Set task information in important system state"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables the kernel to save a task information while the
+	  task enter in important system state.
+
+config SEC_DEBUG_SOFTDOG_PWDT
+	tristate "Enable Soft Watchdog for Platform"
+	default m
+	depends on WATCHDOG
+	select SOFT_WATCHDOG
+	help
+	  This option enables soft watchdog device and soft_panic.
+
+config SEC_DEBUG_PANIC_ON_RCU_STALL
+	bool "Enable panic on rcu stall"
+	depends on SEC_DEBUG && !SAMSUNG_PRODUCT_SHIP
+	depends on TREE_RCU || PREEMPT_RCU
+	default y
+	help
+	  This option enables the kernel to panic on "rcu stall"
+
+config SEC_DEBUG_SCHED_INFO
+	tristate
+	select SEC_DEBUG_STACKTRACE
+	help
+	  This option enables to print sched info of short duration.
+	  This can be useful to analyze a task lockup.
+
+config SEC_DEBUG_WQ_LOCKUP_INFO
+	tristate "Enable workqueue lockup info"
+	default m
+	depends on WQ_WATCHDOG
+	select SEC_DEBUG_SCHED_INFO
+	help
+	  This option enables enhanced workqueue lockup info. Current information
+	  for debugging workqueue lockup is not sufficent.
+
+config SEC_DEBUG_SOFTDOG
+	tristate "Enable enhanced softdog info"
+	default y
+	depends on SEC_DEBUG && SOFT_WATCHDOG
+	select SEC_DEBUG_STACKTRACE
+	help
+	  This option enables enhanced softdog info.
+	  Select the option to show related task info.
+
+config SEC_DEBUG_QSPIN_OWNER
+	bool "Enable owner cpu number on spinlock"
+	depends on SEC_DEBUG && QUEUED_SPINLOCKS
+	default y
+	help
+	  This option enables spinlock owner information.
+	  The CPU number of owner is written into lock value.
+
+config SEC_DUMP_SINK
+	tristate "Enable to dump_sink"
+	depends on SEC_DEBUG
+	default n
+	help
+	  This option enables dump sink.
+
+config SEC_DEBUG_LOGBUF_IF
+	tristate "Enable sec debug logbuf interface driver"
+	depends on SEC_DEBUG
+	default m
+	help
+	  This option will add procfs for sec debug log buffers.
+
+config SEC_DEBUG_HANDLE_BAD_STACK
+	bool "Support handle bad stack debugging"
+	depends on SEC_DEBUG
+	default y
+	help
+	  This option enables to stop cpu when the cpu enter
+	  handle_bad_stack again.
+
+config SEC_DEBUG_STACKTRACE
+	tristate
+	help
+	  This option enables to print stack trace.
+
+config SEC_DEBUG_HARDLOCKUP_INFO
+	tristate "Enable to hardlockup info"
+	depends on SEC_DEBUG && DEBUG_SNAPSHOT && EXYNOS_HARDLOCKUP_WATCHDOG
+	default m
+	help
+	  This option enables hardlockup information.
+	  Select the option to show debugging information when hardlockup is detected.
+
+config SEC_DEBUG_SCHED_REPORT
+	tristate "Enable schded report for debugging"
+	depends on SEC_DEBUG && DEBUG_SNAPSHOT
+	default m
+	help
+	  This option enables sched report for debugging.
+	  Select the option to show sched information when stall issue is detected.

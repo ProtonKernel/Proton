@@ -277,6 +277,41 @@ config SERIAL_SAMSUNG_CONSOLE
 	  your boot loader about how to pass options to the kernel at
 	  boot time.)
 
+config S3C_LOWLEVEL_UART_PORT
+	int "S3C UART to use for low-level messages"
+	default 0
+	help
+	  Choice of which UART port to use for the low-level messages,
+	  such as the `Uncompressing...` at start time. The value of
+	  this configuration should be between zero and two. The port
+	  must have been initialised by the boot-loader before use.
+
+config SERIAL_SAMSUNG_HWACG
+	bool "HWACG(HW Auto Clock Gating) support for Samsung UART port"
+	default y
+	help
+	  If HWACG is enabled on UART, System power mode will goes into
+	  suspend state only when UART UCON Tx, Rx bit was disabled.
+	  To support HWACG on UART, this configuration should be selected.
+
+config SERIAL_EXYNOS
+	tristate "Exynos SoC serial support"
+	depends on PLAT_SAMSUNG || ARCH_EXYNOS
+	select SERIAL_CORE
+	help
+	  Support for the on-chip UARTs on the Samsung Exynos series CPUs,
+	  providing /dev/ttySAC0, 1 and 2 (note, some machines may not
+	  provide all of these ports, depending on how the serial port
+	  pins are configured.
+
+config SERIAL_EXYNOS_UARTS
+	int
+	depends on SERIAL_EXYNOS
+	default 16
+	help
+	  Select the number of available UART ports for the Samsung
+	  Exynos serial driver
+
 config SERIAL_SIRFSOC
         tristate "SiRF SoC Platform Serial port support"
         depends on ARCH_SIRF

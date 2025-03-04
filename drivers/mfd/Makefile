@@ -256,3 +256,19 @@ obj-$(CONFIG_MFD_ROHM_BD70528)	+= rohm-bd70528.o
 obj-$(CONFIG_MFD_ROHM_BD718XX)	+= rohm-bd718x7.o
 obj-$(CONFIG_MFD_STMFX) 	+= stmfx.o
 
+TARGET = s2mps19-mfd
+$(TARGET)-objs += s2mps19_core.o s2mps19_irq.o
+obj-$(CONFIG_MFD_S2MPS19)	+= $(TARGET).o
+
+TARGET = s2mps20-mfd
+$(TARGET)-objs += s2mps20_core.o s2mps20_irq.o
+obj-$(CONFIG_MFD_S2MPS20)	+= $(TARGET).o
+
+obj-$(CONFIG_MFD_S2MPS23)		+= s2mps23_mfd.o
+s2mps23_mfd-$(CONFIG_MFD_S2MPS23)	+= s2mps23_core.o s2mps23_irq.o
+
+obj-$(CONFIG_MFD_S2MPS24)		+= s2mps24_mfd.o
+s2mps24_mfd-$(CONFIG_MFD_S2MPS24)	+= s2mps24_core.o s2mps24-notifier.o
+
+obj-$(CONFIG_MFD_S2MPB02)		+= s2mpb02_mfd.o
+s2mpb02_mfd-$(CONFIG_MFD_S2MPB02)	+= s2mpb02-core.o s2mpb02-irq.o

@@ -1,0 +1,72 @@
+#
+# grip sensors configuration
+#
+
+config SENSORS_ISG5320A
+	depends on I2C
+	tristate "ISG5320A grip"
+	default n
+	help
+	  If you say yes here if you use ISG5320A for grip.
+	  This option enables grip sensors using
+	  IMAGIS ISG5320A device driver for grip.
+
+config SENSORS_ISG5320A_SUB
+	depends on I2C
+	tristate "ISG5320A grip sub"
+	default n
+	help
+	  If you say yes here if you use ISG5320A_SUB for grip sub.
+	  This option enables grip sensors using
+	  IMAGIS ISG5320A_SUB device driver for grip sub.
+
+config SENSORS_SUPPORT_SLSI
+	tristate "Need to set if the driver is working based on Exynos Chip Set"
+	default n
+	help
+	  If you say yes here, the driver is working based on Exynos Chip Set.
+	  This option enable the feature that is related with Exynos Chip Set.
+	  
+config SENSORS_SUPPORT_QCOM
+	tristate "Need to set if the driver is working based on Snapdragon Chip Set"
+	default n
+	help
+	  If you say yes here, the driver is working based on Snapdragon Chip Set.
+	  This option enable the feature that is related with Snapdragon Chip Set.
+	  
+config SENSORS_SUPPORT_MTK
+	tristate "Need to set if the driver is working based on Mediatek Chip Set"
+	default n
+	help
+	  If you say yes here, the driver is working based on Mediatek Chip Set.
+	  This option enable the feature that is related with Mediatek Chip Set.
+
+config SENSORS_CORE_AP
+	tristate "Grip sensor test"
+	default n
+	help
+	  Enable grip test
+	  This option enables logs or functions for grip test.
+
+config TEST_FOR_GRIP
+	tristate "Grip sensor test"
+	default n
+	help
+	  Enable grip test
+	  This option enables logs or functions for grip test.
+
+config SENSORS_ISG5320A_USE_BFCAL
+	tristate "ISG5320A grip bf-calibration"
+	default n
+	help
+	  Enable bf calibration for grip test
+	  This option allows some function to use bfcal instead of cfcal.
+
+
+config SENSORS_DUMP_DATA
+	tristate "Grip sensor dump log"
+	default n
+	help
+	  Enable grip dump log data
+	  This option activates log output of grip error data using sensordump_notifier.
+

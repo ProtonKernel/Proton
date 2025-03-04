@@ -148,7 +148,10 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
 	dr->wValue = cpu_to_le16(value);
 	dr->wIndex = cpu_to_le16(index);
 	dr->wLength = cpu_to_le16(size);
-
+#if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
+	if (dev && dev->reset_resume == 1)
+		timeout = 500;
+#endif
 	ret = usb_internal_control_msg(dev, pipe, dr, data, size, timeout);
 
 	/* Linger a bit, prior to the next control message. */
@@ -1220,6 +1223,9 @@ static void usb_disable_device_endpoints(struct usb_device *dev, int skip_ep0)
 	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
 	int i;
 
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	dev_info(&dev->dev, "%s first disable endpoint\n", __func__);
+#endif
 	if (hcd->driver->check_bandwidth) {
 		/* First pass: Cancel URBs, leave endpoint pointers intact. */
 		for (i = skip_ep0; i < 16; ++i) {
@@ -1228,14 +1234,23 @@ static void usb_disable_device_endpoints(struct usb_device *dev, int skip_ep0)
 		}
 		/* Remove endpoints from the host controller internal state */
 		mutex_lock(hcd->bandwidth_mutex);
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+		dev_info(&dev->dev, "%s alloc bandwidth\n", __func__);
+#endif
 		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
 		mutex_unlock(hcd->bandwidth_mutex);
 	}
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	dev_info(&dev->dev, "%s second disable endpoint\n", __func__);
+#endif
 	/* Second pass: remove endpoint pointers */
 	for (i = skip_ep0; i < 16; ++i) {
 		usb_disable_endpoint(dev, i, true);
 		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
 	}
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	dev_info(&dev->dev, "%s disable endpoint end\n", __func__);
+#endif
 }
 
 /**
@@ -1252,6 +1267,10 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
 {
 	int i;
 
+#if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
+	usb_disable_device_endpoints(dev, skip_ep0);
+#endif
+ 
 	/* getting rid of interfaces will disconnect
 	 * any drivers bound to them (a key side effect)
 	 */
@@ -1274,7 +1293,13 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
 			dev_dbg(&dev->dev, "unregistering interface %s\n",
 				dev_name(&interface->dev));
 			remove_intf_ep_devs(interface);
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+			dev_info(&dev->dev, "%s device del+\n", __func__);
+#endif
 			device_del(&interface->dev);
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+			dev_info(&dev->dev, "%s device del-\n", __func__);
+#endif
 		}
 
 		/* Now that the interfaces are unbound, nobody should
@@ -1296,8 +1321,15 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
 
 	dev_dbg(&dev->dev, "%s nuking %s URBs\n", __func__,
 		skip_ep0 ? "non-ep0" : "all");
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	dev_info(&dev->dev, "%s official+\n", __func__);
+#endif
 
 	usb_disable_device_endpoints(dev, skip_ep0);
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+	dev_info(&dev->dev, "%s official-\n", __func__);
+#endif
+
 }
 
 /**
@@ -1816,6 +1848,23 @@ int usb_set_configuration(struct usb_device *dev, int configuration)
 	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
 	int n, nintf;
 
+#ifdef CONFIG_GKI_USB
+	/* Samsung earset for LPM */
+	if (dev->descriptor.idProduct == 0xA051) {
+		if (dev->descriptor.bNumConfigurations == 2)
+			configuration = 2;
+	}
+
+	/* Apple USB to 3.5 phy gender */
+	if ((dev->descriptor.idVendor == 0x05AC)
+		&& (dev->descriptor.idProduct == 0x110A)) {
+		dev->descriptor.bNumConfigurations = 1;
+		configuration = 1;
+	}
+
+	pr_info("%s %d NumConfigurations %d configuration %d\n",
+	__func__, __LINE__, dev->descriptor.bNumConfigurations, configuration);
+#endif
 	if (dev->authorized == 0 || configuration == -1)
 		configuration = 0;
 	else {

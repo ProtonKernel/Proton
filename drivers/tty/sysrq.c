@@ -294,7 +294,17 @@ static struct sysrq_key_op sysrq_showstate_op = {
 
 static void sysrq_handle_showstate_blocked(int key)
 {
+	struct oom_control oc = {
+		.zonelist = NULL,
+		.nodemask = NULL,
+		.memcg = NULL,
+		.gfp_mask = 0,
+		.order = 0,
+	};
+
 	show_state_filter(TASK_UNINTERRUPTIBLE);
+	show_mem(0, NULL);
+	dump_tasks(&oc);
 }
 static struct sysrq_key_op sysrq_showstate_blocked_op = {
 	.handler	= sysrq_handle_showstate_blocked,
@@ -322,7 +332,18 @@ static struct sysrq_key_op sysrq_ftrace_dump_op = {
 
 static void sysrq_handle_showmem(int key)
 {
+	static DEFINE_RATELIMIT_STATE(showmem_rs, DEFAULT_RATELIMIT_INTERVAL, 1);
+	struct oom_control oc = {
+		.zonelist = NULL,
+		.nodemask = NULL,
+		.memcg = NULL,
+		.gfp_mask = 0,
+		.order = 0,
+	};
+
 	show_mem(0, NULL);
+	if (__ratelimit(&showmem_rs))
+		dump_tasks(&oc);
 }
 static struct sysrq_key_op sysrq_showmem_op = {
 	.handler	= sysrq_handle_showmem,

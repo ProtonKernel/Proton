@@ -431,6 +431,26 @@ static u32 tmc_etr_get_default_buffer_size(struct device *dev)
 	return size;
 }
 
+static bool tmc_etr_set_hwacg(struct device *dev)
+{
+	u32 reg[2], offset;
+	struct tmc_drvdata *drvdata = dev_get_drvdata(dev);
+
+	if (!fwnode_property_read_u32_array(dev->fwnode,
+					"samsung,cs-sfr", reg, 2)) {
+		drvdata->sfr_base = devm_ioremap(dev, reg[0], reg[1]);
+		if (!drvdata->sfr_base)
+			return false;
+		fwnode_property_read_u32(dev->fwnode, "samsung,q-offset",
+				&offset);
+		drvdata->q_offset = offset;
+	} else {
+		return false;
+	}
+
+	return true;
+}
+
 static int tmc_probe(struct amba_device *adev, const struct amba_id *id)
 {
 	int ret = 0;
@@ -467,10 +487,12 @@ static int tmc_probe(struct amba_device *adev, const struct amba_id *id)
 	/* This device is not associated with a session */
 	drvdata->pid = -1;
 
-	if (drvdata->config_type == TMC_CONFIG_TYPE_ETR)
+	if (drvdata->config_type == TMC_CONFIG_TYPE_ETR) {
 		drvdata->size = tmc_etr_get_default_buffer_size(dev);
-	else
+		drvdata->hwacg = tmc_etr_set_hwacg(dev);
+	} else {
 		drvdata->size = readl_relaxed(drvdata->base + TMC_RSZ) * 4;
+	}
 
 	desc.dev = dev;
 	desc.groups = coresight_tmc_groups;

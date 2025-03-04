@@ -1,0 +1,71 @@
+config SEC_INPUT_BOOSTER
+	tristate "SEC INPUT BOOSTER"
+	depends on INPUT_EVDEV
+	default n
+	help
+	  Say Y here if you enable input boosting for various input device
+	  such as touch.
+
+	  Say N here if you disable input boosting.
+
+	  If unsure, say Y.
+
+config SEC_INPUT_BOOSTER_MODE
+	bool "SEC INPUT BOOSTER MODE"
+	depends on SEC_INPUT_BOOSTER
+	default n
+	help
+	  Say Y here if you enable input boosting mode for various scenarios
+	  where needed to disable or change input booster.
+
+	  Say N here if you disable input booster mode
+	  which means DVFS file will be used in this model for handling scenarios.
+
+	  If unsure, say N.
+
+config SEC_INPUT_BOOSTER_QC
+	bool "SEC INPUT BOOSTER QC"
+	depends on SEC_INPUT_BOOSTER
+	default n
+	help
+	  Say Y here if you enable input boosting of QC under QC chipset
+
+	  Say N here if you disable input boosting of QC
+
+	  If unsure, say N.
+
+config SEC_INPUT_BOOSTER_SLSI
+	bool "SEC INPUT BOOSTER SLSI"
+	depends on SEC_INPUT_BOOSTER
+	default n
+	help
+	  Say Y here if you enable input boosting of SLSI under SLSI chipset
+	  such as touch.
+
+	  Say N here if you disable input boosting of SLSI
+
+	  If unsure, say N.
+
+config SEC_INPUT_BOOSTER_MTK
+	bool "SEC INPUT BOOSTER MTK"
+	depends on SEC_INPUT_BOOSTER
+	default n
+	help
+	  Say Y here if you enable input boosting of MTK under MTK chipset
+	  such as touch.
+
+	  Say N here if you disable input boosting of MTK
+
+	  If unsure, say N.
+
+
+config SEC_INPUT_BOOSTER_HANDLER
+	bool "SEC INPUT BOOSTER HANDLER"
+	depends on SEC_INPUT_BOOSTER
+	default n
+	help
+	  Say Y here if you enable input_handler
+
+	  Say N here if you use legacy evdev.c event
+
+	  If unsure, say N.

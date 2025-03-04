@@ -1,62 +1,256 @@
-# SPDX-License-Identifier: GPL-2.0-only
 #
 # Near Field Communication (NFC) devices
 #
-
-menu "Near Field Communication (NFC) devices"
-	depends on NFC
-
-config NFC_TRF7970A
-	tristate "Texas Instruments TRF7970a NFC driver"
-	depends on SPI && NFC_DIGITAL && GPIOLIB
+config SAMSUNG_NFC
+	tristate "Samsung NFC driver for module build"
+	default n
 	help
-	  This option enables the NFC driver for Texas Instruments' TRF7970a
-	  device. Such device supports 5 different protocols: ISO14443A,
-	  ISO14443B, FeLiCa, ISO15693 and ISO18000-3.
+	  Say Y here if you want to build support for NFC (Near field
+	  communication) devices.
+	  To compile this support as a module, choose M here: the module will
+	  be called nfc.
 
-	  Say Y here to compile support for TRF7970a into the kernel or
-	  say M  to compile it as a module. The module will be called
-	  trf7970a.ko.
-
-config NFC_MEI_PHY
-	tristate "MEI bus NFC device support"
-	depends on INTEL_MEI && NFC_HCI
+config SEC_NFC
+	bool "Samsung NFC driver"
+	default n
 	help
-	  This adds support to use an mei bus nfc device. Select this if you
-	  will use an HCI NFC driver for an NFC chip connected behind an
-	  Intel's Management Engine chip.
+	  SAMSUNG NFC Driver.
+	  This driver provides support for SAMSUNG NFC products.
+	  You should select your NFC product and interface.
 
-	  If unsure, say N.
+	  Say Y here to compile support for SAMSUNG NFC driver into the
+	  kernel.
 
-config NFC_SIM
-	tristate "NFC hardware simulator driver"
-	depends on NFC_DIGITAL
+config NFC_PVDD_LATE_ENABLE
+        bool "PVDD late enable"
+        default n
+        help
+          If lpcharge value is not usable,
+          then PVDD is enabled lately by init.nfc.samsung.rc on late-init.
+          And this should be enabled from S os projects.
+
+config ESE_P3_LSI
+	bool "eSE driver"
+	depends on SPI
+	default n
 	help
-	  This driver declares two virtual NFC devices supporting NFC-DEP
-	  protocol. An LLCP connection can be established between them and
-	  all packets sent from one device is sent back to the other, acting as
-	  loopback devices.
+	  Oberthur Driver.
+	  This driver provides support for LSI NXP combined ESE products.
+	  You should select your NFC product and interface.
 
-	  If unsure, say N.
+	  Say Y here to compile support for eSE driver into the kernel.
 
-config NFC_PORT100
-	tristate "Sony NFC Port-100 Series USB device support"
-	depends on USB
-	depends on NFC_DIGITAL
+config ESE_COLDRESET
+	bool "eSE support coldreset"
+	depends on ESE_P3_LSI
+	default n
 	help
-	  This adds support for Sony Port-100 chip based USB devices such as the
-	  RC-S380 dongle.
+	  Cold reset function supported.
+	  This function supports for LSI ESE products.
+	  You should select your NFC product and interface.
 
-	  If unsure, say N.
+	  Say Y here to compile support for eSE driver into the kernel.
 
-source "drivers/nfc/fdp/Kconfig"
-source "drivers/nfc/pn544/Kconfig"
-source "drivers/nfc/pn533/Kconfig"
-source "drivers/nfc/microread/Kconfig"
-source "drivers/nfc/nfcmrvl/Kconfig"
-source "drivers/nfc/st21nfca/Kconfig"
-source "drivers/nfc/st-nci/Kconfig"
-source "drivers/nfc/nxp-nci/Kconfig"
-source "drivers/nfc/s3fwrn5/Kconfig"
-source "drivers/nfc/st95hf/Kconfig"
-endmenu
+config ESE_USE_REGULATOR
+	bool "eSE use regulator"
+	depends on ESE_P3_LSI
+	default n
+	help
+	  ESE is on and off by regulator.
+	  This function supports for LSI ESE products.
+	  You should select your NFC product and interface.
+
+	  Say Y here to compile support for eSE driver into the kernel.
+
+config MAKE_NODE_USING_PLATFORM_DEVICE
+        bool "eSE platform driver"
+        default n
+        help
+          Using eSE platform driver.
+          Sometimes eSE node is created after permission setting
+          cause of SPI driver dependency.
+          So, use platform driver to make node first.
+
+config ESE_FACTORY_ONLY
+	bool "eSE driver factory"
+	depends on SPI
+	default n
+	help
+	  Oberthur Driver.
+	  This driver provides support for LSI NXP combined ESE products.
+	  You should select your NFC product and interface.
+
+config ESE_SECURE
+	bool "ESE Secure Controller Driver"
+	depends on !SEC_FACTORY
+	default n
+	help
+	  Common eSE Secure controller support.
+	  This option enables device driver support for the eSE with NFC.
+	  It is used by many services. eSE is fully controlled using SPI
+	  to communication
+
+config ESE_USE_TZ_API
+        bool "use tz api"
+        default n
+        help
+          Enable when using TZ API.
+
+config SEC_NFC_LOGGER
+	bool "NFC logger"
+	default n
+	help
+	  Enable NFC log.
+	  NFC log will be recorded at proc folder.
+	  but will not included at dumpstate log.
+	  so need to copy this file to log folder.
+
+config SEC_NFC_DUPLICATED_IRQ_WQ_LSI
+	bool "NFC duplicated irq wq lsi"
+	default n
+	help
+	  Enable NFC duplicated irq LSI w/a.
+	  If the interrupt occurs twice continuously, the i2c_info.
+	  read_irq value is returned to the previous value.
+	  Apply W/A received from LSI
+
+config SEC_NFC_DUPLICATED_IRQ_WQ_QC
+	bool "NFC duplicated irq wq qc"
+	default n
+	help
+	  Enable NFC duplicated irq QC solution.
+	  add the IRQF_NO_SUSPEND flag during interrupt registration
+	  and do not use enable_irq_wake() api to configure the GPIO
+	  as wakeup capable.
+
+config SEC_NFC_WAKELOCK_METHOD
+        int "nfc wakelock method"
+        default 0
+        help
+          Different functions must be used depending on the kernel version
+          for wakelock initialization.
+          0 - auto selection
+          1 - wakeup_source_init
+          2 - wakeup_source_register
+
+config NFC_PN547
+	bool "NXP PN547 NFC Controller Driver"
+	depends on I2C
+	default n
+	help
+	  NXP PN547 Near Field Communication controller support.
+	  This option enables device driver support for the NFC.
+	  It is used by many services. NFC is fully controlled using I2C
+	  to communication.
+
+config NFC_FEATURE_SN100U
+	bool "NXP SN100U Feature"
+	default n
+	help
+	  NXP SN100U Near Field Communication controller support
+	  This option enables device driver support for the NFC.
+	  It is used by many services. NFC is fully controlled using I2C
+	  to communicate the AP chip.
+
+config NFC_PN547_CLK_BBCLK2
+	bool "NXP PN547 NFC CLOCK Controller"
+	depends on NFC_PN547
+	default n
+	help
+	  NXP PN547 Near Field Communication controller support.
+	  This option enables device driver support for the NFC.
+	  It is used by many services. NFC is fully controlled using I2C
+	  to communicate the AP chip.
+
+config NFC_P61
+	bool "NXP PN547 NFC Controller Driver"
+	depends on SPI
+	default n
+	help
+	  NXP PN547 Near Field Communication controller support.
+	  This option enables device driver support for the NFC.
+	  It is used by many services. NFC is fully controlled using I2C
+	  to communication
+
+config NFC_PN547_ESE_SUPPORT
+	bool "NXP PN547 ESE SUPPORT"
+	depends on NFC_PN547
+	default n
+	help
+	  NXP PN547 Near Field Communication controller support.
+	  This option enables device driver support for the NFC.
+	  It is used by many services. NFC is fully controlled using I2C
+	  to communication
+
+config NFC_PN547_LDO_CONTROL
+	bool "PN547 NFC LDO CONTROL"
+	depends on NFC_PN547
+	default n
+	help
+	  SAMSUNG PN547 NFC LDO CONTROL feature.
+	  This feature provides support for NXP PN547 products.
+	  You should select this feature if your NFC product uses ldo control of i2c.
+
+	  Say Y here to compile support for NXP PN547 LDO CONTROL feature into the
+	  kernel.
+
+config SEC_NFC_LOGGER
+        bool "NFC logger"
+        default n
+        help
+          Enable NFC log.
+          NFC log will be recorded at proc folder.
+          but will not included at dumpstate log.
+          so need to copy this file to log folder.
+
+config SEC_NFC_LOGGER_ADD_ACPM_LOG
+        bool "NFC logger: add acpm log"
+        default n
+        depends on SEC_NFC_LOGGER
+        help
+          add acpm log.
+          this feature is for particualr AP.
+          rtc reg addr is needed to compare time
+
+config SEC_NFC_LOGGER_RTC_REG_ADDR
+        hex "NFC logger: add acpm log"
+        default 0x0
+        depends on SEC_NFC_LOGGER_ADD_ACPM_LOG
+        help
+          RTC time is to compare between acpm and kernel.
+          address value is hex.
+
+config NFC_QTI_I2C
+        tristate "QTI NCI based NFC I2C Driver for SNxxx"
+        depends on I2C
+        help
+          This enables the NFC driver for SNxxx based devices.
+          This is for I2C connected version. NCI protocol logic
+          resides in the usermode and it has no other NFC dependencies.
+
+          If unsure, say N.
+
+config SEC_NFC_COMPAT_IOCTL
+        bool "NFC compat ioctl"
+        default n
+        help
+          Enable NFC compat ioctl.
+
+config SEC_STAR
+        tristate "LSI star platform"
+        default n
+        help
+          LSI star platform
+          This driver provides support for LSI star platform.
+
+config STAR_MEMORY_LEAK
+        bool "memory leak test in sec-star"
+        help
+          memory leak test in sec-star.
+          All allocated memory are listed in array.
+
+config STAR_K250A
+        bool "S.LSI k250a driver"
+        help
+          S.LSI k250a driver except ISO7816 protocol layer
+          This driver provides support for S.LSI k250a product.

@@ -1,0 +1,8 @@
+menuconfig EXYNOS_DECON_LCD_S6E3HAD
+	tristate "S6E3HAD DDI Panel Driver"
+	depends on MCD_PANEL && EXYNOS_MIPI_DSIM
+	default n
+	help
+		This enables S6E3HAD DDI dependent panel drivers of
+		common panel driver. say Y, if you have a panel based on
+		the S6E3HAD DDI.

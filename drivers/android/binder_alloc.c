@@ -26,7 +26,16 @@
 #include "binder_alloc.h"
 #include "binder_trace.h"
 
+#ifdef CONFIG_SAMSUNG_FREECESS
+#include <linux/freecess.h>
+#endif
+
 struct list_lru binder_alloc_lru;
+
+#define MAX_ALLOCATION_SIZE (1024 * 1024)
+#define MAX_ASYNC_ALLOCATION_SIZE (512 * 1024)
+
+extern int system_server_pid;
 
 static DEFINE_MUTEX(binder_alloc_mmap_lock);
 
@@ -383,12 +392,12 @@ static bool debug_low_async_space_locked(struct binder_alloc *alloc, int pid)
 }
 
 static struct binder_buffer *binder_alloc_new_buf_locked(
-				struct binder_alloc *alloc,
-				size_t data_size,
-				size_t offsets_size,
-				size_t extra_buffers_size,
-				int is_async,
-				int pid)
+	struct binder_alloc *alloc,
+	size_t data_size,
+	size_t offsets_size,
+	size_t extra_buffers_size,
+	int is_async,
+	int pid)
 {
 	struct rb_node *n = alloc->free_buffers.rb_node;
 	struct binder_buffer *buffer;
@@ -401,107 +410,135 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 
 	if (!binder_alloc_get_vma(alloc)) {
 		binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
-				   "%d: binder_alloc_buf, no vma\n",
-				   alloc->pid);
+						   "%d: binder_alloc_buf, no vma\n",
+					 alloc->pid);
 		return ERR_PTR(-ESRCH);
 	}
 
 	data_offsets_size = ALIGN(data_size, sizeof(void *)) +
-		ALIGN(offsets_size, sizeof(void *));
+	ALIGN(offsets_size, sizeof(void *));
 
 	if (data_offsets_size < data_size || data_offsets_size < offsets_size) {
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
-				"%d: got transaction with invalid size %zd-%zd\n",
-				alloc->pid, data_size, offsets_size);
+						   "%d: got transaction with invalid size %zd-%zd\n",
+					 alloc->pid, data_size, offsets_size);
 		return ERR_PTR(-EINVAL);
 	}
 	size = data_offsets_size + ALIGN(extra_buffers_size, sizeof(void *));
 	if (size < data_offsets_size || size < extra_buffers_size) {
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
-				"%d: got transaction with invalid extra_buffers_size %zd\n",
-				alloc->pid, extra_buffers_size);
+						   "%d: got transaction with invalid extra_buffers_size %zd\n",
+					 alloc->pid, extra_buffers_size);
 		return ERR_PTR(-EINVAL);
 	}
 
 	/* Pad 0-size buffers so they get assigned unique addresses */
 	size = max(size, sizeof(void *));
 
-	if (is_async && alloc->free_async_space < size) {
-		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
-			     "%d: binder_alloc_buf size %zd failed, no async space left\n",
-			      alloc->pid, size);
-		return ERR_PTR(-ENOSPC);
-	}
+	#ifdef CONFIG_SAMSUNG_FREECESS
+	if (is_async && (alloc->free_async_space < 3 * (size + sizeof(struct binder_buffer)) ||
+		alloc->free_async_space < alloc->buffer_size / 4)) {
+		struct task_struct *p;
 
-	while (n) {
-		buffer = rb_entry(n, struct binder_buffer, rb_node);
-		BUG_ON(!buffer->free);
-		buffer_size = binder_alloc_buffer_size(alloc, buffer);
-
-		if (size < buffer_size) {
-			best_fit = n;
-			n = n->rb_left;
-		} else if (size > buffer_size)
-			n = n->rb_right;
-		else {
-			best_fit = n;
-			break;
+	rcu_read_lock();
+	p = find_task_by_vpid(alloc->pid);
+	rcu_read_unlock();
+	if (p && (thread_group_is_frozen(p) || p->jobctl & JOBCTL_TRAP_FREEZE)
+		binder_report(p, -1, "free_buffer_full", is_async);
 		}
-	}
-	if (best_fit == NULL) {
-		size_t allocated_buffers = 0;
-		size_t largest_alloc_size = 0;
-		size_t total_alloc_size = 0;
-		size_t free_buffers = 0;
-		size_t largest_free_size = 0;
-		size_t total_free_size = 0;
+		#endif
 
-		for (n = rb_first(&alloc->allocated_buffers); n != NULL;
-		     n = rb_next(n)) {
+		if (is_async && alloc->free_async_space < size + sizeof(struct binder_buffer)) {
+			pr_info("%d: binder_alloc_buf size %zd(%zd) failed, no async space left\n",
+					alloc->pid, size, alloc->free_async_space);
+			return ERR_PTR(-ENOSPC);
+		}
+
+		// If allocation size is more than 1M, throw it away and return ENOSPC err
+		if (MAX_ALLOCATION_SIZE <= size + sizeof(struct binder_buffer)) { // 1M
+			pr_info("%d: binder_alloc_buf size %zd failed, too large size\n",
+					alloc->pid, size);
+			return ERR_PTR(-ENOSPC);
+		}
+
+		// If allocation size for async is more than 512K, throw it away and return ENOSPC
+		if (MAX_ASYNC_ALLOCATION_SIZE <= size + sizeof(struct binder_buffer) && is_async) { // 512K
+			pr_info("%d: binder_alloc_buf size %zd(%zd) failed, too large async size\n",
+					alloc->pid, size, alloc->free_async_space);
+			return ERR_PTR(-ENOSPC);
+		}
+
+		while (n) {
 			buffer = rb_entry(n, struct binder_buffer, rb_node);
+			BUG_ON(!buffer->free);
+			buffer_size = binder_alloc_buffer_size(alloc, buffer);
+
+			if (size < buffer_size) {
+				best_fit = n;
+				n = n->rb_left;
+			} else if (size > buffer_size)
+				n = n->rb_right;
+			else {
+				best_fit = n;
+				break;
+			}
+		}
+
+		if (best_fit == NULL) {
+			size_t allocated_buffers = 0;
+			size_t largest_alloc_size = 0;
+			size_t total_alloc_size = 0;
+			size_t free_buffers = 0;
+			size_t largest_free_size = 0;
+			size_t total_free_size = 0;
+
+			for (n = rb_first(&alloc->allocated_buffers); n != NULL;
+				 n = rb_next(n)) {
+				buffer = rb_entry(n, struct binder_buffer, rb_node);
 			buffer_size = binder_alloc_buffer_size(alloc, buffer);
 			allocated_buffers++;
 			total_alloc_size += buffer_size;
 			if (buffer_size > largest_alloc_size)
 				largest_alloc_size = buffer_size;
+				 }
+				 for (n = rb_first(&alloc->free_buffers); n != NULL;
+					  n = rb_next(n)) {
+					 buffer = rb_entry(n, struct binder_buffer, rb_node);
+				 buffer_size = binder_alloc_buffer_size(alloc, buffer);
+				 free_buffers++;
+				 total_free_size += buffer_size;
+				 if (buffer_size > largest_free_size)
+					 largest_free_size = buffer_size;
+					  }
+					  binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
+										 "%d: binder_alloc_buf size %zd failed, no address space\n",
+						  alloc->pid, size);
+					  binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
+										 "allocated: %zd (num: %zd largest: %zd), free: %zd (num: %zd largest: %zd)\n",
+										 total_alloc_size, allocated_buffers,
+						  largest_alloc_size, total_free_size,
+						  free_buffers, largest_free_size);
+					  return ERR_PTR(-ENOSPC);
 		}
-		for (n = rb_first(&alloc->free_buffers); n != NULL;
-		     n = rb_next(n)) {
-			buffer = rb_entry(n, struct binder_buffer, rb_node);
+
+		if (n == NULL) {
+			buffer = rb_entry(best_fit, struct binder_buffer, rb_node);
 			buffer_size = binder_alloc_buffer_size(alloc, buffer);
-			free_buffers++;
-			total_free_size += buffer_size;
-			if (buffer_size > largest_free_size)
-				largest_free_size = buffer_size;
 		}
-		binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
-				   "%d: binder_alloc_buf size %zd failed, no address space\n",
-				   alloc->pid, size);
-		binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
-				   "allocated: %zd (num: %zd largest: %zd), free: %zd (num: %zd largest: %zd)\n",
-				   total_alloc_size, allocated_buffers,
-				   largest_alloc_size, total_free_size,
-				   free_buffers, largest_free_size);
-		return ERR_PTR(-ENOSPC);
-	}
-	if (n == NULL) {
-		buffer = rb_entry(best_fit, struct binder_buffer, rb_node);
-		buffer_size = binder_alloc_buffer_size(alloc, buffer);
-	}
 
-	binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
-		     "%d: binder_alloc_buf size %zd got buffer %pK size %zd\n",
-		      alloc->pid, size, buffer, buffer_size);
+		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
+						   "%d: binder_alloc_buf size %zd got buffer %pK size %zd\n",
+					 alloc->pid, size, buffer, buffer_size);
 
-	has_page_addr = (void __user *)
+		has_page_addr = (void __user *)
 		(((uintptr_t)buffer->user_data + buffer_size) & PAGE_MASK);
-	WARN_ON(n && buffer_size != size);
-	end_page_addr =
+		WARN_ON(n && buffer_size != size);
+		end_page_addr =
 		(void __user *)PAGE_ALIGN((uintptr_t)buffer->user_data + size);
-	if (end_page_addr > has_page_addr)
-		end_page_addr = has_page_addr;
+		if (end_page_addr > has_page_addr)
+			end_page_addr = has_page_addr;
 	ret = binder_update_page_range(alloc, 1, (void __user *)
-		PAGE_ALIGN((uintptr_t)buffer->user_data), end_page_addr);
+	PAGE_ALIGN((uintptr_t)buffer->user_data), end_page_addr);
 	if (ret)
 		return ERR_PTR(ret);
 
@@ -511,7 +548,7 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 		new_buffer = kzalloc(sizeof(*buffer), GFP_KERNEL);
 		if (!new_buffer) {
 			pr_err("%s: %d failed to alloc new buffer struct\n",
-			       __func__, alloc->pid);
+				   __func__, alloc->pid);
 			goto err_alloc_buf_struct_failed;
 		}
 		new_buffer->user_data = (u8 __user *)buffer->user_data + size;
@@ -525,19 +562,28 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 	buffer->allow_user_free = 0;
 	binder_insert_allocated_buffer_locked(alloc, buffer);
 	binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
-		     "%d: binder_alloc_buf size %zd got %pK\n",
-		      alloc->pid, size, buffer);
+					   "%d: binder_alloc_buf size %zd got %pK\n",
+					alloc->pid, size, buffer);
 	buffer->data_size = data_size;
 	buffer->offsets_size = offsets_size;
 	buffer->async_transaction = is_async;
 	buffer->extra_buffers_size = extra_buffers_size;
 	buffer->pid = pid;
 	buffer->oneway_spam_suspect = false;
+
 	if (is_async) {
-		alloc->free_async_space -= size;
+		alloc->free_async_space -= size + sizeof(struct binder_buffer);
+		if ((system_server_pid == alloc->pid) && (alloc->free_async_space <= 153600)) { // 150K
+			pr_info("%d: [free_size<150K] binder_alloc_buf size %zd async free %zd\n",
+					alloc->pid, size, alloc->free_async_space);
+		}
+		if ((system_server_pid == alloc->pid) && (size >= 122880)) { // 120K
+			pr_info("%d: [alloc_size>120K] binder_alloc_buf size %zd async free %zd\n",
+					alloc->pid, size, alloc->free_async_space);
+		}
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
-			     "%d: binder_alloc_buf size %zd async free %zd\n",
-			      alloc->pid, size, alloc->free_async_space);
+						   "%d: binder_alloc_buf size %zd async free %zd\n",
+					 alloc->pid, size, alloc->free_async_space);
 		if (alloc->free_async_space < alloc->buffer_size / 10) {
 			/*
 			 * Start detecting spammers once we have less than 20%
@@ -551,10 +597,10 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 	}
 	return buffer;
 
-err_alloc_buf_struct_failed:
+	err_alloc_buf_struct_failed:
 	binder_update_page_range(alloc, 0, (void __user *)
-				 PAGE_ALIGN((uintptr_t)buffer->user_data),
-				 end_page_addr);
+	PAGE_ALIGN((uintptr_t)buffer->user_data),
+							 end_page_addr);
 	return ERR_PTR(-ENOMEM);
 }
 

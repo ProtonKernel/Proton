@@ -17,6 +17,7 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+#include <linux/ion.h>
 
 #include <media/videobuf2-v4l2.h>
 #include <media/videobuf2-memops.h>
@@ -54,6 +55,19 @@ struct vb2_dma_sg_buf {
 };
 
 static void vb2_dma_sg_put(void *buf_priv);
+
+static void vb2_dma_sg_set_map_attr(void *mem_priv, unsigned long attr)
+{
+	struct vb2_dma_sg_buf *buf = mem_priv;
+
+	if (WARN_ON(!buf->db_attach)) {
+		pr_err("trying to pin a non attached buffer\n");
+		return;
+	}
+
+	buf->db_attach->dma_map_attrs |= attr;
+}
+EXPORT_SYMBOL_GPL(vb2_dma_sg_set_map_attr);
 
 static int vb2_dma_sg_alloc_compacted(struct vb2_dma_sg_buf *buf,
 		gfp_t gfp_flags)
@@ -529,6 +543,20 @@ static struct dma_buf *vb2_dma_sg_get_dmabuf(void *buf_priv, unsigned long flags
 /*       callbacks for DMABUF buffers        */
 /*********************************************/
 
+static void dma_buf_set_attrs(struct dma_buf_attachment *a)
+{
+	struct dma_buf *dmabuf = a->dmabuf;
+	struct ion_buffer *buffer;
+
+	if (strncmp(dmabuf->exp_name, "ion", 3))
+		return;
+
+	buffer = dmabuf->priv;
+
+	if (!(buffer->flags & ION_FLAG_CACHED))
+		a->dma_map_attrs |= DMA_ATTR_PRIVILEGED;
+}
+
 static int vb2_dma_sg_map_dmabuf(void *mem_priv)
 {
 	struct vb2_dma_sg_buf *buf = mem_priv;
@@ -543,6 +571,8 @@ static int vb2_dma_sg_map_dmabuf(void *mem_priv)
 		pr_err("dmabuf buffer is already pinned\n");
 		return 0;
 	}
+
+	dma_buf_set_attrs(buf->db_attach);
 
 	/* get the associated scatterlist for this buffer */
 	sgt = dma_buf_map_attachment(buf->db_attach, buf->dma_dir);

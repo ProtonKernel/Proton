@@ -462,7 +462,7 @@ struct utp_transfer_cmd_desc {
 };
 
 #define sizeof_utp_transfer_cmd_desc(hba)	\
-	(sizeof(struct utp_transfer_cmd_desc) + SG_ALL * (hba)->sg_entry_size)
+	(sizeof(struct utp_transfer_cmd_desc) + SG_UFS * (hba)->sg_entry_size)
 
 /**
  * struct request_desc_header - Descriptor Header common to both UTRD and UTMRD

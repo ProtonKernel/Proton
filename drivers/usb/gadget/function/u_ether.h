@@ -16,8 +16,30 @@
 #include <linux/usb/cdc.h>
 #include <linux/netdevice.h>
 
+#ifdef CONFIG_USB_RNDIS_MULTIPACKET
+#define QMULT_DEFAULT 10
+struct rndis_multipacket {
+	struct workqueue_struct *g_uether_wq;
+	unsigned int tx_qlen;
+	/* Minimum number of TX USB request queued to UDC */
+#define TX_REQ_THRESHOLD	1
+	int no_tx_req_used;
+	int tx_skb_hold_count;
+	u32 tx_req_bufsize;
+	struct hrtimer tx_timer;
+	bool en_timer;
+#define MAX_TX_TIMEOUT_NSECS	6000000
+#define MIN_TX_TIMEOUT_NSECS	500000
+	struct work_struct rx_work;
+	bool occured_timeout;
+	unsigned int ul_max_pkts_per_xfer;
+	unsigned int dl_max_pkts_per_xfer;
+	bool multi_pkt_xfer;
+	u8 max_pkt_per_xfer;
+};
+#else
 #define QMULT_DEFAULT 5
-
+#endif
 /*
  * dev_addr: initial value
  * changed by "ifconfig usb0 hw ether xx:xx:xx:xx:xx:xx"
@@ -69,6 +91,7 @@ struct gether {
 	bool				is_fixed;
 	u32				fixed_out_len;
 	u32				fixed_in_len;
+
 	bool				supports_multi_frame;
 	struct sk_buff			*(*wrap)(struct gether *port,
 						struct sk_buff *skb);

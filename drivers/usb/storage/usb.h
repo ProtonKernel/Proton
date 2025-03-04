@@ -61,6 +61,7 @@ struct us_unusual_dev {
 #define US_FLIDX_SCAN_PENDING	6	/* scanning not yet done    */
 #define US_FLIDX_REDO_READ10	7	/* redo READ(10) command    */
 #define US_FLIDX_READ10_WORKED	8	/* previous READ(10) succeeded */
+#define US_FLIDX_MUTEX_LOCK		9	/* pre reset lock */
 
 #define USB_STOR_STRING_LEN 32
 

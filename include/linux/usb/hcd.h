@@ -201,7 +201,6 @@ struct usb_hcd {
 	struct usb_hcd		*shared_hcd;
 	struct usb_hcd		*primary_hcd;
 
-
 #define HCD_BUFFER_POOLS	4
 	struct dma_pool		*pool[HCD_BUFFER_POOLS];
 
@@ -276,8 +275,8 @@ struct hc_driver {
 #define	HCD_BH		0x0100		/* URB complete in BH context */
 
 	/* called to init HCD and root hub */
-	int	(*reset) (struct usb_hcd *hcd);
-	int	(*start) (struct usb_hcd *hcd);
+	int	(*reset)(struct usb_hcd *hcd);
+	int	(*start)(struct usb_hcd *hcd);
 
 	/* NOTE:  these suspend/resume calls relate to the HC as
 	 * a whole, not just the root hub; they're for PCI bus glue.

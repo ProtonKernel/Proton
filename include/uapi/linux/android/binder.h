@@ -296,6 +296,7 @@ struct binder_frozen_status_info {
 #define BINDER_SET_CONTEXT_MGR_EXT	_IOW('b', 13, struct flat_binder_object)
 #define BINDER_FREEZE			_IOW('b', 14, struct binder_freeze_info)
 #define BINDER_GET_FROZEN_INFO		_IOWR('b', 15, struct binder_frozen_status_info)
+#define BINDER_SET_SYSTEM_SERVER_PID	_IOW('b', 17, __u32)
 
 /*
  * NOTE: Two special error codes you should check for when calling

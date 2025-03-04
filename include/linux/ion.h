@@ -159,6 +159,14 @@ struct ion_dma_buf_attachment {
 	bool mapped:1;
 };
 
+#define ION_HEAP_SHIFT 32
+
+#define ION_HEAP_MAX_BIT 5 // log2(ION_HEAP_TYPE_MAX + 1)
+#define ION_HEAP_MASK(flag) ((flag) & ((1 << ION_HEAP_MAX_BIT) - 1))
+#define ION_BUFFER_MASK(flag) ((flag) & ((1ULL << ION_HEAP_SHIFT) - 1))
+
+#define ION_HEAP_PROTID_SHIFT (ION_HEAP_SHIFT + ION_HEAP_MAX_BIT)
+
 #ifdef CONFIG_ION
 
 /**

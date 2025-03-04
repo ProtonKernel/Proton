@@ -19,6 +19,28 @@
 
 #include "trace.h"
 
+static noinline void tracing_mark_write(int type, const char *str)
+{
+	if (!tracing_is_on())
+		return;
+
+	switch (type) {
+	case TRACING_MARK_TYPE_BEGIN:
+		trace_printk("B|%d|%s\n", current->tgid, str);
+		break;
+	case TRACING_MARK_TYPE_END:
+		trace_printk("E|%d|%s\n", current->tgid, str);
+		break;
+	default:
+		break;
+	}
+}
+
+void tracing_mark_write_helper(int type, const char *str)
+{
+	tracing_mark_write(type, str);
+}
+
 #ifdef CONFIG_MODULES
 
 /*
@@ -306,7 +328,7 @@ static int t_show(struct seq_file *m, void *v)
 	if (!*fmt)
 		return 0;
 
-	seq_printf(m, "0x%lx : \"", *(unsigned long *)fmt);
+	seq_printf(m, "0x%lx : \"", 0L);
 
 	/*
 	 * Tabs and new lines need to be converted.

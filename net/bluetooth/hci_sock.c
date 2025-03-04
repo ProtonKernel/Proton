@@ -970,12 +970,13 @@ static int hci_sock_bound_ioctl(struct sock *sk, unsigned int cmd,
 static int hci_sock_ioctl(struct socket *sock, unsigned int cmd,
 			  unsigned long arg)
 {
-    /*
+#if 0
 	void __user *argp = (void __user *)arg;
 	struct sock *sk = sock->sk;
 	int err;
 
 	BT_DBG("cmd %x arg %lx", cmd, arg);
+	*/
 
 	/* Make sure the cmd is valid before doing anything */
 	switch (cmd) {
@@ -1095,7 +1096,7 @@ static int hci_sock_ioctl(struct socket *sock, unsigned int cmd,
 done:
 	release_sock(sk);
 	return err;
-    */
+#endif
 	return 0;
 }
 

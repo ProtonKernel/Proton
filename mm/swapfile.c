@@ -3206,8 +3206,10 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
 	if (bdi_cap_stable_pages_required(inode_to_bdi(inode)))
 		p->flags |= SWP_STABLE_WRITES;
 
+#if 0
 	if (bdi_cap_synchronous_io(inode_to_bdi(inode)))
 		p->flags |= SWP_SYNCHRONOUS_IO;
+#endif
 
 	if (p->bdev && blk_queue_nonrot(bdev_get_queue(p->bdev))) {
 		int cpu;
@@ -3789,6 +3791,55 @@ void mem_cgroup_throttle_swaprate(struct mem_cgroup *memcg, int node,
 }
 #endif
 
+unsigned long get_swap_orig_data_nrpages(void)
+{
+	unsigned long x = 0;
+#if IS_ENABLED(CONFIG_ZSMALLOC)
+	struct sysinfo i;
+
+	si_swapinfo(&i);
+	x = i.totalswap - i.freeswap;
+#endif
+	/*
+	 * to be safe on arithmetic calcuation in case of either
+	 * !defined(CONFIG_ZSMALLOC) or entirely swap free
+	 */
+	if (x == 0)
+		x = 1;
+
+	return x;
+}
+
+unsigned long get_swap_comp_pool_nrpages(void)
+{
+	unsigned long x = 0;
+
+#if IS_ENABLED(CONFIG_ZSMALLOC)
+	x = global_zone_page_state(NR_ZSPAGES);
+#endif
+
+	return x;
+}
+
+static int swap_size_notifier(struct notifier_block *nb,
+		unsigned long action, void *data)
+{
+	struct seq_file *s;
+
+	s = (struct seq_file *)data;
+	if (s)
+		seq_printf(s, "SwapSize:       %8lu kB\n",
+				(unsigned long)get_swap_comp_pool_nrpages() << (PAGE_SHIFT - 10));
+	else
+		pr_cont("SwapSize:%lukB ",
+				(unsigned long)get_swap_comp_pool_nrpages() << (PAGE_SHIFT - 10));
+	return 0;
+}
+
+static struct notifier_block swap_size_nb = {
+	.notifier_call = swap_size_notifier,
+};
+
 static int __init swapfile_init(void)
 {
 	int nid;
@@ -3802,6 +3853,8 @@ static int __init swapfile_init(void)
 
 	for_each_node(nid)
 		plist_head_init(&swap_avail_heads[nid]);
+
+	show_mem_extra_notifier_register(&swap_size_nb);
 
 	return 0;
 }

@@ -109,6 +109,9 @@ struct memcg_cache_params {
 #include <linux/kmemleak.h>
 #include <linux/random.h>
 #include <linux/sched/mm.h>
+#ifdef CONFIG_KDP
+#include <linux/kdp.h>
+#endif
 
 /*
  * State of the slab allocator.
@@ -566,6 +569,11 @@ static inline struct kmem_cache *slab_pre_alloc_hook(struct kmem_cache *s,
 
 	if (should_failslab(s, flags))
 		return NULL;
+
+#ifdef CONFIG_KDP
+	if (is_kdp_kmem_cache(s))
+		return s;
+#endif
 
 	if (memcg_kmem_enabled() &&
 	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))

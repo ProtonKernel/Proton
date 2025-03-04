@@ -575,8 +575,13 @@ out:
 }
 EXPORT_SYMBOL_GPL(thp_get_unmapped_area);
 
+#ifdef CONFIG_HUGEPAGE_POOL
+static vm_fault_t __do_huge_pmd_anonymous_page(struct vm_fault *vmf,
+			struct page *page, gfp_t gfp, bool need_clear)
+#else
 static vm_fault_t __do_huge_pmd_anonymous_page(struct vm_fault *vmf,
 			struct page *page, gfp_t gfp)
+#endif
 {
 	struct vm_area_struct *vma = vmf->vma;
 	struct mem_cgroup *memcg;
@@ -598,7 +603,12 @@ static vm_fault_t __do_huge_pmd_anonymous_page(struct vm_fault *vmf,
 		goto release;
 	}
 
+#ifdef CONFIG_HUGEPAGE_POOL
+	if (need_clear)
+		clear_huge_page(page, vmf->address, HPAGE_PMD_NR);
+#else
 	clear_huge_page(page, vmf->address, HPAGE_PMD_NR);
+#endif
 	/*
 	 * The memory barrier inside __SetPageUptodate makes sure that
 	 * clear_huge_page writes become visible before the set_pmd_at()
@@ -759,13 +769,21 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf)
 		return ret;
 	}
 	gfp = alloc_hugepage_direct_gfpmask(vma);
+#ifdef CONFIG_HUGEPAGE_POOL
+	page = alloc_from_hugepage_pool(gfp, vma, haddr, HPAGE_PMD_ORDER);
+#else
 	page = alloc_hugepage_vma(gfp, vma, haddr, HPAGE_PMD_ORDER);
+#endif
 	if (unlikely(!page)) {
 		count_vm_event(THP_FAULT_FALLBACK);
 		return VM_FAULT_FALLBACK;
 	}
 	prep_transhuge_page(page);
+#ifdef CONFIG_HUGEPAGE_POOL
+	return __do_huge_pmd_anonymous_page(vmf, page, gfp, false);
+#else
 	return __do_huge_pmd_anonymous_page(vmf, page, gfp);
+#endif
 }
 
 static void insert_pfn_pmd(struct vm_area_struct *vma, unsigned long addr,
@@ -1270,8 +1288,8 @@ static vm_fault_t do_huge_pmd_wp_page_fallback(struct vm_fault *vmf,
 
 	for (i = 0; i < HPAGE_PMD_NR; i++, haddr += PAGE_SIZE) {
 		pte_t entry;
-		entry = mk_pte(pages[i], vma->vm_page_prot);
-		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+		entry = mk_pte(pages[i], get_fault_vma_prot(vmf));
+		entry = maybe_mkwrite(pte_mkdirty(entry), get_fault_vma_flags(vmf));
 		memcg = (void *)page_private(pages[i]);
 		set_page_private(pages[i], 0);
 		page_add_new_anon_rmap(pages[i], vmf->vma, haddr, false);
@@ -1367,7 +1385,11 @@ alloc:
 	if (__transparent_hugepage_enabled(vma) &&
 	    !transparent_hugepage_debug_cow()) {
 		huge_gfp = alloc_hugepage_direct_gfpmask(vma);
+#ifdef CONFIG_HUGEPAGE_POOL
+		new_page = alloc_from_hugepage_pool(huge_gfp, vma, haddr, HPAGE_PMD_ORDER);
+#else
 		new_page = alloc_hugepage_vma(huge_gfp, vma, haddr, HPAGE_PMD_ORDER);
+#endif
 	} else
 		new_page = NULL;
 
@@ -1403,11 +1425,18 @@ alloc:
 	count_vm_event(THP_FAULT_ALLOC);
 	count_memcg_events(memcg, THP_FAULT_ALLOC, 1);
 
+#ifdef CONFIG_HUGEPAGE_POOL
+	/* hugepage pool always return pre-zeroed new_page */
+	if (page)
+		copy_user_huge_page(new_page, page, vmf->address,
+				    vma, HPAGE_PMD_NR);
+#else
 	if (!page)
 		clear_huge_page(new_page, vmf->address, HPAGE_PMD_NR);
 	else
 		copy_user_huge_page(new_page, page, vmf->address,
 				    vma, HPAGE_PMD_NR);
+#endif
 	__SetPageUptodate(new_page);
 
 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
@@ -1456,12 +1485,13 @@ out_unlock:
 }
 
 /*
- * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
- * but only after we've gone through a COW cycle and they are dirty.
+ * FOLL_FORCE can write to even unwritable pmd's, but only
+ * after we've gone through a COW cycle and they are dirty.
  */
 static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
 {
-	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
+	return pmd_write(pmd) ||
+	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
 }
 
 struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
@@ -2262,7 +2292,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
 				entry = pte_swp_mksoft_dirty(entry);
 		} else {
 			entry = mk_pte(page + i, READ_ONCE(vma->vm_page_prot));
-			entry = maybe_mkwrite(entry, vma);
+			entry = maybe_mkwrite(entry, vma->vm_flags);
 			if (!write)
 				entry = pte_wrprotect(entry);
 			if (!young)

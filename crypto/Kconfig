@@ -23,14 +23,12 @@ if CRYPTO
 comment "Crypto core or helper"
 
 config CRYPTO_FIPS
-	bool "FIPS 200 compliance"
-	depends on (CRYPTO_ANSI_CPRNG || CRYPTO_DRBG) && !CRYPTO_MANAGER_DISABLE_TESTS
-	depends on (MODULE_SIG || !MODULES)
+	bool "FIPS 140-2 compliance"
+	default n
 	help
-	  This option enables the fips boot option which is
-	  required if you want the system to operate in a FIPS 200
-	  certification.  You should say no unless you know what
-	  this is.
+	  This options enables the fips option which is
+	  required if you want to system to operate in a FIPS 140-2
+	  certification.
 
 config CRYPTO_ALGAPI
 	tristate
@@ -205,7 +203,7 @@ config CRYPTO_AUTHENC
 
 config CRYPTO_TEST
 	tristate "Testing module"
-	depends on m
+	default n
 	select CRYPTO_MANAGER
 	help
 	  Quick & dirty crypto test module.

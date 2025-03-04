@@ -3,11 +3,19 @@
 # Cryptographic API
 #
 
+# CMVP functional test
+#ccflags-y += -DCONFIG_CRYPTO_FIPS_FUNC_TEST
+
+obj-$(CONFIG_CRYPTO_FIPS) += fips140_out.o
+obj-$(CONFIG_CRYPTO_FIPS) += fips140_integrity.o
+obj-$(CONFIG_CRYPTO_FIPS) += fips140_post.o
+obj-$(CONFIG_CRYPTO_FIPS) += fips140_test.o
+obj-$(CONFIG_CRYPTO_FIPS) += fips140_test_tv.o
+
 obj-$(CONFIG_CRYPTO) += crypto.o
 crypto-y := api.o cipher.o compress.o memneq.o
 
 obj-$(CONFIG_CRYPTO_ENGINE) += crypto_engine.o
-obj-$(CONFIG_CRYPTO_FIPS) += fips.o
 
 crypto_algapi-$(CONFIG_PROC_FS) += proc.o
 crypto_algapi-y := algapi.o scatterwalk.o $(crypto_algapi-y)

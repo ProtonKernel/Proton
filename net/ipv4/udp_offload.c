@@ -511,13 +511,35 @@ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
 	struct udphdr *uh2;
 	unsigned int off = skb_gro_offset(skb);
 	int flush = 1;
+	struct sock *sk2 = sk;
+
+	/* WA for UDP GRO fraglist.
+	 * check sk to use UDP GRO for local only.
+	 */
+	if (!sk2) {
+		if (NAPI_GRO_CB(skb)->is_ipv6)
+			sk2 = udp6_lib_lookup_skb(skb, uh->source, uh->dest);
+		else
+			sk2 = udp4_lib_lookup_skb(skb, uh->source, uh->dest);
+	}
+
+	if (sk2) {
+		unsigned int margin_len;
+
+		margin_len = NAPI_GRO_CB(skb)->is_ipv6 ?
+			sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+		margin_len += sizeof(struct tcphdr);
+
+		if (sk2->sk_state != TCP_ESTABLISHED || skb->len < margin_len)
+			sk2 = NULL;
+	}
 
 	/* we can do L4 aggregation only if the packet can't land in a tunnel
 	 * otherwise we could corrupt the inner stream
 	 */
 	NAPI_GRO_CB(skb)->is_flist = 0;
 	if (!sk || !udp_sk(sk)->gro_receive) {
-		if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
+		if (sk2 && (skb->dev->features & NETIF_F_GRO_FRAGLIST))
 			NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled : 1;
 
 		if ((sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist)

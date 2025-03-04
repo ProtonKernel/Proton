@@ -15,6 +15,16 @@
 #include <linux/netfilter/x_tables.h>
 #include <linux/netfilter/xt_connmark.h>
 
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
+#ifdef CONFIG_KNOX_NCM
+#include <linux/pid.h>
+#include <linux/types.h>
+#include <linux/tcp.h>
+#include <linux/ip.h>
+#include <net/ip.h>
+#endif
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
+
 MODULE_AUTHOR("Henrik Nordstrom <hno@marasystems.com>");
 MODULE_DESCRIPTION("Xtables: connection mark operations");
 MODULE_LICENSE("GPL");
@@ -22,6 +32,44 @@ MODULE_ALIAS("ipt_CONNMARK");
 MODULE_ALIAS("ip6t_CONNMARK");
 MODULE_ALIAS("ipt_connmark");
 MODULE_ALIAS("ip6t_connmark");
+
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
+#ifdef CONFIG_KNOX_NCM
+#define META_MARK_BASE_LOWER 100
+#define META_MARK_BASE_UPPER 500
+
+static void knoxvpn_uidpid(struct sk_buff *skb, u_int32_t newmark)
+{
+	struct skb_shared_info *knox_shinfo = NULL;
+
+	if (skb != NULL) {
+		knox_shinfo = skb_shinfo(skb);
+	} else {
+		pr_err("KNOX: NULL SKB - no KNOX processing");
+		return;
+	}
+
+	if( skb->sk == NULL) {
+		pr_err("KNOX: skb->sk value is null");
+		return;
+	}
+
+	if( knox_shinfo == NULL) {
+		pr_err("KNOX: knox_shinfo is null");
+		return;
+	}
+
+	if (newmark < META_MARK_BASE_LOWER || newmark > META_MARK_BASE_UPPER) {
+		pr_err("KNOX: The mark is out of range");
+		return;
+	} else {
+		if ((current) && (current->cred)) knox_shinfo->android_vendor_data1[0] = (u64)current->cred->uid.val;
+		if (current) knox_shinfo->android_vendor_data1[1] = (u64)current->tgid;
+		knox_shinfo->android_vendor_data1[2] = (u64)newmark;
+	}
+}
+#endif
+// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 
 static unsigned int
 connmark_tg_shift(struct sk_buff *skb, const struct xt_connmark_tginfo2 *info)
@@ -72,6 +120,11 @@ connmark_tg_shift(struct sk_buff *skb, const struct xt_connmark_tginfo2 *info)
 		newmark = (skb->mark & ~info->nfmask) ^
 			  new_targetmark;
 		skb->mark = newmark;
+		// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
+#ifdef CONFIG_KNOX_NCM
+		knoxvpn_uidpid(skb, newmark);
+#endif
+		// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 		break;
 	}
 	return XT_CONTINUE;

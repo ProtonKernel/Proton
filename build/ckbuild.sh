@@ -20,6 +20,7 @@ AK3_URL="https://github.com/Flopster101/AnyKernel3-A25"
 AK3_TEST=0
 SECONDS=0 # builtin bash timer
 DATE="$(date '+%Y%m%d-%H%M')"
+TELEGRAM=1
 
 # Workspace
 if [ -d /workspace ]; then
@@ -100,9 +101,15 @@ LINKER=ld.lld
 DEVICE="Galaxy S21 FE"
 CODENAME="r9s"
 
+if [ $DO_TG -eq 1 ]; then
+IDS="../ids/"
 ## Secrets
-TELEGRAM_CHAT_ID="$(cat ../chat_ci)"
-TELEGRAM_BOT_TOKEN=$(cat ../bot_token)
+if ! [ -d "$IDS" ]; then
+    git clone https://github.com/ProtonKernel/ids $IDS
+fi
+TELEGRAM_CHAT_ID="$(cat ../ids/chat_ci)"
+TELEGRAM_BOT_TOKEN=$(cat ../ids/bot_token)
+fi
 
 ## Parse arguments
 DO_KSU=0

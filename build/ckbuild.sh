@@ -98,10 +98,6 @@ LINKER=ld.lld
 DEVICE="Galaxy S21 FE"
 CODENAME="r9s"
 
-## Secrets
-TELEGRAM_CHAT_ID="$(cat ../chat_ci)"
-TELEGRAM_BOT_TOKEN=$(cat ../bot_token)
-
 ## Parse arguments
 DO_KSU=0
 DO_CLEAN=0
@@ -136,6 +132,16 @@ do
         DO_OSHI=1
     fi
 done
+
+if [ $DO_TG -eq 1 ]; then
+IDS="../ids/"
+## Secrets
+if ! [ -d "$IDS" ]; then
+    git clone https://github.com/ProtonKernel/ids $IDS
+fi
+TELEGRAM_CHAT_ID="$(cat ../ids/chat_ci)"
+TELEGRAM_BOT_TOKEN=$(cat ../ids/bot_token)
+fi
 
 if [[ "${IS_RELEASE}" = "1" ]]; then
     BUILD_TYPE="Release"

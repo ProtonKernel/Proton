@@ -137,7 +137,7 @@ if [ $DO_TG -eq 1 ]; then
 IDS="../ids/"
 ## Secrets
 if ! [ -d "$IDS" ]; then
-    git clone https://github.com/ProtonKernel/ids $IDS
+    git clone -q https://github.com/ProtonKernel/ids $IDS
 fi
 TELEGRAM_CHAT_ID="$(cat ../ids/chat_ci)"
 TELEGRAM_BOT_TOKEN=$(cat ../ids/bot_token)

@@ -20,7 +20,6 @@ AK3_URL="https://github.com/Flopster101/AnyKernel3-A25"
 AK3_TEST=0
 SECONDS=0 # builtin bash timer
 DATE="$(date '+%Y%m%d-%H%M')"
-TELEGRAM=1
 
 # Workspace
 if [ -d /workspace ]; then

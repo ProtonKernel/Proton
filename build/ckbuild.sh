@@ -19,6 +19,7 @@ AK3_URL="https://github.com/Flopster101/AnyKernel3-A25"
 AK3_TEST=0
 SECONDS=0 # builtin bash timer
 DATE="$(date '+%Y%m%d-%H%M')"
+BUILD_HOST="$USER@$(hostname)"
 
 # Workspace
 if [ -d /workspace ]; then
@@ -248,6 +249,7 @@ CAPTION_BUILD="Build info:
 *Compiler*: \`${KBUILD_COMPILER_STRING}\`
 *Linker*: \`$("$CLANG_DIR"/bin/${LINKER} -v | head -n1 | sed 's/(compatible with [^)]*)//' |
             head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')\`
+*Build host*: \`${BUILD_HOST}\`
 *Branch*: \`$(git rev-parse --abbrev-ref HEAD)\`
 *Commit*: [($(git rev-parse HEAD | cut -c -7))]($(echo $KERNEL_URL)/commit/$(git rev-parse HEAD))
 *Build type*: \`$BUILD_TYPE\`

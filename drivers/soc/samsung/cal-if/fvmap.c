@@ -485,10 +485,8 @@ int fvmap_get_raw_voltage_table(unsigned int id)
 	return 0;
 }
 
-<<<<<<< HEAD
-=======
 // Undervolting settings
-#define CPU_UV 6 // Percentage to undervolt for CPU.
+#define CPU_UV 4 // Percentage to undervolt for CPU.
 #define GPU_UV 2 // Percentage to undervolt for GPU.
 // Define domain IDs for undervolting
 #define DOMAIN_ID_CPUCL0 0 	// Set domain_id for CPUCL0 here.
@@ -497,7 +495,6 @@ int fvmap_get_raw_voltage_table(unsigned int id)
 #define DOMAIN_ID_G3D 9 // Set domain_id for GPU (G3D)
 #define DOMAIN_ID_INTG3D 4 // Set domain_id for GPU (INTG3D)
 
->>>>>>> 1093ee9abc04 (Undervolt for battery edition)
 static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base)
 {
 	volatile struct fvmap_header *fvmap_header, *header;
@@ -558,8 +555,6 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 			}
 		}
 
-<<<<<<< HEAD
-=======
 		/* Apply undervolt if the domain is CPUCL0, CPUCL1 or CPUCL2 */
 		if (fvmap_header[i].domain_id == DOMAIN_ID_CPUCL0 || fvmap_header[i].domain_id == DOMAIN_ID_CPUCL1 || fvmap_header[i].domain_id == DOMAIN_ID_CPUCL2) {
 			for (j = 0; j < fvmap_header[i].num_of_lv; j++) {
@@ -581,7 +576,6 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 #endif
 		}
 
->>>>>>> 1093ee9abc04 (Undervolt for battery edition)
 		for (j = 0; j < fvmap_header[i].num_of_members; j++) {
 			clks = sram_base + fvmap_header[i].o_members;
 
